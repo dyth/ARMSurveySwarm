@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survey Swarm</title>
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <canvas id="testCanvas" width="500" height="500"></canvas>
+
+    <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.2.min.js"><\/script>')</script>
+
+    <script>
+
+        $(function () {
+
+            function newEye(x, y) {
+                var eye = new createjs.Shape();
+                eye.graphics.beginFill("#eee").drawCircle(0,0,50).beginFill("#aae").drawCircle(0,0,20).beginFill("#000").drawCircle(0,0,10);
+                eye.x = x;
+                eye.y = y;
+                return eye;
+            }
+
+            function newSmile(x, y) {
+                var smile = new createjs.Shape();
+                smile.graphics.beginFill("#000").arc(0,0, 100, 0, Math.PI);
+                smile.x = x;
+                smile.y = y;
+                return smile;
+            }
+
+            // Create stage
+            var canvas = new createjs.Stage("testCanvas");
+
+            canvas.addChild(newEye(100,100));
+            canvas.addChild(newEye(200,100));
+
+            canvas.addChild(newSmile(150,180));
+
+            // Ticker
+            createjs.Ticker.addEventListener("tick", function (event) {
+                canvas.update();
+            });
+
+        });
+
+    </script>
+
+</body>
+</html>
