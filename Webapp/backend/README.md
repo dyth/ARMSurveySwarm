@@ -12,4 +12,6 @@ Running:
 
 	sudo node server.js
 
-	Runs on port 8080 right now :) 
+	Then go to:
+
+	localhost:8080
