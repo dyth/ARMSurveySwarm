@@ -1,0 +1,19 @@
+#control-section{
+
+    background-color: #fafafa;
+    border: 1px solid #0f0f0f;
+    margin-top: 50px;
+
+}
+
+#graph-section{
+    border-right: 1px solid #0f0f0f;
+}
+
+#stop-btn{
+    margin: 10px;
+}
+
+.robot-row{
+    padding: 10px;
+}
