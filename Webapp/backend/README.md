@@ -4,6 +4,7 @@ Dependencies:
 	Then do:
 
 	sudo npm install connect serve-static socket.io socket.io-client 
+			html express path
 
 	In the backend directory
 
@@ -14,4 +15,4 @@ Running:
 
 	Then go to:
 
-	localhost:8080
+	localhost
