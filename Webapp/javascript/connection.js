@@ -55,8 +55,6 @@ socket.on('sendAreaDimensions', function(data) {
 		tiles[i] = new Array(data.yDim);
 	}
 
-	tiles[0][0] = 1;
-
 	updateCanvas();
 });
 
