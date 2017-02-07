@@ -4,11 +4,6 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var server = http.createServer(app);
-<<<<<<< HEAD
-
-// TODO -- talk to Jamie and move html to a 'public' folder
-=======
->>>>>>> 563a9480f0b9355e6b933b804031411527ef7283
 app.use(express.static('../'));
 
 app.get('/', function(req, res) {
@@ -49,11 +44,3 @@ io.sockets.on('sendTileSize', function(tileSize) {
 	// todo, pass tileSize.size on to robots.
     console.log(tileSize.size);
 });
-
-<<<<<<< HEAD
-setTimeout(function() {
-	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
-}, 10000);
-=======
-
->>>>>>> 563a9480f0b9355e6b933b804031411527ef7283
