@@ -74,15 +74,14 @@ socket.on('sendAreaDimensions', function(data) {
 
 	alert('success');
 
-	// TODO -- Call an update function to update the dimensions
-	// of the board.
+	updateCanvas();
 });
 
 socket.on('sendTileUpdate', function(data) {
 	// Here, update the tiles list.
 	tiles[data.x][data.y] = data.value;
 
-	// Todo -- callback to update tile.
+	updateCanvas();
 });
 
 // This should be called to stop a robot
