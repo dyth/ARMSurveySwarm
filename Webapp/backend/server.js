@@ -40,9 +40,9 @@ io.sockets.on('connection', function(socket) {
         // todo rezume ze robotz
     });
 
-    socket.on('sendTileSize', function(tileSize) {
-        // todo, pass tileSize.size on to robots.
-        console.log(tileSize.size);
+    socket.on('startRobots', function(input) {
+        // todo, pass tileSize.size on to robots, Start robot calibration
+        console.log(input.size);
     });
 
 });
