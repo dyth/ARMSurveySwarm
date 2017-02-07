@@ -19,8 +19,6 @@ app.get('/run.html', function(req, res) {
 	res.render('../run.html');
 });
 
-
-
 var io = require('socket.io').listen(server);
 server.listen(80);
 
@@ -49,6 +47,7 @@ io.sockets.on('resume', function(robot) {
 
 io.sockets.on('sendTileSize', function(tileSize) {
 	// todo, pass tileSize.size on to robots.
+    console.log(tileSize.size);
 });
 
 <<<<<<< HEAD
