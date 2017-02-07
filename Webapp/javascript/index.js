@@ -1,7 +1,7 @@
 var socket = io('localhost');
 
 var sendTileSize = function(tileSize) {
-	socket.io.emit('sendTileSize', {size: tileSize});
+	socket.emit('sendTileSize', {size: tileSize});
 }
 
 $(function () {
@@ -13,6 +13,7 @@ $(function () {
 		sendTileSize(tileSize);
 
 		event.preventDefault();
+
 	});
 
 });
