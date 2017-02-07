@@ -5,6 +5,7 @@ var path = require('path');
 var app = express();
 var server = http.createServer(app);
 
+// TODO -- talk to Jamie and move html to a 'public' folder
 app.use(express.static('../'));
 
 app.get('/', function(req, res) {
@@ -39,7 +40,14 @@ io.sockets.on('connection', function(socket) {
     socket.on('resume', function(robot) {
         // todo rezume ze robotz
     });
+		
+io.sockets.on('sendTileSize', function(tileSize) {
+	// todo, pass tileSize.size on to robots.
+});
 
+setTimeout(function() {
+	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
+}, 10000);
     socket.on('startRobots', function(input) {
         // todo, pass tileSize.size on to robots, Start robot calibration
         console.log(input.size);
