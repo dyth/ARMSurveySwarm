@@ -6,17 +6,6 @@ var canvas;
 var stage;
 var graph;
 
-// TODO: Replace with actual tile data
-var tiles = [
-    [1,0,0,1,0,1,0],
-    [0,1,0,0,0,1,1],
-    [1,1,0,1,1,1,0],
-    [0,1,1,0,0,0,0],
-    [1,0,1,0,1,1,0],
-    [0,1,1,0,0,1,1],
-    [0,0,1,0,0,1,0]
-];
-
 $(function () {
 
     // Get references to the canvas and a new stage
@@ -66,5 +55,10 @@ function updateCanvas() {
     }
 
     stage.update();
+
+}
+
+// TODO: Do this
+function updateState(robotId) {
 
 }
