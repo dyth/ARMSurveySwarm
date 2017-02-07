@@ -20,11 +20,11 @@ server.listen(80);
 
 var sendStatus = function(robot, status) {
 	// todo fix this up
-	emit('sendRobotStatus', {id: 1, status: 'running'});
+	io.emit('sendRobotStatus', {id: 1, status: 'running'});
 }
 
 var sendPositions = function(robot, position) {
-	emit('sendRobotPositions', {x: 0, y: 0, value: 'unsure'});
+	io.emit('sendRobotPositions', {x: 0, y: 0, value: 'unsure'});
 };
 
 // Send some default information to the client
@@ -45,4 +45,15 @@ io.sockets.on('connection', function(socket) {
         console.log(input.size);
     });
 
+	var testFunction = function() {
+		console.log('test function called');
+		var x = Math.floor(Math.random() * 10);
+		var y = Math.floor(Math.random() * 10);
+		var value = Math.random() > 0.5 ? 1 : 0;
+		socket.emit('sendTileUpdate', {x: x, y: y, value: value});
+
+		setTimeout(testFunction, 1000);
+	};
+	setTimeout(testFunction, 1000);
 });
+
