@@ -4,7 +4,6 @@ var express = require('express');
 var path = require('path');
 var app = express();
 var server = http.createServer(app);
-// TODO -- talk to Jamie and move html to a 'public' folder
 app.use(express.static('../'));
 
 app.get('/', function(req, res) {
