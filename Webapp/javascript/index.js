@@ -1,5 +1,18 @@
 var socket = io('localhost');
 
-var sendTileSize = function(tileSize) {
-	sockets.io.emit('sendTileSize', {size: tileSize});
+var startRobots = function(tileSize) {
+	socket.emit('startRobots', {size: tileSize});
 }
+
+$(function () {
+
+	$("#inputForm").submit(function( event ) {
+
+		var tileSize = $("#inputTileSize").val();
+
+		startRobots(tileSize);
+
+
+	});
+
+});
