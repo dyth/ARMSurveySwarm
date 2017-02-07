@@ -17,6 +17,20 @@ var tiles = [
     [0,0,1,0,0,1,0]
 ];
 
+// Fill the robots array with some default values before
+// anything is received. Could alternatively talk to
+// server on connect to get this information.
+var robots =(function() {
+	var size = 5;
+	var robots = [];
+
+	for (var i = 0; i < size; i ++) {
+		robots.push({id: i, status: 'disconnected'});
+	}
+
+	return robots;
+})();
+
 $(function () {
 
     // Get references to the canvas and a new stage

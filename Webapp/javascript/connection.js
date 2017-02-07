@@ -3,22 +3,6 @@
 
 var socket = io('localhost');
 
-// Fill the robots array with some default values before
-// anything is received. Could alternatively talk to
-// server on connect to get this information.
-var robots =(function() {
-	var size = 5;
-	var robots = [];
-
-	for (var i = 0; i < size; i ++) {
-		robots.push({id: i, status: 'disconnected'});
-	}
-
-	return robots;
-})();
-
-var tiles = [];
-
 var getRobotByID = function(id) {
 	for (var i = 0; i < robots.length; i ++) {
 		if (robots[i].id === id) {
@@ -39,7 +23,7 @@ var setRobotByID = function(robot, id) {
 
 	throw "Unknown robot " + id.toString();
 };
-	
+
 socket.on('sendRobotStatus', function(data) {
 	// Get the robot that this is talking about.
 	// Then, update the status of that robot.
@@ -63,7 +47,6 @@ socket.on('sendRobotPosition', function(data) {
 });
 
 socket.on('sendAreaDimensions', function(data) {
-	alert('area dimensions received!');
 	// Create a new zeroed array for the tiles. 
 	// This will probably need to be changed once we stop
 	// inputting the dimensions of the surface.
@@ -72,7 +55,7 @@ socket.on('sendAreaDimensions', function(data) {
 		tiles[i] = new Array(data.yDim);
 	}
 
-	alert('success');
+	tiles[0][0] = 1;
 
 	updateCanvas();
 });

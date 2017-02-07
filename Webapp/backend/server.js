@@ -26,6 +26,12 @@ var sendPositions = function(robot, position) {
 	emit('sendRobotPositions', {x: 0, y: 0, value: 'unsure'});
 };
 
+// Send some default information to the client
+io.sockets.on('connection', function() {
+	console.log('send on connection');
+	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
+});
+
 io.sockets.on('stop', function(robot) {
 	// todo stop the robotz
 });
@@ -38,7 +44,4 @@ io.sockets.on('sendTileSize', function(tileSize) {
 	// todo, pass tileSize.size on to robots.
 });
 
-setTimeout(function() {
-	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
-}, 10000);
 
