@@ -22,6 +22,16 @@ MongoClient.connect(url, function(err, db){
 var insertDocuments = function(db, callback) {
   //Get documents Collection
   var collection = db.collection('documents');
+  var tilesTable = db.collection('tiles');
+  var robotTable = db.collection('robot');
+
+  // delete existing tilesTable
+
+  // create new table with tile dimensions given by user
+
+  // set each tile to unknown
+
+
   // insert some documents
   collection.insertMany([
     {a:1}, {a:2}, {a:3}], function (err, result) {

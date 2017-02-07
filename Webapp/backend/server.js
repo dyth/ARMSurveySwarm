@@ -1,9 +1,10 @@
-// Assume 
+// Assume
 var http = require('http');
 var express = require('express');
 var path = require('path');
 var app = express();
 var server = http.createServer(app);
+
 // TODO -- talk to Jamie and move html to a 'public' folder
 app.use(express.static('../'));
 
@@ -42,4 +43,3 @@ io.sockets.on('sendTileSize', function(tileSize) {
 setTimeout(function() {
 	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 }, 10000);
-
