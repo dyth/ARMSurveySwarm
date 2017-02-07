@@ -3,27 +3,6 @@
 
 var socket = io('localhost');
 
-var getRobotByID = function(id) {
-	for (var i = 0; i < robots.length; i ++) {
-		if (robots[i].id === id) {
-			return robots[i];
-		}
-	}
-
-	throw "Unknown robot " + id.toString();
-};
-
-var setRobotByID = function(robot, id) {
-	for (var i = 0; i < robots.length; i ++) {
-		if (robots[i].id === id) {
-			robots[i] = robot;
-			return;
-		}
-	}
-
-	throw "Unknown robot " + id.toString();
-};
-
 socket.on('sendRobotStatus', function(data) {
 	// Get the robot that this is talking about.
 	// Then, update the status of that robot.
