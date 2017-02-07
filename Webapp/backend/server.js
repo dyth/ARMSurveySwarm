@@ -29,19 +29,18 @@ var sendPositions = function(robot, position) {
 };
 
 // Send some default information to the client
-io.sockets.on('connection', function() {
+io.sockets.on('connection', function(socket) {
 	console.log('send on connection');
 	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
-});
 
-io.sockets.on('stop', function(robot) {
-	// todo stop the robotz
-});
+    socket.on('stop', function(robot) {
+        // todo stop the robotz
+    });
 
-io.sockets.on('resume', function(robot) {
-	// todo rezume ze robotz
-});
-
+    socket.on('resume', function(robot) {
+        // todo rezume ze robotz
+    });
+		
 io.sockets.on('sendTileSize', function(tileSize) {
 	// todo, pass tileSize.size on to robots.
 });
@@ -49,3 +48,9 @@ io.sockets.on('sendTileSize', function(tileSize) {
 setTimeout(function() {
 	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 }, 10000);
+    socket.on('startRobots', function(input) {
+        // todo, pass tileSize.size on to robots, Start robot calibration
+        console.log(input.size);
+    });
+
+});
