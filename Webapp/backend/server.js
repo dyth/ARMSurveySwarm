@@ -41,26 +41,26 @@ io.sockets.on('connection', function(socket) {
         // todo rezume ze robotz
     });
 		
-io.sockets.on('sendTileSize', function(tileSize) {
-	// todo, pass tileSize.size on to robots.
-});
+	io.sockets.on('sendTileSize', function(tileSize) {
+		// todo, pass tileSize.size on to robots.
+	});
 
-setTimeout(function() {
-	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
-}, 10000);
+	setTimeout(function() {
+		io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
+	}, 10000);
+
     socket.on('startRobots', function(input) {
         // todo, pass tileSize.size on to robots, Start robot calibration
         console.log(input.size);
     });
 
 	var testFunction = function() {
-		console.log('test function called');
 		var x = Math.floor(Math.random() * 10);
 		var y = Math.floor(Math.random() * 10);
 		var value = Math.random() > 0.5 ? 1 : 0;
-		socket.emit('sendTileUpdate', {x: x, y: y, value: value});
+		socket.emit('sendTileUpdate', {x: 6, y: 6, value: 1});
 
-		setTimeout(testFunction, 1000);
+		//setTimeout(testFunction, 1000);
 	};
 	setTimeout(testFunction, 1000);
 });

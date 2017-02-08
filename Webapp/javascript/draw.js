@@ -27,18 +27,21 @@ function resizeCanvas(){
 
     var size = canvas.parent().width();
 
-    canvas.width(size);
-    canvas.height(size);
+    canvas.attr("width", size);
+    canvas.attr("height", size);
 
 }
 
 function updateCanvas() {
+
+    console.log("Updating Canvas");
 
     // Clear the stage
     stage.clear();
 
     // Calculate square size
     var size = canvas.width() / tiles.length;
+    console.log("Size: " + size);
 
     // Draw squares
     for(var i = 0; i<tiles.length; i++){

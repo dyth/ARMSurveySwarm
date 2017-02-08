@@ -29,6 +29,9 @@ socket.on('sendAreaDimensions', function(data) {
 	// Create a new zeroed array for the tiles. 
 	// This will probably need to be changed once we stop
 	// inputting the dimensions of the surface.
+    console.log("New Area Dimensions " + data.xDim + " " + data.yDim);
+
+    // TODO: Preserve past data
 	tiles = new Array(data.xDim);
 	for (var i = 0; i < data.xDim; i ++) {
 		tiles[i] = new Array(data.yDim);
@@ -39,6 +42,8 @@ socket.on('sendAreaDimensions', function(data) {
 
 socket.on('sendTileUpdate', function(data) {
 	// Here, update the tiles list.
+    console.log("New Tile Data " + data.x + " " + data.y + " " + data.value);
+
 	tiles[data.x][data.y] = data.value;
 
 	updateCanvas();
