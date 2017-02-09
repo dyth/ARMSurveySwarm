@@ -12,7 +12,7 @@
 var server = require('./server');
 var communication = require('./communication');
 
-var TEST = false;
+var TEST = true;
 
 var processingTiles = [];
 var initialState = [2,2,2,2,2,2];
@@ -32,11 +32,13 @@ var createTilesList = function(nX, nY) {
   for(i = 0; i < nX; i++){
     var columns = [];
     for(j = 0; i < nY; j++) {
-      columns[j] = initialState;
+      columns.push(initialState);
     }
-    processingTiles[i] = columns;
+    processingTiles.push(columns);
   }
 }
+
+var x = createTilesList();
 
 var getFinalTiles = function(processingTiles) {
   // extract last element in each processingTiles[y][x] to create finalTiles
@@ -45,7 +47,7 @@ var getFinalTiles = function(processingTiles) {
   var nY = processingTiles[0].length;
   for(i = 0; i < nX; i++){
     var columns = [];
-    for(j = 0; i < nY; j++) {
+    for(j = 0; j < nY; j++) {
       columns[j] = processingTiles[i][j][5];
     }
     finalTiles[i] = columns;
@@ -174,3 +176,22 @@ var receiveTileSize = function(tileSize) {
 
 exports.receiveTileSize = receiveTileSize;
 exports.willCollide = willCollide;
+
+
+// Module exports added for testing
+if (TEST) {
+	var test = function() {
+		console.log("test");
+	};
+	exports.test = test;
+	exports.createTilesList = createTilesList;
+
+	exports.processingTiles = processingTiles;
+	exports.initialState = initialState;
+	exports.robots = robots;
+	exports.byUncertainty = byUncertainty;
+	exports.width = width;
+	exports.length = length;
+	exports.tilesCovered = tilesCovered;
+	exports.totalTiles = totalTiles;
+}
