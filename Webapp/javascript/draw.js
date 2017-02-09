@@ -64,4 +64,12 @@ function updateCanvas() {
 // TODO: Do this
 function updateState(robotId) {
 
+    var robot = getRobotByID(robotId);
+
+    console.log(robot);
+
+    var row = $("#robot-" + robotId);
+    row.text(states[robot.status][0]);
+    row.attr("class", states[robot.status][1]);
+
 }
