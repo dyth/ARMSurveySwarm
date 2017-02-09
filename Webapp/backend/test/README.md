@@ -2,7 +2,7 @@ Setup:
 
 	Do **(in the parent directory!!!)**
 
-		sudo npm install mocha
+		sudo npm install mocha chai
 
 	To run tests, do (again from the parent directory):
 

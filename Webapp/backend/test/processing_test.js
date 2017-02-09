@@ -12,3 +12,4 @@ describe('Create tiles list', function() {
 		assert.equal(10, processor.processingTiles.length);
 	});
 });
+
