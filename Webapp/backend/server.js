@@ -47,21 +47,16 @@ io.sockets.on('connection', function(socket) {
 	socket.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 
     socket.on('stop', function(robot) {
-		communication.stop();
+		processor.stop();
     });
 
 	socket.on('stopAll', function () {
-		// TODO: Stop All Robots
-		console.log("Stopping all Robots");
+		processor.stopAll();
 	});
 
     socket.on('resume', function(robot) {
-		communication.resume();
+		processor.resume();
     });
-
-	io.sockets.on('sendTileSize', function(tileSize) {
-		// todo, pass tileSize.size on to robots.
-	});
 
     socket.on('startRobots', function(input) {
         console.log(input.tileSize);
