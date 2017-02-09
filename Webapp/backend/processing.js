@@ -15,8 +15,11 @@ var communication = require('./communication');
 var TEST = true;
 
 var processingTiles = [];
-var initialState = [2,2,2,2,2,2];
-var robots = [[0,0], [0,0], [0,0], [0,0], [0,0]];
+var initialTileState = [2,2,2,2,2,2];
+// array order is by ID
+var robots = [{id: 0, x: 0,y: 0, robotStatus: 2}, 
+	{id: 1, x: 0, y: 0, robotStatus: 2}, {id: 2, x: 0,y : 0, robotStatus: 2}, 
+	{id: 3, x: 0, y: 0, robotStatus: 2}, {id: 4, x: 0, y: 0, robotStatus: 2}];
 var byUncertainty = [0,1,2,3,4];
 var width;
 var length;
@@ -32,7 +35,7 @@ var createTilesList = function(nX, nY) {
   for(i = 0; i < nX; i++){
     var columns = [];
     for(j = 0; j < nY; j++) {
-      columns.push(initialState);
+      columns.push(initialTileState);
     }
     processingTiles.push(columns);
   }
@@ -54,16 +57,16 @@ var getFinalTiles = function(processingTiles) {
 
 var move = function(robotID, coordX, coordY) {
   // update robot position in list
-  robots[robotID][0] = coordX;
-  robots[robotID][1] = coordY;
+  robots[robotID].x = coordX;
+  robots[robotID].y = coordY;
 }
 
 var setTile = function(robotID, lightIntensity) {
   //TODO: round position to correspond to tile position.
 
   // update tile table for current position
-  var coordX = robots[robotID][0];
-  var coordY = robots[robotID][1];
+  var coordX = robots[robotID].x;
+  var coordY = robots[robotID].y;
   processingTiles[coordX][coordY][robotID] = lightIntensity;
 
   // if two robots agree on colour, set finalColour,
@@ -133,20 +136,20 @@ var willCollide = function(robotID) {
      ------b-------
    */
 
-  var l1 = robots[robotID][0] - 1;
-  var r1 = robots[robotID][0] + 1;
-  var b1 = robots[robotID][1] - 1;
-  var t1 = robots[robotID][1] + 1;
+  var l1 = robots[robotID].x - 1;
+  var r1 = robots[robotID].x + 1;
+  var b1 = robots[robotID].y - 1;
+  var t1 = robots[robotID].y + 1;
   var l2, r2, b2, t2;
 
   var potentials = robots.slice(0, robotID).append(robots.slice(robotID+1, 6));
   var collision = false;
 
   for (i = 0; i < 4; i ++) {
-    l2 = potentials[i][0] - 1;
-    r2 = potentials[i][0] + 1;
-    b2 = potentials[i][0] - 1;
-    t2 = potentials[i][1] + 1;
+    l2 = potentials[i].x - 1;
+    r2 = potentials[i].x + 1;
+    b2 = potentials[i].x - 1;
+    t2 = potentials[i].y + 1;
     if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
       return true;
     }
@@ -157,8 +160,8 @@ var willCollide = function(robotID) {
 var willCollideEdge = function(robotID) {
   // check that robots do not go out of bounds of the floor pattern
   // if robot near 0x, 0y, nx, ny. Turn in the opposite direction
-  var coordX = robots[robotID][0];
-  var coordY = robots[robotID][1];
+  var coordX = robots[robotID].x;
+  var coordY = robots[robotID].y;
   if (coordX <= 0 || coordX >= width) {
     return true;
   }
@@ -203,7 +206,7 @@ if (TEST) {
 	}
 
 	exports.processingTiles = processingTiles;
-	exports.initialState = initialState;
+	exports.initialTileState = initialTileState;
 	exports.robots = robots;
 	exports.byUncertainty = byUncertainty;
 	exports.width = width;
