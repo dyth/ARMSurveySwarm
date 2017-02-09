@@ -140,8 +140,14 @@ var willCollide = function(robotID) {
     r2 = potentials[i][0] + 1;
     b2 = potentials[i][0] - 1;
     t2 = potentials[i][1] + 1;
+    if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
+      return true;
+    }
+  }
+  return false;
 
-    return (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2);
+
+
 }
 
 var willCollideEdge = function(robotID) {
