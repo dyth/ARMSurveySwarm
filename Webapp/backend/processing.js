@@ -5,6 +5,7 @@
  *
  * light intensity: 0 = black, 1 = white.
  */
+var server = require('./server');
 
 var processingTiles = [];
 var initialState = [2,2,2,2,2,2];
@@ -135,3 +136,20 @@ var willCollideEdge = function(robotID) {
   // if robot near 0x, 0y, nx, ny. Turn in the opposite direction
 
 }
+
+var resume = function(robotID) {
+	// resume a robot that has been stopped
+}
+
+var stop = function(robotID) {
+	// Stop a robot from moving
+}
+
+var receiveTileSize = function(tileSize) {
+	console.log(tileSize);
+};
+
+
+exports.receiveTileSize = receiveTileSize;
+exports.resume = resume;
+exports.stop = stop;
