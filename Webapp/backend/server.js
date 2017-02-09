@@ -62,17 +62,15 @@ io.sockets.on('connection', function(socket) {
 	});
 
     socket.on('startRobots', function(input) {
-        console.log(input.size);
-		processor.receiveTileSize(input.size);
+        console.log(input.tileSize);
+		console.log(input.gridSize);
+		processor.receiveTileSize(input.tileSize);
     });
 
 	// Some test data
 	var testFunction = function() {
-		var x = Math.floor(Math.random() * 10);
-		var y = Math.floor(Math.random() * 10);
-		var value = Math.random() > 0.5 ? 1 : 0;
-		socket.emit('sendTileUpdate', {x: 6, y: 6, value: 1});
-
+		socket.emit('sendRobotStatus', {id:2, status:2});
+		console.log("Test");
 		//setTimeout(testFunction, 1000);
 	};
 	setTimeout(testFunction, 1000);
