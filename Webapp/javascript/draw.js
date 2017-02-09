@@ -15,6 +15,11 @@ $(function () {
     // Resize the canvas to fill the entire width
     resizeCanvas();
 
+    // Automatically resize canvas
+    $(window).resize(function () {
+        resizeCanvas();
+    });
+
     // Create a new graph shape
     graph = new createjs.Shape();
 
@@ -61,7 +66,6 @@ function updateCanvas() {
 
 }
 
-// TODO: Do this
 function updateState(robotId) {
 
     var robot = getRobotByID(robotId);
