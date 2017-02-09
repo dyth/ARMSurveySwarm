@@ -7,13 +7,22 @@
  */
 var server = require('./server');
 
+var TEST = false;
+
 var processingTiles = [];
 var initialState = [2,2,2,2,2,2];
 var robots = [[0,0], [0,0], [0,0], [0,0], [0,0]];
 var ByUncertainty = [0,1,2,3,4];
+var width;
+var length;
+var tilesCovered = 0;
+var totalTiles;
 
 // create new tilesList
 var createTilesList = function(nX, nY) {
+  totalTiles = nX * nY;
+  width = nX;
+  length = nY;
   // set each tile to unknown = 2
   for(i = 0; i < nX; i++){
     var columns = [];
@@ -59,6 +68,12 @@ var setTile = function(robotID, lightIntensity) {
     // move away
   }
 
+  //check if whole board covered
+  if (tilesCovered == totalTiles) {
+    //TODO: stop all robots
+    //stop(robot);
+  }
+
 }
 
 var twoColoursAgree = function(coordX, coordY){
@@ -77,16 +92,21 @@ var twoColoursAgree = function(coordX, coordY){
   // if two robots disagree, delegate to go check
   // if numbers equal, delegate another to check
   if (numWhite == numBlack) {
-    // reccheckTile(coordX, coordY);
+    //TODO: robotID = Rand(potentials) (potentials are robot other than those that already checked)
+    //TODO: reccheckTile(robotID, orientation, coordX, coordY);
   } else if (numWhite > numBlack && numWhite >= 2) {
     processingTiles[coordX][coordY][5] = 1;
+    tilesCovered += 1;
   } else if (numBlack > numWhite && numBlack >= 2){
     processingTiles[coordX][coordY][5] = 0;
+    tileCovered += 1;
   }
 }
 
-var reccheckTile = function(tileX, tileY){
-  // pick random robot to check tile - or by which has least uncertainty
+var reccheckTile = function(robotID, tileX, tileY){
+  // set orientation of robot to move towards that tile
+  // ??? how to we check that this action has been achieved? what if
+  // collision detection makes it change direction before completion?
 }
 
 var willCollide = function(robotID) {
@@ -94,47 +114,45 @@ var willCollide = function(robotID) {
    * Assume robot takes up one tile.
    * Take axis-aligned bounding box as 3 x 3 tiles.
 
-   tY
-     --------------
+     ------t-------
          |    |
      --------------
-         | XX |
+   l     | XX |   r
      --------------
          |    |
-   lX--------------rX
-   bY
+     ------b-------
    */
 
-  var lX = robots[robotID][0] - 1;
-  var rX = robots[robotID][0] + 1;
-  var bY = robots[robotID][1] - 1;
-  var tY = robots[robotID][1] + 1;
-  var lX2, rX2, bY2, tY2;
+  var l1 = robots[robotID][0] - 1;
+  var r1 = robots[robotID][0] + 1;
+  var b1 = robots[robotID][1] - 1;
+  var t1 = robots[robotID][1] + 1;
+  var l2, r2, b2, t2;
 
   var potentials = robots.slice(0, robotID).append(robots.slice(robotID+1, 6));
   var collision = false;
 
   for (i = 0; i < 4; i ++) {
-    lX2 = potentials[i][0] - 1;
-    rX2 = potentials[i][0] + 1;
-    bY2 = potentials[i][1] - 1;
-    tY2 = potentials[i][1] + 1;
+    l2 = potentials[i][0] - 1;
+    r2 = potentials[i][0] + 1;
+    b2 = potentials[i][0] - 1;
+    t2 = potentials[i][1] + 1;
 
-    //collision = ()&&()&&()&&();
-
-    if (collision) {
-      return true;
-    }
-  }
-
-  return collision;
-
+    return (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2);
 }
 
 var willCollideEdge = function(robotID) {
   // check that robots do not go out of bounds of the floor pattern
   // if robot near 0x, 0y, nx, ny. Turn in the opposite direction
+  var coordX = robots[robotID][0];
+  var coordY = robots[robotID][1];
+  if (coordX <= 0 || coordX >= width) {
+    //TODO: turn(robotID);
+  }
 
+  if (coordY <= 0 || coordY >= length) {
+    //TODO: turn(robotID);
+  }
 }
 
 var resume = function(robotID) {
