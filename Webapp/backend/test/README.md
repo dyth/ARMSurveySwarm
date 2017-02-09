@@ -13,4 +13,6 @@ Setup:
 
 		http://mochajs.org/#getting-started
 
+	All tests should go in the testing directory
+
 
