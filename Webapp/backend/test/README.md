@@ -6,7 +6,7 @@ Setup:
 
 	To run tests, do (again from the parent directory):
 
-		./node_modules/mocha/bin/mocha
+		sudo ./node_modules/mocha/bin/mocha
 
 
 	To write tests, read the docs here:
