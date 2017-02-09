@@ -33,7 +33,7 @@ var updateStatus = function(robotID, x, y, status) {
 };
 
 var updateGrid = function(x, y) {
-	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
+	io.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 };
 
 var updateTile = function(x, y, tileValue) {
@@ -46,21 +46,21 @@ io.sockets.on('connection', function(socket) {
 	// instance.
 	socket.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 
-    socket.on('stop', function(robot) {
+  socket.on('stop', function(robot) {
 		communication.stop();
-    });
+  });
 
 	socket.on('stopAll', function () {
-		// TODO: Stop All Robots
+		communication.stopAll();
 		console.log("Stopping all Robots");
 	});
 
-    socket.on('resume', function(robot) {
+  socket.on('resume', function(robot) {
 		communication.resume();
-    });
+  });
 
 	io.sockets.on('sendTileSize', function(tileSize) {
-		// todo, pass tileSize.size on to robots.
+		communication.setTileSize();
 	});
 
     socket.on('startRobots', function(input) {

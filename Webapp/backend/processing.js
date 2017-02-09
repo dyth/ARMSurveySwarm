@@ -50,7 +50,6 @@ var getFinalTiles = function(processingTiles) {
     }
     finalTiles[i] = columns;
   }
-  return finalTiles;
 }
 
 var move = function(robotID, coordX, coordY) {
@@ -74,15 +73,17 @@ var setTile = function(robotID, lightIntensity) {
   if (willCollide(robotID)) {
     // move away - straight line or right angles?
   }
+  if (willCollideEdge(robotID)) {
+    communication.changeOrientation(180);
+  }
 
   //check if whole board covered
   if (tilesCovered == totalTiles) {
-    //TODO: stop all robots
-    //stop(robot) in communication.js;
+    communication.stopAll();
   }
-
 }
 
+// set final tile colour, send to webapp
 var twoColoursAgree = function(coordX, coordY){
   var numWhite = 0;
   var numBlack = 0;
@@ -103,9 +104,11 @@ var twoColoursAgree = function(coordX, coordY){
     //TODO: reccheckTile(robotID, orientation, coordX, coordY);
   } else if (numWhite > numBlack && numWhite >= 2) {
     processingTiles[coordX][coordY][5] = 1;
+    server.setTile(coordX, coordY, 1);
     tilesCovered += 1;
   } else if (numBlack > numWhite && numBlack >= 2){
     processingTiles[coordX][coordY][5] = 0;
+    server.setTile(coordX, coordY, 0);
     tileCovered += 1;
   }
 }
@@ -158,12 +161,9 @@ var willCollideEdge = function(robotID) {
   var coordY = robots[robotID][1];
   if (coordX <= 0 || coordX >= width) {
     return true;
-    //TODO: turn(robotID) in communication.js;
   }
-
   if (coordY <= 0 || coordY >= length) {
     return true;
-    //TODO: turn(robotID) in communication.js;
   }
   return false;
 }
@@ -172,9 +172,23 @@ var receiveTileSize = function(tileSize) {
 	console.log(tileSize);
 };
 
+var resume = function(robotID) {
+	communication.resume(robotID);
+}
+
+var stop = function(robotID) {
+	communication.stop(robotID);
+}
+
+var stopAll = function() {
+  communication.stopAll();
+}
+
 exports.receiveTileSize = receiveTileSize;
 exports.willCollide = willCollide;
-
+exports.resume = resume;
+exports.stop = stop;
+exports.stopAll = stopAll;
 
 // Module exports added for testing
 if (TEST) {

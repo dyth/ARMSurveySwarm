@@ -9,15 +9,11 @@
  Messages from the robot
  * position [x,y]
  * light intensity
-
- Messages to web app
- updateTile
- updateStatus
- updateGrid
-
 */
+
 var processor = require('./processing');
 
+/* Messages to Robot */
 var resume = function(robotID) {
 	// resume a robot that has been stopped
 }
@@ -26,5 +22,15 @@ var stop = function(robotID) {
 	// Stop a robot from moving
 }
 
+var stopAll = function() {
+  // Stop all robots from moving
+}
+
+var changeOrientation = function(degree) {
+  // turn robot degree degrees clockwise
+}
+
 exports.resume = resume;
 exports.stop = stop;
+exports.stopAll = stopAll;
+exports.changeOrientation = changeOrientation;
