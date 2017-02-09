@@ -1,18 +1,19 @@
-
 /**
- * Backend to deal with messages from ,
+ * Backend to deal with messages from robots
  * deal with representation of floor pattern.
  *
  * light intensity: 0 = black, 1 = white.
+ *
  */
 var server = require('./server');
+var communication = require('./communication');
 
 var TEST = false;
 
 var processingTiles = [];
 var initialState = [2,2,2,2,2,2];
 var robots = [[0,0], [0,0], [0,0], [0,0], [0,0]];
-var ByUncertainty = [0,1,2,3,4];
+var byUncertainty = [0,1,2,3,4];
 var width;
 var length;
 var tilesCovered = 0;
@@ -55,6 +56,8 @@ var move = function(robotID, coordX, coordY) {
 }
 
 var setTile = function(robotID, lightIntensity) {
+  //TODO: round position to correspond to tile position.
+
   // update tile table for current position
   var coordX = robots[robotID][0];
   var coordY = robots[robotID][1];
@@ -65,13 +68,13 @@ var setTile = function(robotID, lightIntensity) {
 
   // check for collisions with 4 other robots
   if (willCollide(robotID)) {
-    // move away
+    // move away - straight line or right angles?
   }
 
   //check if whole board covered
   if (tilesCovered == totalTiles) {
     //TODO: stop all robots
-    //stop(robot);
+    //stop(robot) in communication.js;
   }
 
 }
@@ -147,12 +150,15 @@ var willCollideEdge = function(robotID) {
   var coordX = robots[robotID][0];
   var coordY = robots[robotID][1];
   if (coordX <= 0 || coordX >= width) {
-    //TODO: turn(robotID);
+    return true;
+    //TODO: turn(robotID) in communication.js;
   }
 
   if (coordY <= 0 || coordY >= length) {
-    //TODO: turn(robotID);
+    return true;
+    //TODO: turn(robotID) in communication.js;
   }
+  return false;
 }
 
 var resume = function(robotID) {
@@ -171,3 +177,4 @@ var receiveTileSize = function(tileSize) {
 exports.receiveTileSize = receiveTileSize;
 exports.resume = resume;
 exports.stop = stop;
+exports.willCollide = willCollide;
