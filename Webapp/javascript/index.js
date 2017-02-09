@@ -1,7 +1,7 @@
 var socket = io('localhost');
 
-var startRobots = function(tileSize) {
-	socket.emit('startRobots', {size: tileSize});
+var startRobots = function(tileSize, gridSize) {
+	socket.emit('startRobots', {tileSize: tileSize, gridSize:gridSize});
 }
 
 $(function () {
@@ -9,9 +9,9 @@ $(function () {
 	$("#inputForm").submit(function( event ) {
 
 		var tileSize = $("#inputTileSize").val();
+		var gridSize = $("#inputGridSize").val();
 
-		startRobots(tileSize);
-
+		startRobots(tileSize, gridSize);
 
 	});
 
