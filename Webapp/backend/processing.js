@@ -145,9 +145,6 @@ var willCollide = function(robotID) {
     }
   }
   return false;
-
-
-
 }
 
 var willCollideEdge = function(robotID) {
@@ -167,13 +164,6 @@ var willCollideEdge = function(robotID) {
   return false;
 }
 
-var resume = function(robotID) {
-	// resume a robot that has been stopped
-}
-
-var stop = function(robotID) {
-	// Stop a robot from moving
-}
 
 var receiveTileSize = function(tileSize) {
 	console.log(tileSize);
@@ -181,6 +171,4 @@ var receiveTileSize = function(tileSize) {
 
 
 exports.receiveTileSize = receiveTileSize;
-exports.resume = resume;
-exports.stop = stop;
 exports.willCollide = willCollide;

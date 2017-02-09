@@ -4,9 +4,10 @@ var path = require('path');
 var app = express();
 var server = http.createServer(app);
 var processor = require('./processing');
+var communication = require('./communication');
 
-// This sets the server to serve the files 
-// in the folder above when they 
+// This sets the server to serve the files
+// in the folder above when they
 // are requrested by path.
 app.use(express.static('../'));
 
@@ -50,13 +51,13 @@ io.sockets.on('connection', function(socket) {
 	socket.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 
     socket.on('stop', function(robot) {
-		process.stop();
+		communication.stop();
     });
 
     socket.on('resume', function(robot) {
-		process.resume();
+		communication.resume();
     });
-		
+
 	io.sockets.on('sendTileSize', function(tileSize) {
 		// todo, pass tileSize.size on to robots.
 	});

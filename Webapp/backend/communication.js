@@ -14,5 +14,17 @@
  updateTile
  updateStatus
  updateGrid
+
 */
 var processor = require('./processing');
+
+var resume = function(robotID) {
+	// resume a robot that has been stopped
+}
+
+var stop = function(robotID) {
+	// Stop a robot from moving
+}
+
+exports.resume = resume;
+exports.stop = stop;
