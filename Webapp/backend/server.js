@@ -49,6 +49,11 @@ io.sockets.on('connection', function(socket) {
 		process.stop();
     });
 
+	socket.on('stopAll', function () {
+		// TODO: Stop All Robots
+		console.log("Stopping all Robots");
+	});
+
     socket.on('resume', function(robot) {
 		process.resume();
     });
