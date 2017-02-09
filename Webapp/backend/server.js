@@ -63,11 +63,23 @@ io.sockets.on('connection', function(socket) {
 		communication.setTileSize();
 	});
 
-    socket.on('startRobots', function(input) {
-        console.log(input.tileSize);
+  socket.on('stop', function(robot) {
+		processor.stop();
+    });
+
+	socket.on('stopAll', function () {
+		processor.stopAll();
+	});
+
+  socket.on('resume', function(robot) {
+		processor.resume();
+  });
+
+  socket.on('startRobots', function(input) {
+    console.log(input.tileSize);
 		console.log(input.gridSize);
 		processor.receiveTileSize(input.tileSize);
-    });
+  });
 
 	// Some test data
 	var testFunction = function() {
