@@ -56,6 +56,11 @@ var stop = function(robotID) {
 	socket.emit('stop', {id: robotID});
 }
 
+var stopAll = function () {
+	console.log("Stopping Robots");
+	socket.emit('stopAll');
+}
+
 // This should be called to resume a robot 
 // with ID 'robotID'
 var resume = function(robotID) {
