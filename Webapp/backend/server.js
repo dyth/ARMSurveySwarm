@@ -26,21 +26,17 @@ server.listen(80);
 
 // These are broadcast functions. When called
 // they will send updates to all clients connected.
-var updateStatus = function(robot, status) {
+var updateStatus = function(robotID, x, y, status) {
 	// todo fix this up
-	io.emit('sendRobotStatus', {id: 1, status: 'running'});
+	io.emit('sendRobotStatus', {id: 1, x: x, y: y, status: status});
 };
 
-var sendPositions = function(robot, position) {
-	io.emit('sendRobotPositions', {x: 0, y: 0, value: 'unsure'});
-};
-
-var updateGridSize = function(gridSize) {
+var updateGrid = function(x, y) {
 	io.sockets.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 };
 
 var updateTile = function(x, y, tileValue) {
-
+	io.emit('sendRobotPositions', {x: 0, y: 0, value: 'unsure'});
 };
 
 io.sockets.on('connection', function(socket) {
@@ -76,6 +72,6 @@ io.sockets.on('connection', function(socket) {
 	setTimeout(testFunction, 1000);
 });
 
-exports.updateGrid = updateGridSize;
+exports.updateGrid = updateGrid;
 exports.updateStatus = updateStatus;
 exports.updateTile = updateTile;

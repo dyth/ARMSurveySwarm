@@ -5,6 +5,10 @@
  * light intensity: 0 = black, 1 = white.
  *
  */
+
+// Call server.updateStatus(robotID, xPosition, yPosition, status)
+// server.updateGrid(x, y), updates the size of the grid.
+// server.updateTile(x, y, value) updates a tile.
 var server = require('./server');
 var communication = require('./communication');
 
@@ -34,7 +38,7 @@ var createTilesList = function(nX, nY) {
   }
 }
 
-var getFinalTiles = function(processingTiles){
+var getFinalTiles = function(processingTiles) {
   // extract last element in each processingTiles[y][x] to create finalTiles
   var finalTiles = [];
   var nX = processingTiles.length;
@@ -169,16 +173,15 @@ var willCollideEdge = function(robotID) {
 
 var resume = function(robotID) {
 	// resume a robot that has been stopped
-}
+};
 
 var stop = function(robotID) {
 	// Stop a robot from moving
-}
+};
 
 var receiveTileSize = function(tileSize) {
 	console.log(tileSize);
 };
-
 
 exports.receiveTileSize = receiveTileSize;
 exports.resume = resume;
