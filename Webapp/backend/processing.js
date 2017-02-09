@@ -31,14 +31,12 @@ var createTilesList = function(nX, nY) {
   // set each tile to unknown = 2
   for(i = 0; i < nX; i++){
     var columns = [];
-    for(j = 0; i < nY; j++) {
+    for(j = 0; j < nY; j++) {
       columns.push(initialState);
     }
     processingTiles.push(columns);
   }
 }
-
-var x = createTilesList();
 
 var getFinalTiles = function(processingTiles) {
   // extract last element in each processingTiles[y][x] to create finalTiles
@@ -185,6 +183,10 @@ if (TEST) {
 	};
 	exports.test = test;
 	exports.createTilesList = createTilesList;
+
+	exports.tilesSize = function() {
+		return processingTiles.length;
+	}
 
 	exports.processingTiles = processingTiles;
 	exports.initialState = initialState;
