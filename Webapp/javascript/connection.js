@@ -10,6 +10,7 @@ socket.on('sendRobotStatus', function(data) {
 	robot.status = data.status;
 	robot.position = data.position;
 	setRobotByID(robot, data.id);
+	updateState(data.id);
 });
 
 socket.on('sendRobotPosition', function(data) {
