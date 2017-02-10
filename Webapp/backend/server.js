@@ -4,7 +4,6 @@ var path = require('path');
 var app = express();
 var server = http.createServer(app);
 var processor = require('./processing');
-var communication = require('./communication');
 
 // This sets the server to serve the files
 // in the folder above when they
@@ -47,38 +46,30 @@ io.sockets.on('connection', function(socket) {
 	socket.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
 
 	socket.on('stop', function(robot) {
-		communication.stop();
-	});
+		processor.stop(robot);
 
-	socket.on('stopAll', function () {
-		communication.stopAll();
-		console.log("Stopping all Robots");
-	});
-
-	socket.on('resume', function(robot) {
-		communication.resume();
-	});
-
-	io.sockets.on('sendTileSize', function(tileSize) {
-		communication.setTileSize();
-	});
-
-	socket.on('stop', function(robot) {
-		processor.stop();
+		// For testing purposes only.
+		socket.emit('stopCalled');
 	});
 
 	socket.on('stopAll', function () {
 		processor.stopAll();
+
+		// For testing purposes only.
+		socket.emit('stopAllCalled');
 	});
 
 	socket.on('resume', function(robot) {
-		processor.resume();
+		processor.resume(robot);
+
+		// For testing purposes only.
+		socket.emit('resumeCalled');
 	});
 
 	socket.on('startRobots', function(input) {
 		console.log(input.tileSize);
 		console.log(input.gridSize);
-		processor.receiveTileSize(input.tileSize);
+		processor.receiveTileSize(input.tileSize, input.gridSize);
 	});
 
 	// Some test data
