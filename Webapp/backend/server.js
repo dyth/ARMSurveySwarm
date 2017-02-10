@@ -72,13 +72,16 @@ io.sockets.on('connection', function(socket) {
 		processor.receiveTileSize(input.tileSize, input.gridSize);
 	});
 
-	// Some test data
-	var testFunction = function() {
-		socket.emit('sendRobotStatus', {id:2, status:2});
-		console.log("Test");
-		//setTimeout(testFunction, 1000);
-	};
-	setTimeout(testFunction, 1000);
+	setTimeout(function () {
+
+		console.log("Updating tile");
+		io.emit('sendTileUpdate', {x: 0, y: 0, value: 1});
+		io.emit('sendTileUpdate', {x: 9, y: 0, value: 1});
+		io.emit('sendTileUpdate', {x: 0, y: 9, value: 1});
+		io.emit('sendTileUpdate', {x: 9, y: 9, value: 1});
+
+	}, 1000);
+
 });
 
 exports.updateGrid = updateGrid;

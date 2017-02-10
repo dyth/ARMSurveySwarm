@@ -18,3 +18,8 @@
 .robot-row{
     padding: 10px;
 }
+
+#info-section{
+    border-top:1px solid #999999;
+    display: none;
+}

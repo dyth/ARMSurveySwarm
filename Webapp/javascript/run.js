@@ -10,4 +10,12 @@ $(function () {
         stopAll();
     });
 
+    // Display info panel
+    $(".info-btn").click(function () {
+
+        var robotId = $(this).data("robot-id");
+        displayRobotInfo(robotId);
+
+    });
+
 });

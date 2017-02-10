@@ -6,6 +6,9 @@ var canvas;
 var stage;
 var graph;
 
+// TODO: WRITE TESTS
+// TODO: DRAW ROBOTS ON CANVAS
+
 $(function () {
 
     // Get references to the canvas and a new stage
@@ -68,12 +71,26 @@ function updateCanvas() {
 
 function updateState(robotId) {
 
-    var robot = getRobotByID(robotId);
-
-    console.log(robot);
+    var robot = robots[robotId];
 
     var row = $("#robot-" + robotId);
     row.text(states[robot.status][0]);
     row.attr("class", states[robot.status][1]);
+
+}
+
+function displayRobotInfo(robotId) {
+
+    var container = $("#info-section");
+
+    var robot = robots[robotId];
+
+    // Update the fields
+    container.find("h1").text("Robot " + (robotId + 1));
+    container.find("#status").text(states[robot.status][0]);
+
+    // Show the container
+    container.show();
+
 
 }

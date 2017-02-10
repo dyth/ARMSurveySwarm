@@ -6,11 +6,11 @@ var socket = io('localhost');
 socket.on('sendRobotStatus', function(data) {
 	// Get the robot that this is talking about.
 	// Then, update the status of that robot.
-	var robot = getRobotByID(data.id);
+	var robot = robots[data.id];
 	robot.status = data.status;
 	robot.position = data.position;
-	setRobotByID(robot, data.id);
 	updateState(data.id);
+
 });
 
 socket.on('sendRobotPosition', function(data) {
@@ -19,7 +19,6 @@ socket.on('sendRobotPosition', function(data) {
 		var id = data.robots[i].id;
 		var robot = getRobotByID(id);
 		robot.position = data.robots[i].currentPosition;
-		setRobotByID(robot, id);
 	}
 
 	// TODO -- Call an update funciton to let the position of
