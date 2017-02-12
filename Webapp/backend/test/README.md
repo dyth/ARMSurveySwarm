@@ -8,6 +8,7 @@ Setup:
 
 		sudo ./node_modules/mocha/bin/mocha
 
+	If that is not working, make sure that the server is not running.
 
 	To write tests, read the docs here:
 
