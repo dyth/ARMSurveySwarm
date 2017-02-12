@@ -13,15 +13,29 @@ var socketUpdateArea = function(data) {
 	// Add to the end of each array until it is the
 	// right length without
 	// deleting data already in the array.
+	var innerLength = 0;
 	for (var i = 0; i < tiles.length; i ++) {
 		for (var y = tiles[i].length; y < data.yDim; y ++) {
 			tiles[i].push(DEFAULT_TILE_CONTENTS);
 		}
+
+		// Do this to keep track of the length
+		// of the sub arrays. We need to use the max
+		// of yDim and this value to actually do this.
+		innerLength = tiles[i].length;
 	}
+
+	// Again, need to use the max length. Consider
+	// getting an update with: (x = 10, y = 10) 
+	// then an update with (x = 11, y = 5). Need
+	// to make the last row of length 10 to keep it
+	// consistent (we are assuming a square surface).
+	var newYDim = Math.max(data.yDim, innerLength);
+
 	// This is done in this way because we need to preseve
 	// any old data in the loop.
-	for (var i = tiles.length; i < xDim; i ++) {
-		var newArray = new Array(data.yDim);
+	for (var i = tiles.length; i < data.xDim; i ++) {
+		var newArray = new Array(newYDim);
 
 		for (var y = 0; y < newArray.length; y ++) {
 			newArray[i] = DEFAULT_TILE_CONTENTS;
@@ -44,6 +58,10 @@ var socketReceiveStatus = function(data) {
 var socketTileUpdate = function(data) {
 	// Here, update the tiles list.
     console.log("New Tile Data " + data.x + " " + data.y + " " + data.value);
+
+	if (data.x >= tiles.length || data.y >= tiles.length) {
+		socketUpdateArea({xDim: data.x + 1, yDim: data.y + 1});
+	}
 
 	tiles[data.x][data.y] = data.value;
 
