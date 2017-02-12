@@ -25,6 +25,7 @@ var width;
 var length;
 var tilesCovered = 0;
 var totalTiles;
+var tileSize;
 
 // create new tilesList
 var createTilesList = function(nX, nY) {
@@ -187,7 +188,28 @@ var stopAll = function() {
   communication.stopAll();
 }
 
+var recieveTileSize = function(size) {
+	tileSize = size;
+}
+
+var getTileSize = function() {
+	return tileSize;
+}
+
+var receiveGridDimensions = function(sizes) {
+	// TODO -- set up the grid to be the right size when this is called.
+	width = sizes.x;
+	length = sizes.y;
+}
+
+var getGridDimensions = function() {
+	return {x: width, y: length};
+}
+
 exports.receiveTileSize = receiveTileSize;
+exports.getTileSize = getTileSize;
+exports.receiveGridDimensions = receiveGridDimensions;
+exports.getGridDimensions = getGridDimensions;
 exports.willCollide = willCollide;
 exports.resume = resume;
 exports.stop = stop;

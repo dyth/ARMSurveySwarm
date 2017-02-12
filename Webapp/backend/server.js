@@ -43,7 +43,11 @@ var updateTile = function(x, y, tileValue) {
 io.sockets.on('connection', function(socket) {
 	// The functions in this are caller per client
 	// instance.
-	socket.emit('sendAreaDimensions', {xDim: 10, yDim: 10});
+	
+	// Update the board to start with:
+	var gridSize = processor.getGridDimensions();
+	socket.emit('sendAreaDimensions', {xDim: gridSize.x, 
+		yDim: gridSize.y});
 
 	socket.on('stop', function(robot) {
 		processor.stop(robot);
@@ -67,9 +71,11 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('startRobots', function(input) {
-		console.log(input.tileSize);
-		console.log(input.gridSize);
-		processor.receiveTileSize(input.tileSize, input.gridSize);
+		console.log("tile size " + input.tileSize.toString());
+		console.log("grid size " + input.gridSize.toString());
+		processor.receiveTileSize(input.tileSize);
+		processor.receiveGridDimensions({x: input.gridSize, y: input.gridSize});
+
 	});
 
 	setTimeout(function () {

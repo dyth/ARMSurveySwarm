@@ -4,16 +4,8 @@
 
 var DEFAULT_TILE_CONTENTS = 0;
 
-// TODO: Replace with actual tile data
-var tiles = [
-    [1,0,0,1,0,1,0],
-    [0,1,0,0,0,1,1],
-    [1,1,0,1,1,1,0],
-    [0,1,1,0,0,0,0],
-    [1,0,1,0,1,1,0],
-    [0,1,1,0,0,1,1],
-    [0,0,1,0,0,1,0]
-];
+// Empty, gets filled once the widths are all set
+var tiles = [];
 
 var states = [["Calibrating", "label label-warning"], ["Scanning", "label label-success"], ["Stopped", "label label-danger"]]
 
