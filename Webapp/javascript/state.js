@@ -2,6 +2,8 @@
  * Created by Jamie on 07/02/2017.
  */
 
+var DEFAULT_TILE_CONTENTS = 0;
+
 // TODO: Replace with actual tile data
 var tiles = [
     [1,0,0,1,0,1,0],
@@ -23,7 +25,7 @@ var robots =(function() {
     var robots = [];
 
     for (var i = 0; i < size; i ++) {
-        robots.push({id: i, status: 0});
+        robots.push({id: i, x: 0, y: 0, status: 0});
     }
 
     return robots;
