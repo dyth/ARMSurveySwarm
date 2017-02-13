@@ -16,9 +16,10 @@ var TEST = true;
 
 var processingTiles = [];
 var initialTileState = [2,2,2,2,2,2];
+
 // array order is by ID
-var robots = [{id: 0, x: 0,y: 0, robotStatus: 2}, 
-	{id: 1, x: 0, y: 0, robotStatus: 2}, {id: 2, x: 0,y : 0, robotStatus: 2}, 
+var robots = [{id: 0, x: 0,y: 0, robotStatus: 2},
+	{id: 1, x: 0, y: 0, robotStatus: 2}, {id: 2, x: 0,y : 0, robotStatus: 2},
 	{id: 3, x: 0, y: 0, robotStatus: 2}, {id: 4, x: 0, y: 0, robotStatus: 2}];
 var byUncertainty = [0,1,2,3,4];
 var width;
@@ -62,12 +63,17 @@ var move = function(robotID, coordX, coordY) {
   robots[robotID].y = coordY;
 }
 
-var setTile = function(robotID, lightIntensity) {
-  //TODO: round position to correspond to tile position.
+// Function to round accurate position to correspond
+// to bottom left corner of tile.
+// Get position in list.
+var roundPosition = function(pos) {
+  return Math.floor(pos/tileSize);
+}
 
+var setTile = function(robotID, lightIntensity) {
   // update tile table for current position
-  var coordX = robots[robotID].x;
-  var coordY = robots[robotID].y;
+  var coordX = roundPosition(robots[robotID].x);
+  var coordY = roundPosition(robots[robotID].y);
   processingTiles[coordX][coordY][robotID] = lightIntensity;
 
   // if two robots agree on colour, set finalColour,
@@ -123,44 +129,44 @@ var reccheckTile = function(robotID, tileX, tileY){
   // collision detection makes it change direction before completion?
 }
 
+/* 2D collision between two robots
+ * Assume robot takes up one tile.
+ * Take axis-aligned bounding box as 3 x 3 tiles.
+
+	 ------t-------
+			 |    |
+	 --------------
+ l     | XX |   r
+	 --------------
+			 |    |
+	 ------b-------
+ */
 var willCollide = function(robotID) {
-  /* 2D collision between two robots
-   * Assume robot takes up one tile.
-   * Take axis-aligned bounding box as 3 x 3 tiles.
-
-     ------t-------
-         |    |
-     --------------
-   l     | XX |   r
-     --------------
-         |    |
-     ------b-------
-   */
-
-  var l1 = robots[robotID].x - 1;
-  var r1 = robots[robotID].x + 1;
-  var b1 = robots[robotID].y - 1;
-  var t1 = robots[robotID].y + 1;
+  var l1 = robots[robotID].x - tileSize;
+  var r1 = robots[robotID].x + tileSize;
+  var b1 = robots[robotID].y - tileSize;
+  var t1 = robots[robotID].y + tileSize;
   var l2, r2, b2, t2;
 
   var potentials = robots.slice(0, robotID).append(robots.slice(robotID+1, 6));
   var collision = false;
 
   for (i = 0; i < 4; i ++) {
-    l2 = potentials[i].x - 1;
-    r2 = potentials[i].x + 1;
-    b2 = potentials[i].x - 1;
-    t2 = potentials[i].y + 1;
+    l2 = potentials[i].x - tileSize;
+    r2 = potentials[i].x + tileSize;
+    b2 = potentials[i].x - tileSize;
+    t2 = potentials[i].y + tileSize;
     if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
       return true;
     }
   }
   return false;
 }
-
+/*
+// check that robots do not go out of bounds of the floor pattern
+// if robot near 0x, 0y, nx, ny. Turn in the opposite direction
+*/
 var willCollideEdge = function(robotID) {
-  // check that robots do not go out of bounds of the floor pattern
-  // if robot near 0x, 0y, nx, ny. Turn in the opposite direction
   var coordX = robots[robotID].x;
   var coordY = robots[robotID].y;
   if (coordX <= 0 || coordX >= width) {
