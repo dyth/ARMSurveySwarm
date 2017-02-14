@@ -53,6 +53,8 @@ var socketReceiveStatus = function(data) {
 	robots[data.id].x = data.x;
 	robots[data.id].y = data.y;
 	updateState(data.id);
+
+	// TODO: Update robot positions in draw.js
 };
 
 var socketTileUpdate = function(data) {

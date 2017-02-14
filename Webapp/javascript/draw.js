@@ -6,7 +6,7 @@ var canvas;
 var stage;
 var graph;
 
-// TODO: Draw Robots to Screen
+var robotSprites = [];
 
 $(function () {
 
@@ -28,6 +28,19 @@ $(function () {
     // Add the graph to the stage
     stage.addChild(graph);
 
+    // Create the robot sprites
+    for(var i = 0; i < robots.length; i++){
+        var shape = new createjs.Shape();
+        shape.graphics.beginFill(robots[i].colour).drawCircle(0, 0, 10);
+        robotSprites.push(shape);
+        stage.addChild(shape);
+
+        shape.x = i*50 + 50;
+        shape.y = 50;
+    }
+
+    // TODO: Colour code robot names
+
 });
 
 function resizeCanvas(){
@@ -42,9 +55,6 @@ function resizeCanvas(){
 function updateCanvas() {
 
     console.log("Updating Canvas");
-
-    // Clear the stage
-    stage.clear();
 
     // Calculate square size
     var size = canvas.width() / tiles.length;
