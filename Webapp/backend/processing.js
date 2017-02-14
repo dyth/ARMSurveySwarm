@@ -28,7 +28,9 @@ var tilesCovered = 0;
 var totalTiles;
 var tileSize;
 
-// create new tilesList
+/*
+* Create new tilesList
+*/
 var createTilesList = function(nX, nY) {
   totalTiles = nX * nY;
   width = nX;
@@ -43,8 +45,10 @@ var createTilesList = function(nX, nY) {
   }
 }
 
+/*
+* Extract last element in each processingTiles[y][x] to create finalTiles
+*/
 var getFinalTiles = function(processingTiles) {
-  // extract last element in each processingTiles[y][x] to create finalTiles
   var finalTiles = [];
   var nX = processingTiles.length;
   var nY = processingTiles[0].length;
@@ -57,19 +61,26 @@ var getFinalTiles = function(processingTiles) {
   }
 }
 
+/*
+* Update robot position in list after position update.
+*/
 var move = function(robotID, coordX, coordY) {
-  // update robot position in list
   robots[robotID].x = coordX;
   robots[robotID].y = coordY;
 }
 
-// Function to round accurate position to correspond
-// to bottom left corner of tile.
-// Get position in list.
+/* Function to round accurate position to correspond
+* to bottom left corner of tile.
+*/ Get position in list.
 var roundPosition = function(pos) {
   return Math.floor(pos/tileSize);
 }
 
+/*
+* Register communication of tile colour received from robots.
+* At least two robots need to agree on colour for the final colour to be set.
+* If two robots disagree, delegate another robot to re-check the tile.
+*/
 var setTile = function(robotID, lightIntensity) {
   // update tile table for current position
   var coordX = roundPosition(robots[robotID].x);
@@ -81,7 +92,7 @@ var setTile = function(robotID, lightIntensity) {
 
   // check for collisions with 4 other robots
   if (willCollide(robotID)) {
-    // move away - straight line or right angles?
+    //TODO: move away - straight line or right angles?
   }
   if (willCollideEdge(robotID)) {
     communication.changeOrientation(180);
@@ -106,9 +117,7 @@ var twoColoursAgree = function(coordX, coordY){
       numWhite += 1;
     }
   }
-  // at least two robots need to agree on colour
-  // if two robots disagree, delegate to go check
-  // if numbers equal, delegate another to check
+
   if (numWhite == numBlack) {
     //TODO: robotID = Rand(potentials) (potentials are robot other than those that already checked)
     //TODO: reccheckTile(robotID, orientation, coordX, coordY);
@@ -123,23 +132,24 @@ var twoColoursAgree = function(coordX, coordY){
   }
 }
 
+/*
+* Set orientation of given robot in direction of tile.
+*/
 var reccheckTile = function(robotID, tileX, tileY){
-  // set orientation of robot to move towards that tile
-  // ??? how to we check that this action has been achieved? what if
-  // collision detection makes it change direction before completion?
+
 }
 
-/* 2D collision between two robots
- * Assume robot takes up one tile.
- * Take axis-aligned bounding box as 3 x 3 tiles.
-
-	 ------t-------
-			 |    |
-	 --------------
- l     | XX |   r
-	 --------------
-			 |    |
-	 ------b-------
+/*
+* 2D collision between two robots
+* Assume robot takes up one tile.
+* Take axis-aligned bounding box as 3 x 3 tiles.
+  ------t-------
+		 |    |
+  --------------
+l    | XX |     r
+  --------------
+		 |    |
+  ------b-------
  */
 var willCollide = function(robotID) {
   var l1 = robots[robotID].x - tileSize;
@@ -162,9 +172,11 @@ var willCollide = function(robotID) {
   }
   return false;
 }
+
 /*
-// check that robots do not go out of bounds of the floor pattern
-// if robot near 0x, 0y, nx, ny. Turn in the opposite direction
+* Check that robots do not go out of bounds of the floor pattern
+* If robot near bounding edges of the floor pattern,
+* turn in the opposite direction.
 */
 var willCollideEdge = function(robotID) {
   var coordX = robots[robotID].x;
@@ -178,23 +190,32 @@ var willCollideEdge = function(robotID) {
   return false;
 }
 
-var receiveTileSize = function(tileSize) {
-	console.log(tileSize);
-};
-
+/*
+* Command from user to resume traversal of robots
+* Sent to communication.js to notify the robots.
+*/
 var resume = function(robotID) {
 	communication.resume(robotID);
 }
 
+/*
+* Command from user to stop the traversal of one robot
+*/
 var stop = function(robotID) {
 	communication.stop(robotID);
 }
 
+/*
+* Command from user to stop the traversal of all robots
+*/
 var stopAll = function() {
   communication.stopAll();
 }
 
-var recieveTileSize = function(size) {
+/*
+* Get user input of tile size
+*/
+var setTileSize = function(size) {
 	tileSize = size;
 }
 
@@ -212,7 +233,7 @@ var getGridDimensions = function() {
 	return {x: width, y: length};
 }
 
-exports.receiveTileSize = receiveTileSize;
+exports.setTileSize = receiveTileSize;
 exports.getTileSize = getTileSize;
 exports.receiveGridDimensions = receiveGridDimensions;
 exports.getGridDimensions = getGridDimensions;
@@ -221,7 +242,10 @@ exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 
-// Module exports added for testing
+/*
+* Unit testing
+* Module exports added for testing
+*/
 if (TEST) {
 	var test = function() {
 		console.log("test");
