@@ -35,7 +35,7 @@ For first use, it is recommended that you use a serial port connection to ensure
 
 ##  Controlling the Pololu ##
 
-1. Start the server, and immediately reset the Pololu mbed with the reset buttong
+1. Start the server, and immediately reset the Pololu mbed with the reset button
 
 2. Wait for the Pololu to connect to the computer
 
