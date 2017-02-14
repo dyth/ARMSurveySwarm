@@ -75,18 +75,7 @@ io.sockets.on('connection', function(socket) {
 		console.log("grid size " + input.gridSize.toString());
 		processor.receiveTileSize(input.tileSize);
 		processor.receiveGridDimensions({x: input.gridSize, y: input.gridSize});
-
 	});
-
-	setTimeout(function () {
-
-		console.log("Updating tile");
-		io.emit('sendTileUpdate', {x: 0, y: 0, value: 1});
-		io.emit('sendTileUpdate', {x: 9, y: 0, value: 1});
-		io.emit('sendTileUpdate', {x: 0, y: 9, value: 1});
-		io.emit('sendTileUpdate', {x: 9, y: 9, value: 1});
-
-	}, 1000);
 
 });
 
