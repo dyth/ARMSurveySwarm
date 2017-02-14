@@ -29,7 +29,7 @@ server.listen(80);
 var updateStatus = function(robotID, x, y, status) {
 	// todo fix this up
 	io.emit('sendRobotStatus', {id: robotID, x: x, y: y, status: status});
-	console.log('emmited');
+	console.log('emitted');
 };
 
 var updateGrid = function(x, y) {
