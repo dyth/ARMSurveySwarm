@@ -6,8 +6,7 @@ var canvas;
 var stage;
 var graph;
 
-// TODO: WRITE TESTS
-// TODO: DRAW ROBOTS ON CANVAS
+// TODO: Draw Robots to Screen
 
 $(function () {
 
@@ -73,7 +72,11 @@ function updateState(robotId) {
 
     var robot = robots[robotId];
 
-    var row = $("#robot-" + robotId);
+    // Find the specific row to update
+    var robotSection = $(".robot-row")[robotId];
+    var row = $(robotSection).find("span.label");
+
+    // Update the row to display the correct state
     row.text(states[robot.status][0]);
     row.attr("class", states[robot.status][1]);
 

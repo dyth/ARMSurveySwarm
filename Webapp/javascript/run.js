@@ -13,7 +13,8 @@ $(function () {
     // Display info panel
     $(".info-btn").click(function () {
 
-        var robotId = $(this).data("robot-id");
+        // Extract the robot ID from the DOM
+        var robotId = $(this).closest(".robot-row").data("robot-id");
         displayRobotInfo(robotId);
 
     });
