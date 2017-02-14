@@ -33,6 +33,7 @@ var stop = function(robotID) {
 
 var stopAll = function() {
   // Stop all robots from moving
+  // Send stop message to all IPs of robots.
 }
 
 var changeOrientation = function(degree) {

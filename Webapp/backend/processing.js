@@ -1,10 +1,10 @@
 /**
- * Backend to deal with messages from robots
- * deal with representation of floor pattern.
- *
- * light intensity: 0 = black, 1 = white.
- *
- */
+* Backend to deal with messages from robots
+* deal with representation of floor pattern.
+*
+* light intensity: 0 = black, 1 = white.
+*
+*/
 
 // Call server.updateStatus(robotID, xPosition, yPosition, status)
 // server.updateGrid(x, y), updates the size of the grid.
@@ -79,8 +79,6 @@ var roundPosition = function(pos) {
 
 /*
 * Register communication of tile colour received from robots.
-* At least two robots need to agree on colour for the final colour to be set.
-* If two robots disagree, delegate another robot to re-check the tile.
 */
 var setTile = function(robotID, lightIntensity) {
   // update tile table for current position
@@ -105,39 +103,67 @@ var setTile = function(robotID, lightIntensity) {
   }
 }
 
-// set final tile colour, send to webapp
+/*
+* At least two robots need to agree on colour for the final colour to be set,
+* which is then sent to the webapp.
+* If two robots disagree, delegate another robot to re-check the tile.
+*/
 var twoColoursAgree = function(coordX, coordY){
   var numWhite = 0;
   var numBlack = 0;
   var tile = processingTiles[coordX][coordY];
+	var potentials = [];
 
   for (i = 0; i < 5; i++){
     if (tile[i] == 0) {
       numBlack += 1;
-    } else {
+    } else if (tile[i] == 1) {
       numWhite += 1;
-    }
+    } else {
+			potentials.push(i);
+		}
   }
 
   if (numWhite == numBlack) {
-    //TODO: robotID = Rand(potentials) (potentials are robot other than those that already checked)
-    //TODO: reccheckTile(robotID, orientation, coordX, coordY);
+
+		// potentials are robots other than those that already checked
+		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+    reccheckTile(robotID, coordX, coordY);
+
   } else if (numWhite > numBlack && numWhite >= 2) {
+
     processingTiles[coordX][coordY][5] = 1;
     server.setTile(coordX, coordY, 1);
     tilesCovered += 1;
+
   } else if (numBlack > numWhite && numBlack >= 2){
+
     processingTiles[coordX][coordY][5] = 0;
     server.setTile(coordX, coordY, 0);
     tileCovered += 1;
   }
 }
 
+var length = function(vector) {
+	return Math.sqrt(Math.pow(vector.x,2) + Math.pow(vector.y,2));
+}
+
 /*
 * Set orientation of given robot in direction of tile.
 */
 var reccheckTile = function(robotID, tileX, tileY){
+	// Currently direct line to tile
+	var coordX = robots[robotID].x;
+	var coordY = robots[robotID].y;
+	var A = [tileX - coordX, tileY - coordY]; // vector to tile
+	var B = [1,2]; // DUMMY current orientation of robot
 
+	// Find angle between current robot orientation and direction to tile
+	// axb = |a||b| sin(theta)
+	var sin_theta = (A.x*B.y - A.y*B.x)/(length(A)*length(B));
+
+	// Turn difference between these - CW or ACW.
+	changeOrientation(Math.asin(sin_theta));
 }
 
 /*
@@ -183,7 +209,7 @@ var willCollideEdge = function(robotID) {
   var coordX = robots[robotID].x;
   var coordY = robots[robotID].y;
   if (coordX <= 0 || coordX >= width) {
-    return true;
+    re(turn) true;
   }
   if (coordY <= 0 || coordY >= length) {
     return true;
