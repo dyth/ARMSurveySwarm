@@ -10,6 +10,13 @@ void TurnCounterClockwise(int degree) {
         wait (degree * 0.5538461538461539 / 360.0);
         m3pi.stop();
     }
+    
+void TurnClockwise(int degree) {
+        // Turn right at half speed
+        m3pi.right(0.5);
+        wait (degree * 0.5538461538461539 / 360.0);
+        m3pi.stop();
+    }
 
 void goForwards(int distance) {
         // goes forward distance mm
