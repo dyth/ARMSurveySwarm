@@ -11,6 +11,15 @@
  * light intensity
 */
 
+net = require('net');
+
+var server = net.createServer(function(socket) {
+	socket.write('stuff');
+	socket.pipe(socket);
+});
+
+server.listen(8000, '127.0.0.1');
+
 var processor = require('./processing');
 
 /* Messages to Robot */
