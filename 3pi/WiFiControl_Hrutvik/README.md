@@ -1,7 +1,5 @@
 # Controlling Pololu m3pi robots over WiFi #
 
-WiFi example for mbed OS
-
 ## Setup ##
 
 ### Configuring the ESP8266 WiFi module ###
