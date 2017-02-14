@@ -71,7 +71,8 @@ var move = function(robotID, coordX, coordY) {
 
 /* Function to round accurate position to correspond
 * to bottom left corner of tile.
-*/ Get position in list.
+* Get position in list.
+*/
 var roundPosition = function(pos) {
   return Math.floor(pos/tileSize);
 }
