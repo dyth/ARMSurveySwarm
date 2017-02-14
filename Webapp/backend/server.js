@@ -19,7 +19,7 @@ app.get('/run', function(req, res) {
 	res.render('../run.html');
 });
 
-// Attaches soocket.io to the server that we
+// Attaches socket.io to the server that we
 // have set up.
 var io = require('socket.io').listen(server);
 server.listen(80);
@@ -29,7 +29,7 @@ server.listen(80);
 var updateStatus = function(robotID, x, y, status) {
 	// todo fix this up
 	io.emit('sendRobotStatus', {id: robotID, x: x, y: y, status: status});
-	console.log('emmited');
+	console.log('emitted');
 };
 
 var updateGrid = function(x, y) {
