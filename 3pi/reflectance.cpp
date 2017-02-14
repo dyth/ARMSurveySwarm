@@ -1,4 +1,4 @@
-//
+// print line position / reflectance on 3pi screen
 #include "mbed.h"
 #include "m3pi.h"
 
