@@ -15,10 +15,19 @@ describe('the socketUpdateArea function', function() {
 		expect(tiles[0][0]).to.equal(DEFAULT_TILE_CONTENTS);
 	});
 
+	it('should have default values', function() {
+		tiles = [];
+
+		socketUpdateArea({xDim: 10, yDim: 10});
+
+		expect(tiles[0][0]).to.equal(0);
+		expect(tiles[4][7]).to.equal(0);
+	});
+
 	it('should preserve changes', function() {
 		tiles[0][0] = 100;
 		tiles[3][2] = 20;
-		
+
 		// And test edge cases:
 		var oldLength = tiles.length - 1;
 		var oldLengthInner = tiles[oldLength].length - 1;
@@ -32,7 +41,7 @@ describe('the socketUpdateArea function', function() {
 		expect(tiles[0].length).to.equal(15);
 		expect(tiles[0][0]).to.equal(100);
 		expect(tiles[3][2]).to.equal(20);
-		expect(tiles[oldLength][oldLengthInner]);
+		expect(tiles[oldLength][oldLengthInner]).to.equal(-10);
 	});
 
 	it('should respond by maintaining a rectangular shape even when presented ' +
