@@ -38,6 +38,7 @@ var updateGrid = function(x, y) {
 
 var updateTile = function(x, y, tileValue) {
 	io.emit('sendTileData', {x: x, y: y, value: tileValue});
+	console.log('tile data sent');
 };
 
 io.sockets.on('connection', function(socket) {
@@ -48,6 +49,15 @@ io.sockets.on('connection', function(socket) {
 	var gridSize = processor.getGridDimensions();
 	socket.emit('sendAreaDimensions', {xDim: gridSize.x,
 		yDim: gridSize.y});
+
+	setTimeout(function() {
+		updateGrid(10, 10);
+		updateTile(0, 0, 1);
+		updateTile(1, 0, 1);
+		updateTile(3, 0, 1);
+		updateTile(4, 0, 1);
+		updateTile(5, 1, 1);
+	}, 1000);
 
 	socket.on('stop', function(robot) {
 		processor.stop(robot);
