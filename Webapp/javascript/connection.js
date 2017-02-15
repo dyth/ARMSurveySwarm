@@ -16,7 +16,7 @@ var socketUpdateArea = function(data) {
 	var innerLength = 0;
 	for (var i = 0; i < tiles.length; i ++) {
 		for (var y = tiles[i].length; y < data.yDim; y ++) {
-			tiles[i].push(DEFAULT_TILE_CONTENTS);
+			tiles[i].push(0);
 		}
 
 		// Do this to keep track of the length
@@ -34,12 +34,14 @@ var socketUpdateArea = function(data) {
 
 	// This is done in this way because we need to preseve
 	// any old data in the loop.
+	console.log(newYDim);
 	for (var i = tiles.length; i < data.xDim; i ++) {
-		var newArray = new Array(newYDim);
+		var newArray = [];
 
-		for (var y = 0; y < newArray.length; y ++) {
-			newArray[i] = DEFAULT_TILE_CONTENTS;
+		for (var y = 0; y < newYDim; y ++) {
+			newArray.push(0);
 		}
+
 		tiles.push(newArray);
 	}
 
@@ -74,7 +76,7 @@ var socket = io('localhost');
 
 socket.on('sendRobotStatus', socketReceiveStatus);
 socket.on('sendAreaDimensions', socketUpdateArea);
-socket.on('sendTileUpdate', socketTileUpdate);
+socket.on('sendTileData', socketTileUpdate);
 
 // This should be called to stop a robot
 // with ID 'robotID'
