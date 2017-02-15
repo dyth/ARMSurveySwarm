@@ -209,7 +209,7 @@ var willCollideEdge = function(robotID) {
   var coordX = robots[robotID].x;
   var coordY = robots[robotID].y;
   if (coordX <= 0 || coordX >= width) {
-    re(turn) true;
+    return true;
   }
   if (coordY <= 0 || coordY >= length) {
     return true;
@@ -250,7 +250,7 @@ var getTileSize = function() {
 	return tileSize;
 }
 
-var receiveGridDimensions = function(sizes) {
+var setGridDimensions = function(sizes) {
 	// TODO -- set up the grid to be the right size when this is called.
 	width = sizes.x;
 	length = sizes.y;
@@ -260,9 +260,9 @@ var getGridDimensions = function() {
 	return {x: width, y: length};
 }
 
-exports.setTileSize = receiveTileSize;
+exports.setTileSize = setTileSize;
 exports.getTileSize = getTileSize;
-exports.receiveGridDimensions = receiveGridDimensions;
+exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
 exports.willCollide = willCollide;
 exports.resume = resume;
