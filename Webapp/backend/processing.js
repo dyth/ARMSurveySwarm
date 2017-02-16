@@ -268,6 +268,7 @@ exports.willCollide = willCollide;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
+exports.setTile = setTile;
 
 /*
 * Unit testing

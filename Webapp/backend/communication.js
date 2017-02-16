@@ -17,13 +17,14 @@
 robots = [];
 
 net = require('net');
+processor = require('./processing');
 
 var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
 	socket.on('data', function(data) {
 		// TODO -- only call this on a syncrhonization message
-		robots.addRobotByID(data.id, socket);
+		addRobotByID(data.id, socket);
 
 		console.log('data ' + data);
 		// Get from the robots:
@@ -32,7 +33,8 @@ var server = net.createServer(function(socket) {
 		//
 		// Need to calculate a new position based on that
 
-		communication.setTile(robotID, data.intensities);
+		// set the tiles. this calls communication.move().
+		processor.setTile(data.id, data.intensities);
 	});
 });
 
