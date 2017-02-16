@@ -34,12 +34,10 @@ var tileSize;
 */
 var createTilesList = function() {
   totalTiles = width * length;
-  width = width;
-  length = length;
   // set each tile to unknown = 2
-  for(i = 0; i < width; i++){
+  for(var i = 0; i < width; i++){
     var columns = [];
-    for(j = 0; j < length; j++) {
+    for(var j = 0; j < length; j++) {
       columns.push(initialTileState);
     }
     processingTiles.push(columns);
@@ -49,15 +47,13 @@ var createTilesList = function() {
 }
 
 /*
-* Extract last element in each processingTiles[y][x] to create finalTiles
+* Extract last element in each processingTiles[x][y] to create finalTiles
 */
 var getFinalTiles = function(processingTiles) {
   var finalTiles = [];
-  var nX = processingTiles.length;
-  var nY = processingTiles[0].length;
-  for(i = 0; i < nX; i++){
+  for(var i = 0; i < width; i++){
     var columns = [];
-    for(j = 0; j < nY; j++) {
+    for(var j = 0; j < length; j++) {
       columns[j] = processingTiles[i][j][5];
     }
     finalTiles[i] = columns;
@@ -86,7 +82,7 @@ var setTile = function(robotID, messages) {
 	var coordX = 0;
 	var coordY = 0;
 	var lightIntensity = 0;
-	for (i = 0; i < messages.length; i++) {
+	for (var i = 0; i < messages.length; i++) {
 		coordX = roundPosition(messages[i].x);
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
@@ -135,7 +131,7 @@ var twoColoursAgree = function(coordX, coordY){
   var tile = processingTiles[coordX][coordY];
 	var potentials = [];
 
-  for (i = 0; i < 5; i++){
+  for (var i = 0; i < 5; i++){
     if (tile[i] == 0) {
       numBlack += 1;
     } else if (tile[i] == 1) {
@@ -181,7 +177,7 @@ var reccheckTile = function(robotID, tileX, tileY){
 
 	// Find angle between current robot orientation and direction to tile
 	// axb = |a||b| sin(theta)
-	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(length(A)*length(B));
+	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(A.length*B.length);
 
 	// Turn difference between these - CW or ACW.
 	communication.move(robotID, Math.asin(sin_theta), 2);
@@ -209,7 +205,7 @@ var willCollide = function(robotID) {
   var potentials = robots.slice(0, robotID).append(robots.slice(robotID+1, 6));
   var collision = false;
 
-  for (i = 0; i < 4; i ++) {
+  for (var i = 0; i < 4; i ++) {
     l2 = potentials[i].xPrev - tileSize;
     r2 = potentials[i].xPrev + tileSize;
     b2 = potentials[i].xPrev - tileSize;
