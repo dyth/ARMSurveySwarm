@@ -113,7 +113,7 @@ var setTile = function(robotID, messages) {
     //TODO: move away - straight line or right angles?
   }
   if (willCollideEdge(robotID)) {
-    communication.move(robotID, 180, /* distance */);
+    communication.move(robotID, 180, 2); //dummy distance
   }
 
   //check if whole board covered
@@ -182,7 +182,7 @@ var reccheckTile = function(robotID, tileX, tileY){
 	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(length(A)*length(B));
 
 	// Turn difference between these - CW or ACW.
-	communication.move(robotID, Math.asin(sin_theta), /* distance */);
+	communication.move(robotID, Math.asin(sin_theta), 2);
 }
 
 /*
