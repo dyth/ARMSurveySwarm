@@ -28,6 +28,7 @@ var length;
 var tilesCovered = 0;
 var totalTiles;
 var tileSize;
+var startedProcessing = false;
 
 /*
 * Create new tilesList
@@ -70,6 +71,11 @@ var roundPosition = function(pos) {
 * Register communication of tile colour received from robots.
 */
 var setTile = function(robotID, messages) {
+  if (!startedProcessing) {
+    // If the processing hasn't started then
+    // all the state below hasn't been defined yet.
+    return;
+  }
   // update tile table for current position
 
 	// List of dictionaries in messages
@@ -91,7 +97,18 @@ var setTile = function(robotID, messages) {
 	  twoColoursAgree(coordX, coordY);
 	}
 
+  //check if whole board covered
+  if (tilesCovered == totalTiles) {
+    communication.stopAll();
+  }
+
+  // after updating the tiles, route the robot.
+  routeRobot(robotID);
+}
+
+var routeRobot = function(robotID) {
 	// TODO: check that final destination has completed line needed to be covered.
+	console.log(robotID);
 	robots[robotID].xPrev = robots[robotID].xAfter;
 	robots[robotID].yPrev = robots[robotID].yAfter;
 
@@ -99,7 +116,8 @@ var setTile = function(robotID, messages) {
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
- 	var destination = route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
+ 	var destination = 
+		route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
@@ -107,13 +125,12 @@ var setTile = function(robotID, messages) {
   if (willCollide(robotID)) {
     //TODO: move away - straight line or right angles?
   }
+
   if (willCollideEdge(robotID)) {
     communication.move(robotID, 180, 2); //dummy distance
   }
-  //check if whole board covered
-  if (tilesCovered == totalTiles) {
-    communication.stopAll();
-  }
+  
+  // TODO -- need to do normal routing here
 }
 
 /*
@@ -265,7 +282,6 @@ var getTileSize = function() {
 }
 
 var setGridDimensions = function(sizes) {
-	// TODO -- set up the grid to be the right size when this is called.
 	width = sizes.x;
 	length = sizes.y;
 
@@ -274,6 +290,22 @@ var setGridDimensions = function(sizes) {
 
 var getGridDimensions = function() {
 	return {x: width, y: length};
+}
+
+var startProcessing = function() {
+	startedProcessing = true;
+
+	// Now do the routing for each of the robots to start
+	// them off:
+	var connectedRobots = communication.getConnectedRobots();
+	console.log('starting');
+
+	for (var i = 0; i < connectedRobots.length; i ++) {
+		// connectedRobots[i] is an ID.
+		routeRobot(connectedRobots[i]);
+		console.log('sent out start message');
+	}
+
 }
 
 exports.setTileSize = setTileSize;
@@ -285,6 +317,7 @@ exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.setTile = setTile;
+exports.startProcessing = startProcessing;
 
 /*
 * Unit testing

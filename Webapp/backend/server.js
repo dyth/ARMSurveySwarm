@@ -83,9 +83,14 @@ io.sockets.on('connection', function(socket) {
 	socket.on('startRobots', function(input) {
 		console.log("tile size " + input.tileSize.toString());
 		console.log("grid size " + input.gridSize.toString());
+		// ready? 
 		processor.setTileSize(input.tileSize);
+		// READY?
 		processor.setGridDimensions({x: input.gridSize, y: input.gridSize});
+		// SET?
 		processor.createTilesList();
+		// GO!!
+		processor.startProcessing();
 	});
 
 });

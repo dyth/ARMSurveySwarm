@@ -42,7 +42,7 @@ var server = net.createServer(function(socket) {
 });
 
 var addRobotByID = function(robotID, socket) {
-  // /console.log(socket);
+  	// /console.log(socket);
 	// Check if the robot is in the robots list.
 	// If not then add it. Otherwise, update the socket.
 	for (var i = 0; i < robots.length; i++) {
@@ -66,6 +66,20 @@ var getSocketByID = function(robotID) {
 		}
 	}
 	return null;
+}
+
+// Returns a list of the IDs of the 
+// connected robots.
+var getConnectedRobots = function() {
+	var connections = [];
+
+	for (var i = 0; i < robots.length; i ++) {
+		if (!robots[i].destroyed) {
+			connections.push(robots[i].id);
+		}
+	}
+
+	return connections;
 }
 
 server.listen(8000, '127.0.0.1');
@@ -110,3 +124,4 @@ exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.move = move;
+exports.getConnectedRobots = getConnectedRobots;
