@@ -203,10 +203,10 @@ var willCollide = function(robotID) {
   var t1 = robots[robotID].yPrev + tileSize;
   var l2, r2, b2, t2;
 
-  var potentials = robots.slice(0, robotID).push(robots.slice(robotID+1, 6));
+  var potentials = robots.slice(0, robotID).concat(robots.slice(robotID+1, 6));
   var collision = false;
 
-  for (var i = 0; i < 4; i ++) {
+  for (var i = 0; i < potentials.length; i ++) {
     l2 = potentials[i].xPrev - tileSize;
     r2 = potentials[i].xPrev + tileSize;
     b2 = potentials[i].xPrev - tileSize;
