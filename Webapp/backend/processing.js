@@ -32,18 +32,20 @@ var tileSize;
 /*
 * Create new tilesList
 */
-var createTilesList = function(nX, nY) {
-  totalTiles = nX * nY;
-  width = nX;
-  length = nY;
+var createTilesList = function() {
+  totalTiles = width * length;
+  width = width;
+  length = length;
   // set each tile to unknown = 2
-  for(i = 0; i < nX; i++){
+  for(i = 0; i < width; i++){
     var columns = [];
-    for(j = 0; j < nY; j++) {
+    for(j = 0; j < length; j++) {
       columns.push(initialTileState);
     }
     processingTiles.push(columns);
   }
+
+  console.log(processingTiles);
 }
 
 /*
@@ -273,6 +275,8 @@ var setGridDimensions = function(sizes) {
 	// TODO -- set up the grid to be the right size when this is called.
 	width = sizes.x;
 	length = sizes.y;
+
+	createTilesList();
 }
 
 var getGridDimensions = function() {

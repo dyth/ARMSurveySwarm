@@ -85,6 +85,7 @@ io.sockets.on('connection', function(socket) {
 		console.log("grid size " + input.gridSize.toString());
 		processor.setTileSize(input.tileSize);
 		processor.setGridDimensions({x: input.gridSize, y: input.gridSize});
+		processor.createTilesList();
 	});
 
 });
