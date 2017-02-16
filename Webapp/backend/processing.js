@@ -162,7 +162,7 @@ var twoColoursAgree = function(coordX, coordY){
   }
 }
 
-var length = function(vector) {
+var vectorLength = function(vector) {
 	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2));
 }
 
@@ -178,7 +178,7 @@ var reccheckTile = function(robotID, tileX, tileY){
 
 	// Find angle between current robot orientation and direction to tile
 	// axb = |a||b| sin(theta)
-	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(A.length*B.length);
+	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
 
 	// Turn difference between these - CW or ACW.
 	communication.move(robotID, Math.asin(sin_theta), 2);
