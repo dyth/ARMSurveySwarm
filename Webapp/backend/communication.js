@@ -101,8 +101,8 @@ var move = function(robotID, degree, distance) {
 	// TODO -- move the robot
 	var socket = getSocketByID(robotID);
 
-	socket.emit('id ' + robotID.toString() + ' ');
-  console.log('At end of move');
+	console.log('id ' + robotID.toString() + ' Degree:' + degree.toString()
+		+ ' Distance: ' + distance.toString());
 }
 
 exports.resume = resume;
