@@ -5,7 +5,6 @@
 * light intensity: 0 = black, 1 = white.
 *
 */
-
 // Call server.updateStatus(robotID, xPosition, yPosition, status)
 // server.updateGrid(x, y), updates the size of the grid.
 // server.updateTile(x, y, value) updates a tile.
@@ -90,11 +89,12 @@ var setTile = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
-
+		server.updateTile(coordX, coordY, lightIntensity);
+		server.updateStatus(robotID, coordX, coordY, robots[robotID].robotStatus);
 		// if two robots agree on colour, set finalColour,
 	  twoColoursAgree(coordX, coordY);
 	}
-	robots[robotID].
+
 	// TODO: check that final destination has completed line needed to be covered.
 	robots[robotID].xPrev = robots[robotID].xAfter;
 	robots[robotID].yPrev = robots[robotID].yAfter;
@@ -103,7 +103,10 @@ var setTile = function(robotID, messages) {
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
- 	(robots[robotID].xAfter, robots[robotID].yAfter) = route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
+ 	var destination = route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
+	robots[robotID].xAfter = destination.xAfter;
+	robots[robotID].yAfter = destination.yAfter;
+
 
   // check for collisions with 4 other robots
   if (willCollide(robotID)) {
