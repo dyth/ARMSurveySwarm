@@ -9,5 +9,4 @@ var move = function(robotID, startX, startY) {
 
   return destination;
 }
-
 exports.move = move;

@@ -104,13 +104,12 @@ var setTile = function(robotID, messages) {
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
-
   // check for collisions with 4 other robots
   if (willCollide(robotID)) {
     //TODO: move away - straight line or right angles?
   }
   if (willCollideEdge(robotID)) {
-	console.log("Robot ID " + robotID);
+		console.log("Robot ID " + robotID);
     communication.move(robotID, 180, 2); //dummy distance
   }
 

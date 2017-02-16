@@ -23,14 +23,13 @@ var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
 	socket.on('data', function(data) {
-		// TODO -- only call this on a syncrhonization message
+		// TODO -- only call this on a synchronization message
 		// addRobotByID(data.id, socket);
 		addRobotByID(0, socket);
-		console.log('robots ' + robots);
 
 		console.log('data ' + data);
 		// Get from the robots:
-		//		Robot ID 
+		//		Robot ID
 		//		Light Intensities list (lightIntensity, x, y)
 		//
 		// Need to calculate a new position based on that
@@ -43,16 +42,16 @@ var server = net.createServer(function(socket) {
 });
 
 var addRobotByID = function(robotID, socket) {
+  // /console.log(socket);
 	// Check if the robot is in the robots list.
 	// If not then add it. Otherwise, update the socket.
-	for (var i = 0; i < robots.length; i ++) {
+	for (var i = 0; i < robots.length; i++) {
 		if (robots[i].id === robotID) {
 			// update the socket and return
 			robots[i].socket = socket;
 			return;
 		}
 	}
-
 	// Otherwise add a new entry into the list.
 	robots.push({id: robotID, socket: socket});
 };
@@ -61,12 +60,11 @@ var addRobotByID = function(robotID, socket) {
 // robot in the system. Returns null
 // if the robot is not found.
 var getSocketByID = function(robotID) {
-	for  (var i = 0; i < robots.length; i ++) {
+	for(var i = 0; i < robots.length; i ++) {
 		if (robotID === robots[i].id) {
-			return robots.socket;
+			return robots[i].socket;
 		}
 	}
-
 	return null;
 }
 
@@ -101,11 +99,10 @@ var stopAll = function() {
 var move = function(robotID, degree, distance) {
 	// turn robot degree degrees clockwise
 	// TODO -- move the robot
-	console.log('robot id ' + robotID);
 	var socket = getSocketByID(robotID);
 
 	socket.emit('id ' + robotID.toString() + ' ');
-
+  console.log('At end of move');
 }
 
 exports.resume = resume;
