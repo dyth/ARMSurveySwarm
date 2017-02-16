@@ -29,12 +29,14 @@ var server = net.createServer(function(socket) {
 		console.log('data ' + data);
 		// Get from the robots:
 		//		Robot ID 
-		//		Light Intensities list (intesity, x, y)
+		//		Light Intensities list (lightIntensity, x, y)
 		//
 		// Need to calculate a new position based on that
 
 		// set the tiles. this calls communication.move().
-		processor.setTile(data.id, data.intensities);
+		var dummyMessage = [{x: 0, y: 0, lightIntensity: 10}]
+		// processor.setTile(data.id, data.intensities);
+		processor.setTile(0, dummyMessage);
 	});
 });
 
@@ -98,6 +100,9 @@ var move = function(robotID, degree, distance) {
 	// turn robot degree degrees clockwise
 	// TODO -- move the robot
 	var socket = getSocketByRobotID(robotID);
+
+	socket.emit('id ' + robotID.toString() + ' ');
+
 }
 
 exports.resume = resume;
