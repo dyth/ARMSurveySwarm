@@ -100,7 +100,6 @@ var setTile = function(robotID, messages) {
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
  	var destination = route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
-
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
@@ -109,10 +108,8 @@ var setTile = function(robotID, messages) {
     //TODO: move away - straight line or right angles?
   }
   if (willCollideEdge(robotID)) {
-		console.log("Robot ID " + robotID);
     communication.move(robotID, 180, 2); //dummy distance
   }
-
   //check if whole board covered
   if (tilesCovered == totalTiles) {
     communication.stopAll();

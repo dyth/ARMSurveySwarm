@@ -5,8 +5,8 @@
 */
 
 var move = function(robotID, startX, startY) {
-  var destination =  {afterX: 0, afterY:0};
-
+  var destination =  {xAfter: 0, yAfter: 0};
   return destination;
 }
+
 exports.move = move;
