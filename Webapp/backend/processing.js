@@ -100,6 +100,7 @@ var setTile = function(robotID, messages) {
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
  	var destination = route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
+
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
@@ -143,6 +144,7 @@ var twoColoursAgree = function(coordX, coordY){
   if (numWhite == numBlack) {
 
 		// potentials are robots other than those that already checked
+		//TODO : Can't interrupt robot
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
     reccheckTile(robotID, coordX, coordY);
 
@@ -201,7 +203,7 @@ var willCollide = function(robotID) {
   var t1 = robots[robotID].yPrev + tileSize;
   var l2, r2, b2, t2;
 
-  var potentials = robots.slice(0, robotID).append(robots.slice(robotID+1, 6));
+  var potentials = robots.slice(0, robotID).push(robots.slice(robotID+1, 6));
   var collision = false;
 
   for (var i = 0; i < 4; i ++) {
