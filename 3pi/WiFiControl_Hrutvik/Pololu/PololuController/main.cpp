@@ -4,14 +4,14 @@
 #include "SocketAddress.h"
 #include "m3pi.h"
 
-#define SERVIP "192.168.137.1"
-#define SERVPORT 1234
+#define SERVIP "10.248.127.255"
+#define SERVPORT 8000
 
 /**
     The mbed-sockets-control program implements the ability to control a Pololu
     3pi robot over WiFi using TCP sockets. The robot must have an ESP8266 WiFi
     module, preconfigured to connect to the relevant WiFi network.
-    Author: Hrutvik Kanabar
+    Authors: Hrutvik Kanabar, David Hui, Lucia Bura
     Date: 14/02/2017
 */
 
@@ -79,6 +79,39 @@ void tcp_control(){
     }
 }
 
+float TurnCounterClockwise(int degree) {
+        // Turn left at half speed
+        m3pi.left(0.5);
+        wait (degree * 0.5538461538461539 / 360.0);
+        m3pi.stop();
+        return m3pi.line_position();
+    }
+    
+float TurnClockwise(int degree) {
+        // Turn right at half speed
+        m3pi.right(0.5);
+        wait (degree * 0.5538461538461539 / 360.0);
+        m3pi.stop();
+        return m3pi.line_position();
+    }
+
+float goForwards(int distance) {
+        // go forward distance mm
+        m3pi.forward(0.5);
+        wait (distance / 470.0);
+        m3pi.stop();
+        return m3pi.line_position();
+    }
+    
+float goBackwards(int distance) {
+        // go backwards distance mm
+        m3pi.backward(0.5);
+        wait (distance / 470.0);
+        m3pi.stop();
+        return m3pi.line_position();
+    }
+
+
 int main() {
     m3pi.locate(0,1);
     m3pi.printf("TCP");
@@ -99,7 +132,10 @@ int main() {
 
     // Start output of line position
     //thread.start(outgoing_thread);
-
+    
+    // Automatically calibrate values of black and white
+    m3pi.sensor_auto_calibrate();
+    
     // Start controller
     tcp_control();
 
