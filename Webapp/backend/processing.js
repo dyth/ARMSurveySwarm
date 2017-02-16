@@ -11,6 +11,7 @@
 // server.updateTile(x, y, value) updates a tile.
 var server = require('./server');
 var communication = require('./communication');
+var route = require('./route');
 
 var TEST = true;
 
@@ -18,10 +19,11 @@ var processingTiles = [];
 var initialTileState = [2,2,2,2,2,2];
 
 // array order is by ID
-var robots = [{id: 0, x: 0,y: 0, robotStatus: 2},
-	{id: 1, x: 0, y: 0, robotStatus: 2}, {id: 2, x: 0,y : 0, robotStatus: 2},
-	{id: 3, x: 0, y: 0, robotStatus: 2}, {id: 4, x: 0, y: 0, robotStatus: 2}];
-var byUncertainty = [0,1,2,3,4];
+var robots = [{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0,robotStatus: 2},
+	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
+	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
+	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
+	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2}];
 var width;
 var length;
 var tilesCovered = 0;
@@ -61,14 +63,6 @@ var getFinalTiles = function(processingTiles) {
   }
 }
 
-/*
-* Update robot position in list after position update.
-*/
-var move = function(robotID, coordX, coordY) {
-  robots[robotID].x = coordX;
-  robots[robotID].y = coordY;
-}
-
 /* Function to round accurate position to correspond
 * to bottom left corner of tile.
 * Get position in list.
@@ -80,21 +74,43 @@ var roundPosition = function(pos) {
 /*
 * Register communication of tile colour received from robots.
 */
-var setTile = function(robotID, lightIntensity) {
+var setTile = function(robotID, messages) {
   // update tile table for current position
-  var coordX = roundPosition(robots[robotID].x);
-  var coordY = roundPosition(robots[robotID].y);
-  processingTiles[coordX][coordY][robotID] = lightIntensity;
 
-  // if two robots agree on colour, set finalColour,
-  twoColoursAgree(coordX, coordY);
+	// List of dictionaries in messages
+	// Get x, y, light intensity, add to processing tiles
+	// Set new position of robot
+	// Check if last position corresponds to position required to recheck tile
+	// = task complete.
+	var coordX = 0;
+	var coordY = 0;
+	var lightIntensity = 0;
+	for (i = 0; i < messages.length; i++) {
+		coordX = roundPosition(messages[i].x);
+		coordY = roundPosition(messages[i].y);
+		lightIntensity = messages[i].lightIntensity;
+		processingTiles[coordX][coordY][robotID] = lightIntensity;
+
+		// if two robots agree on colour, set finalColour,
+	  twoColoursAgree(coordX, coordY);
+	}
+	robots[robotID].
+	// TODO: check that final destination has completed line needed to be covered.
+	robots[robotID].xPrev = robots[robotID].xAfter;
+	robots[robotID].yPrev = robots[robotID].yAfter;
+
+	// set robots to move to random point in another module
+	// send robotID, last x position, last y position
+	// move will send back the destination of the robot so can set
+	// xA and yA to xB and yB and set Afters with data received from route.
+ 	(robots[robotID].xAfter, robots[robotID].yAfter) = route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
 
   // check for collisions with 4 other robots
   if (willCollide(robotID)) {
     //TODO: move away - straight line or right angles?
   }
   if (willCollideEdge(robotID)) {
-    communication.changeOrientation(180);
+    communication.move(robotID, 180, /* distance */);
   }
 
   //check if whole board covered
@@ -145,7 +161,7 @@ var twoColoursAgree = function(coordX, coordY){
 }
 
 var length = function(vector) {
-	return Math.sqrt(Math.pow(vector.x,2) + Math.pow(vector.y,2));
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2));
 }
 
 /*
@@ -153,17 +169,17 @@ var length = function(vector) {
 */
 var reccheckTile = function(robotID, tileX, tileY){
 	// Currently direct line to tile
-	var coordX = robots[robotID].x;
-	var coordY = robots[robotID].y;
+	var coordX = robots[robotID].xPrev;
+	var coordY = robots[robotID].yPrev;
 	var A = [tileX - coordX, tileY - coordY]; // vector to tile
 	var B = [1,2]; // DUMMY current orientation of robot
 
 	// Find angle between current robot orientation and direction to tile
 	// axb = |a||b| sin(theta)
-	var sin_theta = (A.x*B.y - A.y*B.x)/(length(A)*length(B));
+	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(length(A)*length(B));
 
 	// Turn difference between these - CW or ACW.
-	changeOrientation(Math.asin(sin_theta));
+	communication.move(robotID, Math.asin(sin_theta), /* distance */);
 }
 
 /*
@@ -179,20 +195,20 @@ l    | XX |     r
   ------b-------
  */
 var willCollide = function(robotID) {
-  var l1 = robots[robotID].x - tileSize;
-  var r1 = robots[robotID].x + tileSize;
-  var b1 = robots[robotID].y - tileSize;
-  var t1 = robots[robotID].y + tileSize;
+  var l1 = robots[robotID].xPrev - tileSize;
+  var r1 = robots[robotID].xPrev + tileSize;
+  var b1 = robots[robotID].yPrev - tileSize;
+  var t1 = robots[robotID].yPrev + tileSize;
   var l2, r2, b2, t2;
 
   var potentials = robots.slice(0, robotID).append(robots.slice(robotID+1, 6));
   var collision = false;
 
   for (i = 0; i < 4; i ++) {
-    l2 = potentials[i].x - tileSize;
-    r2 = potentials[i].x + tileSize;
-    b2 = potentials[i].x - tileSize;
-    t2 = potentials[i].y + tileSize;
+    l2 = potentials[i].xPrev - tileSize;
+    r2 = potentials[i].xPrev + tileSize;
+    b2 = potentials[i].xPrev - tileSize;
+    t2 = potentials[i].yPrev + tileSize;
     if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
       return true;
     }
@@ -206,8 +222,8 @@ var willCollide = function(robotID) {
 * turn in the opposite direction.
 */
 var willCollideEdge = function(robotID) {
-  var coordX = robots[robotID].x;
-  var coordY = robots[robotID].y;
+  var coordX = robots[robotID].xPrev;
+  var coordY = robots[robotID].yPrev;
   if (coordX <= 0 || coordX >= width) {
     return true;
   }
@@ -287,7 +303,6 @@ if (TEST) {
 	exports.processingTiles = processingTiles;
 	exports.initialTileState = initialTileState;
 	exports.robots = robots;
-	exports.byUncertainty = byUncertainty;
 	exports.width = width;
 	exports.length = length;
 	exports.tilesCovered = tilesCovered;
