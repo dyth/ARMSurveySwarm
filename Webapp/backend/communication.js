@@ -24,7 +24,9 @@ var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
 		// TODO -- only call this on a syncrhonization message
-		addRobotByID(data.id, socket);
+		// addRobotByID(data.id, socket);
+		addRobotByID(0, socket);
+		console.log('robots ' + robots);
 
 		console.log('data ' + data);
 		// Get from the robots:
@@ -34,7 +36,7 @@ var server = net.createServer(function(socket) {
 		// Need to calculate a new position based on that
 
 		// set the tiles. this calls communication.move().
-		var dummyMessage = [{x: 0, y: 0, lightIntensity: 10}]
+		var dummyMessage = [{x: 0, y: 0, lightIntensity: 1}]
 		// processor.setTile(data.id, data.intensities);
 		processor.setTile(0, dummyMessage);
 	});
@@ -99,7 +101,8 @@ var stopAll = function() {
 var move = function(robotID, degree, distance) {
 	// turn robot degree degrees clockwise
 	// TODO -- move the robot
-	var socket = getSocketByRobotID(robotID);
+	console.log('robot id ' + robotID);
+	var socket = getSocketByID(robotID);
 
 	socket.emit('id ' + robotID.toString() + ' ');
 

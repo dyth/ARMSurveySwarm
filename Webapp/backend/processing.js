@@ -42,8 +42,6 @@ var createTilesList = function() {
     }
     processingTiles.push(columns);
   }
-
-  console.log(processingTiles);
 }
 
 /*
@@ -111,6 +109,7 @@ var setTile = function(robotID, messages) {
     //TODO: move away - straight line or right angles?
   }
   if (willCollideEdge(robotID)) {
+	console.log("Robot ID " + robotID);
     communication.move(robotID, 180, 2); //dummy distance
   }
 
