@@ -23,11 +23,11 @@ var robots = [{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0,robotStatus: 2},
 	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
 	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
 	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2}];
-var width;
-var length;
+var width = 0;
+var length = 0;
 var tilesCovered = 0;
-var totalTiles;
-var tileSize;
+var totalTiles = 0;
+var tileSize = 0;
 var startedProcessing = false;
 
 /*
@@ -43,6 +43,7 @@ var createTilesList = function() {
     }
     processingTiles.push(columns);
   }
+  console.log(processingTiles.length);
 }
 
 /*
@@ -324,16 +325,7 @@ exports.startProcessing = startProcessing;
 * Module exports added for testing
 */
 if (TEST) {
-	var test = function() {
-		console.log("test");
-	};
-	exports.test = test;
 	exports.createTilesList = createTilesList;
-
-	exports.tilesSize = function() {
-		return processingTiles.length;
-	}
-
 	exports.processingTiles = processingTiles;
 	exports.initialTileState = initialTileState;
 	exports.robots = robots;
