@@ -14,7 +14,8 @@
 
 // NOTE -- Unlike the rest of the application,
 // this array is not indexed by ID.
-robots = [];
+var robots = [];
+var TEST = true;
 
 net = require('net');
 processor = require('./processing');
@@ -66,7 +67,7 @@ var getSocketByID = function(robotID) {
 		}
 	}
 	return null;
-}
+};
 
 // Returns a list of the IDs of the 
 // connected robots.
@@ -80,7 +81,7 @@ var getConnectedRobots = function() {
 	}
 
 	return connections;
-}
+};
 
 server.listen(8000, '127.0.0.1');
 
@@ -92,7 +93,7 @@ var resume = function(robotID) {
 
 	// todo -- deal with a null socket
 	// todo -- actually send a resume message
-}
+};
 
 var stop = function(robotID) {
 	// Stop a robot from moving
@@ -100,7 +101,7 @@ var stop = function(robotID) {
 
 	// todo -- deal with a null socket
 	// todo -- actually send a resume message
-}
+};
 
 var stopAll = function() {
 	// Stop all robots from moving
@@ -108,7 +109,7 @@ var stopAll = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		// todo, check if socket is open and stop it.
 	}
-}
+};
 
 var move = function(robotID, degree, distance) {
 	// turn robot degree degrees clockwise
@@ -118,10 +119,18 @@ var move = function(robotID, degree, distance) {
 	socket.write({degree: degree, distance: distance}.toString());
 	console.log('id ' + robotID.toString() + ' Degree:' + degree.toString()
 		+ ' Distance: ' + distance.toString());
-}
+};
 
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.move = move;
 exports.getConnectedRobots = getConnectedRobots;
+
+if (TEST) {
+	exports.TEST = TEST;
+	exports.addRobotByID = addRobotByID;
+	exports.getSocketByID = getSocketByID;
+	exports.getConnectedRobots = getConnectedRobots;
+	exports.robots = robots;
+}
