@@ -32,16 +32,32 @@ var startedProcessing = false;
 
 /*
 * Create new tilesList
+*
+* Does not delete any contents of the list
+* if they are already defined.
 */
 var createTilesList = function() {
   totalTiles = width * length;
-  // set each tile to unknown = 2
-  for(var i = 0; i < width; i++){
+  // Increases the number of tiles up to the 
+  // width and length.
+  for(var i = processingTiles.length; i < width; i++){
     var columns = [];
-    for(var j = 0; j < length; j++) {
+	
+	if (i < processingTiles.length) {
+	  // There are already tiles here.
+	  // We don't want to lose information on them.
+      columns = processingTiles[i];
+	}
+
+    for(var j = columns.length; j < length; j++) {
       columns.push(initialTileState);
     }
-    processingTiles.push(columns);
+
+    if (i < processingTiles.length) {
+      processingTiles[i] = columns;
+	} else {
+	  processingTiles.push(columns);
+	}
   }
   console.log(processingTiles.length);
 }
