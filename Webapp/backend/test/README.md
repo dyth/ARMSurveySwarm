@@ -6,7 +6,9 @@ Setup:
 
 	To run tests, do (again from the parent directory):
 
-		sudo ./node_modules/mocha/bin/mocha
+		npm test
+	
+	(You may need to do `sudo npm test`)
 
 	If that is not working, make sure that the server is not running.
 
