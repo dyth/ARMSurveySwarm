@@ -1,5 +1,5 @@
 {
 	"scripts": {
-		"test": "sudo Webapp/backend/node_modules/mocha/bin/mocha Webapp/backend/test"
+		"test": "sudo ./node_modules/mocha/bin/mocha Webapp/backend/test"
 	}
 }
