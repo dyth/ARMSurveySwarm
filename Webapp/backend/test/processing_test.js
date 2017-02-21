@@ -9,4 +9,3 @@ describe('Create tiles list', function() {
 		expect(10).to.equal(processor.processingTiles.length);
 	});
 });
-

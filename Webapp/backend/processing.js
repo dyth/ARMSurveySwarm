@@ -15,6 +15,7 @@ var route = require('./route');
 var TEST = true;
 
 var processingTiles = [];
+var finalTiles = [];
 var initialTileState = [2,2,2,2,2,2];
 
 // array order is by ID
@@ -50,6 +51,7 @@ var createTilesList = function() {
 	}
 
     for(var j = columns.length; j < length; j++) {
+	  // initial tile state is a 6 element list.
       columns.push(initialTileState);
     }
 
@@ -61,21 +63,6 @@ var createTilesList = function() {
   }
   console.log(processingTiles.length);
 }
-
-/*
-* Extract last element in each processingTiles[x][y] to create finalTiles
-*/
-var getFinalTiles = function(processingTiles) {
-  var finalTiles = [];
-  for(var i = 0; i < width; i++){
-    var columns = [];
-    for(var j = 0; j < length; j++) {
-      columns[j] = processingTiles[i][j][5];
-    }
-    finalTiles[i] = columns;
-  }
-}
-
 /* Function to round accurate position to correspond
 * to bottom left corner of tile.
 * Get position in list.
@@ -342,6 +329,7 @@ exports.startProcessing = startProcessing;
 */
 if (TEST) {
 	exports.createTilesList = createTilesList;
+	exports.getFinalTiles = getFinalTiles;
 	exports.processingTiles = processingTiles;
 	exports.initialTileState = initialTileState;
 	exports.robots = robots;
@@ -349,4 +337,5 @@ if (TEST) {
 	exports.length = length;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
+	exports.finalTiles = finalTiles;
 }
