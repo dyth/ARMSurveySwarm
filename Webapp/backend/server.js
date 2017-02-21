@@ -66,7 +66,7 @@ io.sockets.on('connection', function(socket) {
 
 	socket.on('stop', function(robot) {
 		console.log('robot ' + robot.toString() + ' stopped');
-		processor.stop(robot);
+		processor.stop(robot.id);
 
 		// For testing purposes only.
 		socket.emit('stopCalled');
@@ -80,7 +80,7 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('resume', function(robot) {
-		processor.resume(robot);
+		processor.resume(robot.id);
 
 		// For testing purposes only.
 		socket.emit('resumeCalled');
