@@ -54,9 +54,9 @@ var socketReceiveStatus = function(data) {
 	robots[data.id].status = data.status;
 	robots[data.id].x = data.x;
 	robots[data.id].y = data.y;
-	updateState(data.id);
 
-	// TODO: Update robot positions in draw.js
+	updateState(data.id);
+	updateRobotPosition(data.id);
 };
 
 var socketTileUpdate = function(data) {

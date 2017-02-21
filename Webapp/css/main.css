@@ -23,3 +23,8 @@
     border-top:1px solid #999999;
     display: none;
 }
+
+span.name{
+    font-size: 15px;
+    font-weight: 900;
+}
