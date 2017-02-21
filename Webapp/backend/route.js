@@ -9,8 +9,8 @@
 var uncheckedTiles = [];
 
 var setUp = function(tileNumber) {
-  for(int i = 0; i < tileNumber; i++){
-    for(int j = 0; j < tileNumber; j++) {
+  for(var i = 0; i < tileNumber; i++){
+    for(var j = 0; j < tileNumber; j++) {
       uncheckedTiles.push({xPos: i, yPos: j});
     }
   }
