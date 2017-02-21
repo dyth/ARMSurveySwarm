@@ -8,11 +8,8 @@ install:
     - npm install connect serve-static socket.io socket.io-client html express path mocha
 
 before_install: 
+    - ln -s /usr/bin/nodejs /usr/bin/node
     - cd Webapp/backend
-
-before_script:
-    - which node
-    - which nodejs
 
 notifications:
   email:
