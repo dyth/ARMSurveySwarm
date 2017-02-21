@@ -15,10 +15,7 @@ and flash to Pololu 3pi. This can be done using [mBed developer compiler](https:
 
 When running the program on the 3pi, monitor the output of the serial port connection using Teraterm or screen, with a baud rate of 115200.
 
-Using screen, find the 3pi robot using  
-`ls /dev/tty.usbmodem*`
-Progress can be monitored by
-`screen /dev/tty.usbmodem1422 115200`
+Using screen, find the 3pi robot using `ls /dev/tty.usbmodem*`. Progress can be monitored by `screen /dev/tty.usbmodem1422 115200`
 
 If successful, a non-zero IP address should be assigned to the Pololu.
 
