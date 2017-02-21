@@ -5,6 +5,7 @@ node_js:
 
 install:
     - npm install connect serve-static socket.io socket.io-client html express path mocha
+    - sudo apt-get install nodejs
 
 notifications:
   email:
