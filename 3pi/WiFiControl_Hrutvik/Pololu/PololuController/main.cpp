@@ -80,37 +80,48 @@ void tcp_control(){
 }
 
 float TurnCounterClockwise(int degree) {
-        // Turn left at half speed
-        m3pi.left(0.5);
-        wait (degree * 0.5538461538461539 / 360.0);
-        m3pi.stop();
-        return m3pi.line_position();
-    }
+    // Turn left at half speed
+    m3pi.left(0.5);
+    wait (degree * 0.5538461538461539 / 360.0);
+    m3pi.stop();
+    return m3pi.line_position();
+}
     
 float TurnClockwise(int degree) {
-        // Turn right at half speed
-        m3pi.right(0.5);
-        wait (degree * 0.5538461538461539 / 360.0);
-        m3pi.stop();
-        return m3pi.line_position();
-    }
+    // Turn right at half speed
+    m3pi.right(0.5);
+    wait (degree * 0.5538461538461539 / 360.0);
+    m3pi.stop();
+    return m3pi.line_position();
+}
 
 float goForwards(int distance) {
-        // go forward distance mm
-        m3pi.forward(0.5);
-        wait (distance / 470.0);
-        m3pi.stop();
-        return m3pi.line_position();
-    }
+    // go forward distance mm
+    m3pi.forward(0.5);
+    wait (distance / 470.0);
+    m3pi.stop();
+    return m3pi.line_position();
+}
     
 float goBackwards(int distance) {
-        // go backwards distance mm
-        m3pi.backward(0.5);
-        wait (distance / 470.0);
-        m3pi.stop();
-        return m3pi.line_position();
-    }
+    // go backwards distance mm
+    m3pi.backward(0.5);
+    wait (distance / 470.0);
+    m3pi.stop();
+    return m3pi.line_position();
+}
 
+void printReflectance() {
+    // thread to print reflectance to screen
+    m3pi.sensor_auto_calibrate();
+    while(1) {
+        m3pi.locate(0,1);
+        float line = m3pi.line_position();
+        m3pi.printf("%f", line);
+        wait(0.1);
+        m3pi.cls();
+    }
+}
 
 int main() {
     m3pi.locate(0,1);
