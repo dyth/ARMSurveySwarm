@@ -91,16 +91,16 @@ var processor = require('./processing');
 var resume = function(robotID) {
 	var socket = getSocketByID(robotID);
 
-	// todo -- deal with a null socket
 	// todo -- actually send a resume message
-	socket.write('resume');
+	if (socket !== null && !socket.destroyed) {
+		socket.write('resume');
+	}
 };
 
 var stop = function(robotID) {
 	// Stop a robot from moving
 	var socket = getSocketByID(robotID);
 
-	// todo -- deal with a null socket
 	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
 		socket.write('stop');
@@ -113,6 +113,7 @@ var stopAll = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		// todo, check if socket is open and stop it.
 		if (!robots[i].socket.destroyed) {
+			console.log(robots[i]);
 			robots[i].socket.write('stop')
 		}
 	}

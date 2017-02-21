@@ -153,13 +153,13 @@ describe('Stop Function Test', function() {
 		var stopAll = false;
 
 		client.on('connect', function(data) {
-			client.emit('stop');
+			client.emit('stop', {id: 1});
 			connected = true;
 		});
 
 		client.on('stopCalled', function(data) {
 			stop = true;
-			client.emit('resume');
+			client.emit('resume', {id: 1});
 		});
 
 		client.on('resumeCalled', function(data) {

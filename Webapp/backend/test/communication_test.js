@@ -7,8 +7,8 @@ describe('should be in test mode', function() {
 
 describe('robot list management', function() {
 	it('should add connections ok', function() {
-		coms.addRobotByID(0, {destroyed: false});
-		coms.addRobotByID(5, {destroyed: false});
+		coms.addRobotByID(0, {destroyed: false, write: function() {}});
+		coms.addRobotByID(5, {destroyed: false, write: function() {}});
 
 		expect(coms.robots.length).to.equal(2);
 		expect(coms.robots[1].socket.destroyed).to.equal(false);
@@ -20,7 +20,7 @@ describe('robot list management', function() {
 	});
 
 	it('should retrieve only live connections', function() {
-		coms.addRobotByID(3, {destroyed: true});
+		coms.addRobotByID(3, {destroyed: true, write: function() {}});
 
 		var connected = coms.getConnectedRobots();
 
