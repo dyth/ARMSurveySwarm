@@ -8,17 +8,12 @@ install:
     - npm install connect serve-static socket.io socket.io-client html express path mocha
 
 before_install: 
-    - ln -s /usr/bin/nodejs /usr/bin/node
+    - sudo ln -s /usr/bin/nodejs /usr/bin/node
     - cd Webapp/backend
 
 notifications:
   email:
     recipients:
       - jcw78@cam.ac.uk
-      - dyth2@cam.ac.uk
-      - km662@cam.ac.uk
-      - hrk32@cam.ac.uk
-      - jd726@cam.ac.uk
-      - lab76@cam.ac.uk
     on_success: never # default: change
     on_failure: always # default: always
