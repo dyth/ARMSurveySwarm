@@ -167,7 +167,18 @@ function displayRobotInfo(robotId) {
     // Update the currently selected robot
     currentlySelectedRobot = robotId;
 
-    // TODO: CHANGE STOP BTN TO START BTN DEPENDING ON STATE
+    var btn = container.find("#stop-start-btn");
+
+
+
+    if(robot.status == 2){
+        btn.text("Start");
+        btn.attr("class", "btn btn-success");
+    }
+    else{
+        btn.text("Stop");
+        btn.attr("class", "btn btn-danger");
+    }
 
 }
 
