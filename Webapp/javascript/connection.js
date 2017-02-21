@@ -82,7 +82,6 @@ socket.on('sendTileData', socketTileUpdate);
 // This should be called to stop a robot
 // with ID 'robotID'
 var stop = function(robotID) {
-	console.log('stopping robot ' + robotID.toString());
 	socket.emit('stop', {id: robotID});
 	console.log("Stopping " + robotID);
 }
@@ -96,6 +95,7 @@ var stopAll = function () {
 // with ID 'robotID'
 var resume = function(robotID) {
 	socket.emit('resume', {id: robotID});
+	console.log("Resuming " + robotID);
 }
 
 // This should be called to send the tile size to the server.
