@@ -10,6 +10,10 @@ install:
 before_install: 
     - cd Webapp/backend
 
+before_script:
+    - which node
+    - which nodejs
+
 notifications:
   email:
     recipients:
