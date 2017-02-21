@@ -19,4 +19,11 @@ $(function () {
 
     });
 
+    $("#stop-individual").click(function () {
+
+        if(currentlySelectedRobot != null)
+            stop(currentlySelectedRobot);
+
+    });
+
 });

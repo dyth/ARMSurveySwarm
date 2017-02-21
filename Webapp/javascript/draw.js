@@ -164,4 +164,20 @@ function displayRobotInfo(robotId) {
     // Show the container
     container.show();
 
+    // Update the currently selected robot
+    currentlySelectedRobot = robotId;
+
+}
+
+/*
+*
+* Refreshes the panel for the currently selected robot.
+* Called when state changes or position changes.
+*
+ */
+function updateRobotInfo() {
+
+    if(currentlySelectedRobot != null)
+        displayRobotInfo(currentlySelectedRobot);
+
 }

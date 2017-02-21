@@ -4,6 +4,9 @@
 
 var DEFAULT_TILE_CONTENTS = 0;
 
+// This is the ID of the currently selected robot on the UI
+var currentlySelectedRobot;
+
 // Empty, gets filled once the widths are all set
 var tiles = [];
 
