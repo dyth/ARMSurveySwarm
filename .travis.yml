@@ -9,7 +9,6 @@ install:
 
 before_install: 
     - cd Webapp/backend
-    - sudo ln -s /usr/bin/nodejs /usr/bin/node
 
 notifications:
   email:
@@ -25,6 +24,7 @@ notifications:
 
 env:
   - CXX=g++-4.8
+  - node=/usr/bin/node
 addons:
   apt:
     sources:
