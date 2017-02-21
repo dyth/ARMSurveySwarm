@@ -167,6 +167,8 @@ function displayRobotInfo(robotId) {
     // Update the currently selected robot
     currentlySelectedRobot = robotId;
 
+    // TODO: CHANGE STOP BTN TO START BTN DEPENDING ON STATE
+
 }
 
 /*

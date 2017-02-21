@@ -19,9 +19,13 @@ $(function () {
 
     });
 
-    $("#stop-individual").click(function () {
+    $("#stop-start-btn").click(function () {
 
-        if(currentlySelectedRobot != null)
+        var robot = robots[currentlySelectedRobot];
+
+        if(robot.status == 2) // If(Robot is Stopped)
+            resume(currentlySelectedRobot);
+        else // Robot is running
             stop(currentlySelectedRobot);
 
     });
