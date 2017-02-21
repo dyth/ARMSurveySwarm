@@ -19,6 +19,8 @@ var finalTiles = [];
 var initialTileState = [2,2,2,2,2,2];
 
 // array order is by ID
+// for the status, it is an index in the array  'states' in state.js
+// on the frontend.
 var robots = [{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0,robotStatus: 2},
 	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
 	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
@@ -146,7 +148,7 @@ var twoColoursAgree = function(coordX, coordY){
   var numWhite = 0;
   var numBlack = 0;
   var tile = processingTiles[coordX][coordY];
-	var potentials = [];
+  var potentials = [];
 
   for (var i = 0; i < 5; i++){
     if (tile[i] == 0) {
@@ -154,25 +156,22 @@ var twoColoursAgree = function(coordX, coordY){
     } else if (tile[i] == 1) {
       numWhite += 1;
     } else {
-			potentials.push(i);
-		}
+	  potentials.push(i);
+	}
   }
 
   if (numWhite == numBlack) {
-
-		// potentials are robots other than those that already checked
-		//TODO : Can't interrupt robot
-		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+	// potentials are robots other than those that already checked
+	//TODO : Can't interrupt robot
+	var robotID = potentials[Math.floor(Math.random() * potentials.length)];
     reccheckTile(robotID, coordX, coordY);
 
   } else if (numWhite > numBlack && numWhite >= 2) {
-
     processingTiles[coordX][coordY][5] = 1;
     server.setTile(coordX, coordY, 1);
     tilesCovered += 1;
 
-  } else if (numBlack > numWhite && numBlack >= 2){
-
+  } else if (numBlack > numWhite && numBlack >= 2) {
     processingTiles[coordX][coordY][5] = 0;
     server.setTile(coordX, coordY, 0);
     tileCovered += 1;
@@ -253,10 +252,21 @@ var willCollideEdge = function(robotID) {
 }
 
 /*
+ * This unpacks the dictionary for the robot status and sends it on to the
+ * server
+ */
+var sendStatusUpdate = function(robotID) {
+	var robot = robots[robotID];
+	server.updateStatus(robotID, robot.x, robot.y, robot.robotStatus);
+}
+
+/*
 * Command from user to resume traversal of robots
 * Sent to communication.js to notify the robots.
 */
 var resume = function(robotID) {
+	robots[robotID].robotStatus = 1;
+	sendStatusUpdate(robotID);
 	communication.resume(robotID);
 }
 
@@ -264,6 +274,8 @@ var resume = function(robotID) {
 * Command from user to stop the traversal of one robot
 */
 var stop = function(robotID) {
+	robots[robotID].robotStatus = 2;
+	sendStatusUpdate(robotID);
 	communication.stop(robotID);
 }
 
@@ -271,6 +283,10 @@ var stop = function(robotID) {
 * Command from user to stop the traversal of all robots
 */
 var stopAll = function() {
+  for (var i = 0; i < robots.length; i ++) {
+    robots[i].robotStatus = 2;
+    sendStatusUpdate(i);
+  }
   communication.stopAll();
 }
 
@@ -329,7 +345,6 @@ exports.startProcessing = startProcessing;
 */
 if (TEST) {
 	exports.createTilesList = createTilesList;
-	exports.getFinalTiles = getFinalTiles;
 	exports.processingTiles = processingTiles;
 	exports.initialTileState = initialTileState;
 	exports.robots = robots;
@@ -337,5 +352,4 @@ if (TEST) {
 	exports.length = length;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
-	exports.finalTiles = finalTiles;
 }
