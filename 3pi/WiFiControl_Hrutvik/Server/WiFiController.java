@@ -1,5 +1,3 @@
-package uk.ac.cam.hrk32.wifi;
-
 /**
 * The WiFiController program implements an application that
 * connects to an mbed-enabled Pololu 3pi robot (m3pi) and
@@ -27,8 +25,7 @@ public class WiFiController {
 			Socket socket = serverSocket.accept();
 			// print usage statements
 			System.out.println("Pololu connected:");
-			System.out
-					.println("IP Address: " + socket.getInetAddress().getHostAddress() + ", Port: " + socket.getPort());
+			System.out.println("IP Address: " + socket.getInetAddress().getHostAddress() + ", Port: " + socket.getPort());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 			System.out.println("\nControl the Pololu 3pi with console commands: <direction> <speed> <duration>");
 			System.out.println("direction = forward, backward, left, right, 1 <= speed <= 9, 1 <= duration <= 9\n");

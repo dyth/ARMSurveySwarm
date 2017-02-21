@@ -10,5 +10,9 @@ notifications:
     recipients:
         - jcw78@cam.ac.uk
         - dyth2@cam.ac.uk
+		- km662@cam.ac.uk
+		- hrk32@cam.ac.uk
+		- jd726@cam.ac.uk
+		- lab76@cam.ac.uk
     on_success: never # default: change
     on_failure: always # default: always
