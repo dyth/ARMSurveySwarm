@@ -93,6 +93,7 @@ var resume = function(robotID) {
 
 	// todo -- deal with a null socket
 	// todo -- actually send a resume message
+	socket.write('resume');
 };
 
 var stop = function(robotID) {
@@ -101,6 +102,9 @@ var stop = function(robotID) {
 
 	// todo -- deal with a null socket
 	// todo -- actually send a resume message
+	if (socket !== null && !socket.destroyed) {
+		socket.write('stop');
+	}
 };
 
 var stopAll = function() {
@@ -108,6 +112,9 @@ var stopAll = function() {
 	// Send a stop message to all connected
 	for (var i = 0; i < robots.length; i ++) {
 		// todo, check if socket is open and stop it.
+		if (!robots[i].socket.destroyed) {
+			robots[i].socket.write('stop')
+		}
 	}
 };
 
