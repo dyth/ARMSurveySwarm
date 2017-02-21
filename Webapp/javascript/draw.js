@@ -34,15 +34,32 @@ $(function () {
         shape.graphics.beginFill(robots[i].colour).drawCircle(0, 0, 10);
         robotSprites.push(shape);
         stage.addChild(shape);
-
-        shape.x = i*50 + 50;
-        shape.y = 50;
+        colourCodeName(i);
     }
-
-    // TODO: Colour code robot names
 
 });
 
+/*
+*
+* Colour codes the robot name to match that of the robot.
+* This way you can see the which robot marker on the graph corresponds to each robot.
+*
+ */
+function colourCodeName(robotId){
+
+    var robotSection = $(".robot-row")[robotId];
+    var name = $(robotSection).find("span.name");
+
+    name.css("color", robots[robotId].colour);
+
+}
+
+/*
+*
+* Resizes the canvas to fill the width of its container and ensures the canvas is square.
+* Should be called whenever the tiles data changes or the size of tiles changes.
+*
+ */
 function resizeCanvas(){
 
     var size = canvas.parent().width();
@@ -52,9 +69,17 @@ function resizeCanvas(){
 
 }
 
+/*
+*
+* Update the canvas with the current tile data.
+* Updated whenever the document resizes.
+*
+ */
 function updateCanvas() {
 
     console.log("Updating Canvas");
+
+    graph.graphics.clear();
 
     // Calculate square size
     var size = canvas.width() / tiles.length;
@@ -78,6 +103,12 @@ function updateCanvas() {
 
 }
 
+/*
+*
+* Updates the state label of a particular robot.
+* Should be called whenever the state of a robot is changed.
+*
+ */
 function updateState(robotId) {
 
     var robot = robots[robotId];
@@ -92,6 +123,32 @@ function updateState(robotId) {
 
 }
 
+/*
+*
+* Updates the position of the robot marker on the graph.
+* Should be called whenever the robot x and y are updated.
+*
+ */
+function updateRobotPosition(robotID) {
+
+    var robotSprite = robotSprites[robotID];
+    var robot = robots[robotID];
+
+    var size = canvas.width() / tiles.length;
+
+    // Position the robot sprites at the center of the correct square
+    robotSprite.x = (robot.x + 0.5) * size;
+    robotSprite.y = (robot.y + 0.5) * size;
+
+    updateCanvas();
+
+}
+
+/*
+*
+* Displays the robot information panel on the UI.
+*
+ */
 function displayRobotInfo(robotId) {
 
     var container = $("#info-section");
@@ -101,9 +158,10 @@ function displayRobotInfo(robotId) {
     // Update the fields
     container.find("h1").text("Robot " + (robotId + 1));
     container.find("#status").text(states[robot.status][0]);
+    container.find("#x-position").text(robot.x);
+    container.find("#y-position").text(robot.y);
 
     // Show the container
     container.show();
-
 
 }

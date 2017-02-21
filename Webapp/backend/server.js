@@ -59,6 +59,11 @@ io.sockets.on('connection', function(socket) {
 		updateTile(5, 1, 1);
 	}, 1000);
 
+	setTimeout(function() {
+		updateTile(9, 9, 1);
+		updateStatus(0, 9, 9, 0);
+	}, 5000);
+
 	socket.on('stop', function(robot) {
 		console.log('robot ' + robot.toString() + ' stopped');
 		processor.stop(robot);
