@@ -69,7 +69,7 @@ var getSocketByID = function(robotID) {
 	return null;
 };
 
-// Returns a list of the IDs of the 
+// Returns a list of the IDs of the
 // connected robots.
 var getConnectedRobots = function() {
 	var connections = [];

@@ -21,11 +21,13 @@ var initialTileState = [2,2,2,2,2,2];
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
 // on the frontend.
-var robots = [{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0,robotStatus: 2},
-	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
-	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
-	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2},
-	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, robotStatus: 2}];
+var robots = [
+	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
+	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
+	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
+	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
+	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2}];
+
 var width = 0;
 var length = 0;
 var tilesCovered = 0;
@@ -41,11 +43,11 @@ var startedProcessing = false;
 */
 var createTilesList = function() {
   totalTiles = width * length;
-  // Increases the number of tiles up to the 
+  // Increases the number of tiles up to the
   // width and length.
   for(var i = processingTiles.length; i < width; i++){
     var columns = [];
-	
+
 	if (i < processingTiles.length) {
 	  // There are already tiles here.
 	  // We don't want to lose information on them.
@@ -107,7 +109,6 @@ var setTile = function(robotID, messages) {
   if (tilesCovered == totalTiles) {
     communication.stopAll();
   }
-
   // after updating the tiles, route the robot.
   routeRobot(robotID);
 }
@@ -122,21 +123,24 @@ var routeRobot = function(robotID) {
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
- 	var destination = 
+ 	var destination =
 		route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
-  // check for collisions with 4 other robots
-  if (willCollide(robotID)) {
-    //TODO: move away - straight line or right angles?
-  }
+  // // check for collisions with 4 other robots
+  // if (willCollide(robotID)) {
+  //   //TODO: move away - straight line or right angles?
+  // }
+	//
+  // if (willCollideEdge(robotID)) {
+  //   communication.move(robotID, 180, 2); //dummy distance
+  // }
 
-  if (willCollideEdge(robotID)) {
-    communication.move(robotID, 180, 2); //dummy distance
-  }
-  
-  // TODO -- need to do normal routing here
+	// convert next location to angle + distance and call communication.move in
+	// checkTile
+	checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
+
 }
 
 /*
@@ -166,6 +170,10 @@ var twoColoursAgree = function(coordX, coordY){
 	var robotID = potentials[Math.floor(Math.random() * potentials.length)];
     reccheckTile(robotID, coordX, coordY);
 
+		// potentials are robots other than those that already checked
+		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+    checkTile(robotID, coordX, coordY);
+
   } else if (numWhite > numBlack && numWhite >= 2) {
     processingTiles[coordX][coordY][5] = 1;
     server.setTile(coordX, coordY, 1);
@@ -185,19 +193,31 @@ var vectorLength = function(vector) {
 /*
 * Set orientation of given robot in direction of tile.
 */
-var reccheckTile = function(robotID, tileX, tileY){
+var checkTile = function(robotID, tileX, tileY){
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
-	var A = [tileX - coordX, tileY - coordY]; // vector to tile
+	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 	var B = [1,2]; // DUMMY current orientation of robot
 
 	// Find angle between current robot orientation and direction to tile
 	// axb = |a||b| sin(theta)
 	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
 
-	// Turn difference between these - CW or ACW.
-	communication.move(robotID, Math.asin(sin_theta), 2);
+	var angle = Math.asin(sin_theta);
+	if (angle < 0) {
+		angle += 360;
+	}
+
+	// Turn by angle clockwise
+	communication.move(robotID, angle, vectorLength(A)* tileSize);
+	//Set new orientation of robotID
+	setOrientation(robotID, angle);
+}
+
+var setOrientation = function(robotID, degree) {
+	var currentOrientation = robots[robotID].orientation;
+	robots[robotID].orientation = (currentOrientation + orientation) % 360;
 }
 
 /*
@@ -220,7 +240,6 @@ var willCollide = function(robotID) {
   var l2, r2, b2, t2;
 
   var potentials = robots.slice(0, robotID).concat(robots.slice(robotID+1, 6));
-  var collision = false;
 
   for (var i = 0; i < potentials.length; i ++) {
     l2 = potentials[i].xPrev - tileSize;
