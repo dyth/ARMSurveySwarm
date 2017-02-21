@@ -2,7 +2,7 @@ language: node_js
 sudo: required
 node_js: 
     - "node"
-    - "4.2.6"
+    - "5"
 
 install:
     - npm install connect serve-static socket.io socket.io-client html express path mocha
@@ -21,13 +21,3 @@ notifications:
       - lab76@cam.ac.uk
     on_success: never # default: change
     on_failure: always # default: always
-
-env:
-  - CXX=g++-4.8
-  - node=/usr/bin/node
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-4.8
