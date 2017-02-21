@@ -21,6 +21,7 @@ var initialTileState = [2,2,2,2,2,2];
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
 // on the frontend.
+// Orienttation in Radians
 var robots = [
 	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
 	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
@@ -197,8 +198,14 @@ var checkTile = function(robotID, tileX, tileY){
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
+	var orientation = robots[robotID].orientation;
 	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
-	var B = [1,2]; // DUMMY current orientation of robot
+
+	// make A unit vector
+	A[0] = A[0]/ vectorLength(A);
+	A[1] = A[1]/ vectorLength(A);
+
+	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
 
 	// Find angle between current robot orientation and direction to tile
 	// axb = |a||b| sin(theta)
@@ -206,7 +213,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 	var angle = Math.asin(sin_theta);
 	if (angle < 0) {
-		angle += 360;
+		angle += 2*Math.PI;
 	}
 
 	// Turn by angle clockwise
@@ -217,7 +224,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 var setOrientation = function(robotID, degree) {
 	var currentOrientation = robots[robotID].orientation;
-	robots[robotID].orientation = (currentOrientation + orientation) % 360;
+	robots[robotID].orientation = (currentOrientation + orientation) % Math.PI;
 }
 
 /*
