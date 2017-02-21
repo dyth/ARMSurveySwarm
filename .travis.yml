@@ -4,7 +4,7 @@ node_js:
     - 0.12
 
 install:
-    - npm install connect serve-static socket.io socket.io-client html express path mocha
+    - npm install connect serve-static socket.io socket.io-client html express path mocha browser-stdout commander debug diff escape-string-regexp glob growl json3 lodash.create mkdirp supports-color
 
 before_install: 
     - sudo ln -s /usr/bin/nodejs /usr/bin/node
