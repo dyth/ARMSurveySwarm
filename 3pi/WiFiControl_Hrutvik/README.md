@@ -4,13 +4,19 @@
 
 ### Configuring the ESP8266 WiFi module ###
 
-Using the [mBed developer compiler](https://developer.mbed.org/compiler/), 
-compile and flash the contents of the ```Pololu/ESP8266_Setup``` folder to the Pololu 3pi. Change the following in the ```main.cpp``` to match the credentials of the WiFi network that the robots and server will be connected to. Using serial port connection through a console such as Teraterm will be useful for this - be sure to set the baud rate to 115200.
+In ```main.cpp``` of ```Pololu/ESP8266_Setup```, change
 
 ```
 char ssid[32] = "mySSID";     // enter WiFi router ssid inside the quotes
 char pwd [32] = "myPASSWORD"; // enter WiFi router password inside the quotes
 ```
+
+and flash to Pololu 3pi. This can be done using [mBed developer compiler](https://developer.mbed.org/compiler/).
+
+When running the program on the 3pi, monitor the output of the serial port connection using Teraterm or screen, with a baud rate of 115200.
+
+Using screen, find the 3pi robot using `ls /dev/tty.usbmodem*`. Progress can be monitored by `screen /dev/tty.usbmodem1422 115200`
+
 If successful, a non-zero IP address should be assigned to the Pololu.
 
 
