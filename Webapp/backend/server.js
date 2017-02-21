@@ -29,7 +29,7 @@ server.listen(80);
 var updateStatus = function(robotID, x, y, status) {
 	// todo fix this up
 	io.emit('sendRobotStatus', {id: robotID, x: x, y: y, status: status});
-	console.log('emitted');
+	console.log('status update emitted');
 };
 
 var updateGrid = function(x, y) {
@@ -60,6 +60,7 @@ io.sockets.on('connection', function(socket) {
 	}, 1000);
 
 	socket.on('stop', function(robot) {
+		console.log('robot ' + robot.toString() + ' stopped');
 		processor.stop(robot);
 
 		// For testing purposes only.

@@ -81,6 +81,7 @@ socket.on('sendTileData', socketTileUpdate);
 // This should be called to stop a robot
 // with ID 'robotID'
 var stop = function(robotID) {
+	console.log('stopping robot ' + robotID.toString());
 	socket.emit('stop', {id: robotID});
 }
 
