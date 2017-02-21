@@ -1,6 +1,0 @@
-language: node_js
-node_js: "4.2.6"
-
-install:
-    - npm install connect serve-state socket.io socket.io-client html express path mocha
-      
