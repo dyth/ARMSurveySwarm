@@ -142,6 +142,8 @@ var routeRobot = function(robotID) {
 	// checkTile
 	checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
+	// Update the position of the robot in the webserver.
+	udpateStatus(robotID);
 }
 
 /*
@@ -283,7 +285,7 @@ var willCollideEdge = function(robotID) {
  */
 var sendStatusUpdate = function(robotID) {
 	var robot = robots[robotID];
-	server.updateStatus(robotID, robot.x, robot.y, robot.robotStatus);
+	server.updateStatus(robotID, robot.xPrev, robot.yPrev, robot.robotStatus);
 }
 
 /*
