@@ -26,6 +26,8 @@ var getRandomInt = function(min, max){
 var move = function(robotID, startX, startY) {
   if (uncheckedTiles.length == 0) {
     // Covered all tiles?
+    // Trying to setup testing framework
+    return {xAfter: 0, yAfter: 0};
   } else {
     var tileIndex = getRandomInt(0, uncheckedTile.length);
     var nextX = uncheckedTile[tileIndex].xPos;
