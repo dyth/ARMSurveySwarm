@@ -7,6 +7,9 @@ install:
     - npm install connect serve-static socket.io socket.io-client html express path mocha chai
     - sudo apt-get install nodejs
 
+env:
+    - TEST=true
+
 notifications:
   email:
     recipients:
