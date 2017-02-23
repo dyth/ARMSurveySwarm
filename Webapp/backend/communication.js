@@ -23,26 +23,65 @@ var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
 	socket.on('data', function(data) {
-		// TODO -- only call this on a synchronization message
-		// addRobotByID(data.id, socket);
-		addRobotByID(0, socket);
-
-		console.log('data ' + data);
-		// Get from the robots:
-		//		Robot ID
-		//		Light Intensities list (lightIntensity, x, y)
-		//
-		// Need to calculate a new position based on that
-
-		// set the tiles. this calls communication.move().
-		var dummyMessage = [{x: 0, y: 0, lightIntensity: 1}]
-		// processor.setTile(data.id, data.intensities);
-		processor.setTile(0, dummyMessage);
+		receiveData(data, socket);
 	});
 });
 
+var receiveData = function(data, socket) {
+	if (data.startsWith("HELLO")) {
+		var id = data.substring("HELLO:".length).trim();
+		var idNumber = parseInt(id);
+		// This is a connection message.
+		// Run the server 
+		addRobotByID(idNumber, socket);
+		// If the processing has started, then call route robot
+		// Otherwise it will be started when the server starts.
+		if (processor.hasStartedProcessing()) {
+			processor.routeRobot(idNumber);
+		}
+	} else if (data.startsWith("DONE")) {
+		var id = data.substring("DONE:".length).trim();
+		var idNumber = parseInt(id);
+
+		var robot = getRobotByID(idNumber);
+		if (robot.nextMove === null) {
+			// No queued moves, ask for new moves from the server
+			process.routeRobot(idNumber);
+		} else {
+			robot.nextMove();
+		}
+	} else if (data.startsWith("INTENSITY")) {
+		var intensities = data.substring("INTENSITY:".length).trim();
+		var contents = intensities.split(";");
+
+		var id = parseInt(contents[0]);
+
+		// Parse the intensities into  a list and then
+		// return them to the processor.
+		var parsedData = [];
+		for (var i = 1; i < contents.length; i ++) {
+			// String is in the format (X, Y, Intensity)
+			var string = contents[i].trim();
+			// Remove the ( ):
+			var data = string.substring(1, string.length - 2);
+			// Now split these out with commans:
+			var values = data.split(",");
+			var x = parseInt(values[0]);
+			var y = parseInt(values[1]);
+			var intensity = parseInt(values[2]);
+			parsedData.push({x:x, y:y, lightIntensity: intensity});
+		}
+
+		processor.setTile(id, parsedData);
+	} else {
+		console.log(data + " unknown message");
+		throw err; // Unknown data type
+};
+
+
+
 var addRobotByID = function(robotID, socket) {
-  	// /console.log(socket);
+	// /console.log(socket);
 	// Check if the robot is in the robots list.
 	// If not then add it. Otherwise, update the socket.
 	for (var i = 0; i < robots.length; i++) {
@@ -129,48 +168,48 @@ var addPadding = function(number, length) {
 
 var move = function(robotID, degree, distance) {
 	// turn robot degree radians clockwise
-  // degree in RADIANS
+	// degree in RADIANS
 
-  // TODO -- move the robot
+	// TODO -- move the robot
 	var socket = getSocketByID(robotID);
-  // At speed 0.5, it does 46 - 48 cm per second
-  // Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
-  distance = distance * 10; // convert distances to mm
-  degree = degree * 180 / Math.PI;
+	// At speed 0.5, it does 46 - 48 cm per second
+	// Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
+	distance = distance * 10; // convert distances to mm
+	degree = degree * 180 / Math.PI;
 
-  var speed = 470; // fixed at 470mm per second
-  var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
-  var durationRotate;
-  var direction; // directions forward, back, left, right.
-  if (degree == 0) {
-    direction = "forward";
-  } else if (degree == 180) {
-    direction = "backward";
-  } else if (degree < 180) { // turn left
-    direction = 'left';
-    durationRotate = degree/180 * 2250; // 2.25 seconds for 180 degrees of rotation
-  } else { // turn right
-    direction = 'right'
-    degree = 360 - degree;
-    durationRotate = degree/180 * 2250 ;
-  }
-  //convert durations to have leading 0s and be 4 digits long
-  durationStraight = addPadding(durationStraight, 4);
-  durationRotate = addPadding(durationRotate, 4);
+	var speed = 470; // fixed at 470mm per second
+	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
+	var durationRotate;
+	var direction; // directions forward, back, left, right.
+	if (degree == 0) {
+		direction = "forward";
+	} else if (degree == 180) {
+		direction = "backward";
+	} else if (degree < 180) { // turn left
+		direction = 'left';
+		durationRotate = degree/180 * 2250; // 2.25 seconds for 180 degrees of rotation
+	} else { // turn right
+		direction = 'right'
+		degree = 360 - degree;
+		durationRotate = degree/180 * 2250 ;
+	}
+	//convert durations to have leading 0s and be 4 digits long
+	durationStraight = addPadding(durationStraight, 4);
+	durationRotate = addPadding(durationRotate, 4);
 
-  // speed is set to 5000 to be half the power
-  var robotIndex = getRobotIndex(robotID);
-  if (durationRotation != null) {
-    socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
-  	console.log('id ' + robotID.toString() + ' Direction:' + direction
-  		+ ' Duration: ' + duration);
-    robots[robotIndex].nextMove = function() {
-        socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
-    }
-  } else {
-    socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
-    robots[robotIndex].nextMove = null;
-  }
+	// speed is set to 5000 to be half the power
+	var robotIndex = getRobotIndex(robotID);
+	if (durationRotation != null) {
+		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
+		console.log('id ' + robotID.toString() + ' Direction:' + direction
+			+ ' Duration: ' + duration);
+		robots[robotIndex].nextMove = function() {
+			socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+		}
+	} else {
+		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+		robots[robotIndex].nextMove = null;
+	}
 };
 
 exports.resume = resume;
@@ -185,4 +224,5 @@ if (TEST) {
 	exports.getSocketByID = getSocketByID;
 	exports.getConnectedRobots = getConnectedRobots;
 	exports.robots = robots;
+	exports.receiveData = receiveData;
 }
