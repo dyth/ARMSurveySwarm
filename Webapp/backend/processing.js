@@ -15,7 +15,6 @@ var route = require('./route');
 var TEST = true;
 
 var processingTiles = [];
-var finalTiles = [];
 var initialTileState = [2,2,2,2,2,2];
 
 // array order is by ID
@@ -220,6 +219,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 	// Turn by angle clockwise
 	communication.move(robotID, angle, vectorLength(A)* tileSize);
+	
 	//Set new orientation of robotID
 	setOrientation(robotID, angle);
 }

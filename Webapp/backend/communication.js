@@ -11,7 +11,6 @@
  * light intensity
 */
 
-
 // NOTE -- Unlike the rest of the application,
 // this array is not indexed by ID.
 var robots = [];
@@ -120,13 +119,45 @@ var stopAll = function() {
 };
 
 var move = function(robotID, degree, distance) {
-	// turn robot degree degrees clockwise
-	// TODO -- move the robot
-	var socket = getSocketByID(robotID);
+	// turn robot degree radians clockwise
+  // degree in RADIANS
 
-	socket.write({degree: degree, distance: distance}.toString());
-	console.log('id ' + robotID.toString() + ' Degree:' + degree.toString()
-		+ ' Distance: ' + distance.toString());
+  // TODO -- move the robot
+	var socket = getSocketByID(robotID);
+  // At speed 0.5, it does 46 - 48 cm per second
+  // Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
+  distance = distance * 10; // convert distances to mm
+  degree = degree * 180 / Math.PI;
+
+  var speed = 470; // fixed at 470mm per second
+  var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
+  var durationRotate;
+  var direction; // directions forward, back, left, right.
+  if (degree == 0) {
+    direction = "forward";
+  } else if (degree == 180) {
+    direction = "backward";
+  } else if (degree < 180) { // turn left
+    direction = 'left';
+    durationRotate = degree/180 * 2250; // 2.25 seconds for 180 degrees of rotation
+  } else { // turn right
+    direction = 'right'
+    degree = 360 - degree;
+    durationRotate = degree/180 * 2250 ;
+  }
+
+  var robotIndex = getRobotIndex(robotID);
+  if (durationRotation != null) {
+    socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
+  	console.log('id ' + robotID.toString() + ' Direction:' + direction
+  		+ ' Duration: ' + duration);
+    robots[robotIndex].nextMove = function() {
+        socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+    }
+  } else {
+    socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+    robots[robotIndex].nextMove = null;
+  }
 };
 
 exports.resume = resume;

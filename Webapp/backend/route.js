@@ -7,7 +7,6 @@
 
 // Each element is dictionary of x, y positions for unchecked tiles
 var uncheckedTiles = [];
-
 var setUp = function(tileNumber) {
   for(var i = 0; i < tileNumber; i++){
     for(var j = 0; j < tileNumber; j++) {
@@ -17,12 +16,15 @@ var setUp = function(tileNumber) {
 }
 
 /*
-* return random integer between min and max.
+* Returns random integer between min and max.
 */
 var getRandomInt = function(min, max){
   return Math.floor((Math.random() * max) + min);
 }
 
+/*
+* Choose tile to check next, return x and y positions.
+*/
 var move = function(robotID, startX, startY) {
   if (uncheckedTiles.length == 0) {
     // Covered all tiles?
@@ -36,10 +38,8 @@ var move = function(robotID, startX, startY) {
     // Remove this tile from uncheckedTiles so that no other robotID
     // is routed to it.
     uncheckedTiles.splice(tileIndex,1);
-
-   return {xAfter: nextX, yAfter: nextY};
+    return {xAfter: nextX, yAfter: nextY};
   }
 }
-
 exports.move = move;
 exports.setUp = setUp;
