@@ -13,11 +13,11 @@
 #define ROBOT_ID 1
 
 /**
-    The mbed-sockets-control program implements the ability to control a Pololu
+    This program implements the ability to control a Pololu
     3pi robot over WiFi using TCP sockets. The robot must have an ESP8266 WiFi
     module, preconfigured to connect to the relevant WiFi network.
     Author: Hrutvik Kanabar
-    Date: 14/02/2017
+    Date: 23/02/2017
 */
 
 
@@ -32,10 +32,80 @@ PwmOut led2(LED2);
 PwmOut led3(LED3);
 PwmOut led4(LED4);
 
+
+/***** POSITION: current position and update methods *****/
 float currentX = 0.0;
 float currentY = 0.0;
 float currentOrienation = 0.0;
 
+void updatePosition(float speed, float duration){
+    //TODO: update currentX, currentY based on speed, duration of forward/backward
+        // movement - use negative speed to represent backward
+}
+
+void updateOrientation(float rotationSpeed, float duration){
+    //TODO: update currentOrienation based on speed, duration of right/left
+        // movement - use negative rotationSpeed to represent right rotation
+}
+
+
+/***** MOVEMENT/SAMPLING: moving forward/backward and sending intensity informtion *****/
+void sendXYIs(float* xs, float* ys, float* intensities, int length){
+    char c = '(';
+    for (int i = 0; i < length; i++){
+        
+        socket.send(&c,              sizeof(char));
+        socket.send(&xs[i],          sizeof(float)); c = ',';
+        socket.send(&c,              sizeof(char));
+        socket.send(&ys[i],          sizeof(float));
+        socket.send(&c,              sizeof(char));
+        socket.send(&intensities[i], sizeof(float)); c = ')';
+        socket.send(&c,              sizeof(char)); c = ';';
+        socket.send(&c,              sizeof(char));
+    }
+}
+
+void moveForward(float speed, float duration){
+    float timeBetweenSamples = 0.1/speed;
+    int noSamples = floor(duration/timeBetweenSamples);
+    float xs[noSamples];
+    float ys[noSamples];
+    float intensities[noSamples+1];
+    m3pi.forward(speed);
+    for (int i = 0; i < noSamples; i++){
+        wait(timeBetweenSamples);
+        intensities[i] = m3pi.line_position();
+        xs[i] = currentX;
+        ys[i] = currentY;
+        updatePosition(speed, timeBetweenSamples);
+    }
+    wait(duration - (noSamples * timeBetweenSamples));
+    updatePosition(speed, duration - (noSamples * timeBetweenSamples));
+    m3pi.stop();
+    sendXYIs(xs, ys, intensities, noSamples);
+}
+
+void moveBackward(float speed, float duration){
+    float timeBetweenSamples = 0.1/speed;
+    int noSamples = floor(duration/timeBetweenSamples);
+    float xs[noSamples];
+    float ys[noSamples];
+    float intensities[noSamples+1];
+    m3pi.backward(speed);
+    for (int i = 0; i < noSamples; i++){
+        wait(timeBetweenSamples);
+        intensities[i] = m3pi.line_position();
+        xs[i] = currentX;
+        ys[i] = currentY;
+        updatePosition(-speed, timeBetweenSamples);
+    }
+    wait(duration - (noSamples * timeBetweenSamples));
+    updatePosition(-speed, duration - (noSamples * timeBetweenSamples));
+    m3pi.stop();
+    sendXYIs(xs, ys, intensities, noSamples);
+}
+
+/***** CONTROL: controlling m3pi *****/
 void tcp_control(){
     // expect instructions of form <direction> <speed> <duration> <termination>
     // 'forward', 'left', 'backward', 'right' for <direction>; integer from 0001 to 9999 for <speed>, <duration>; '\n' for <termination>
@@ -43,39 +113,51 @@ void tcp_control(){
     char received[256];
     memset(received, '\0', sizeof(received));
     
+    char hello[] = {'H', 'E', 'L', 'L', 'O', ':', ' ', ROBOT_ID, ';'};
+    socket.send(hello, sizeof(hello));
+    
     while(true) {
-        //ASSUME THAT INSTRUCTION IS WELL_FORMED
+        //ASSUMPTION: INSTRUCTION IS WELL_FORMED, AND IS LESS THAN 256 BYTES
+        int instr_size = 0;
+        char r;
+        socket.recv(&r, sizeof(char));
+        while (r != '\n'){
+            received[instr_size] = r;
+            instr_size++;
+            socket.recv(&r, sizeof(char));
+        }
         
-        //TODO: MUST LOOP AND ACCEPT INDIVIDUAL BYTES COS SOCKETS ARE STUPID
-        
-        
-        // receive <direction> <speed> <duration> <termination> into received array
-        socket.recv(received, (sizeof received)-1); // ensure final '\0' character is never ovewritten to allow for use of string methods
-        
-        // calculate no. chars in instruction before first '\n' (i.e. termination character)
-        int instr_size = strcspn(instruction, '\n');
-        
-        // copy across instruction-only bytes (i.e. before '\n')
+        // copy across instruction bytes)
         char instruction[instr_size+1];
         memset(instruction, '\0', sizeof(instruction)); // ensure final character is '\0'
         strncpy(instruction, received, instr_size);
         
-       
         // split instruction up into token separated by ' ' delimiter
         char *direction;
-        float speed;
-        float duration;
         const char delim[2] = " "; // instruction delimiter
         
         // get the first token
-        token = strtok(str, delim);
+        char *token;
+        token = strtok(instruction, delim);
         strcpy(direction, token);
         
         if (strcmp(direction, "STOP") == 0){
-            waitForResume();
-        } else if (strcomp(direction, "RESUME") == 0){
+            // wait for "RESUME\n" command - ASSUMPTION: RESUME is first instruction received after STOP
+            char resume[8];
+            memset(resume, '\0', sizeof(resume)); // ensure final character is '\0'
+            for (int i = 0; i < 7; i++){
+                socket.recv(resume + i, sizeof(char));
+            }
+            if(strcmp(resume, "RESUME\n")==0){
+                continue;
+            } else {
+                // by our assumption, this case should not occur
+            }
+        } else if (strcmp(direction, "RESUME") == 0){ //received a random RESUME instruction
             continue;
         } else {
+            float speed;
+            float duration;
             // assume that <speed> <duration> follow
             token = strtok(NULL, delim);
             speed = ((float) atoi(token))/1000.0;
@@ -102,67 +184,13 @@ void tcp_control(){
             } else {
                 continue; //not expected - would imply malformed instruction
             }
-            //TODO: OUTPUT DONE: ID    
+            char done[] = {'D', 'O', 'N', 'E', ':', ' ', ROBOT_ID, ';'};
+            socket.send(done, sizeof(done));    
         }   
     }
 }
-
-void waitForResume(){ // ASSUMPTION: RESUME is first instruction received after STOP
-    char resume[8];
-    memset(resume, '\0', sizeof(resume)); // ensure final character is '\0'
-    for (int i = 0; i < 
-
-    
-}
-
-void moveForward(float speed, float duration){
-    float timeBetweenSamples = 0.1/speed;
-    int noSamples = floor(duration/timeBetweenSamples);
-    float xs[noSamples];
-    float ys[noSamples];
-    float intensities[noSamples+1];
-    m3pi.forward(speed);
-    for (int i = 0; i < noSamples; i++){
-        wait(timeBetweenSamples);
-        intensities[i] = m3pi.line_position();
-        xs[i] = currentX;
-        ys[i] = currentY;
-        updatePosition(speed, timeBetweenSamples);
-    }
-    wait(duration - (noSamples * timeBetweenSamples));
-    updatePosition(speed, duration - (noSamples * timeBetweenSamples));
-    m3pi.stop();
-}
-
-void moveBackward(float speed, float duration){
-    float timeBetweenSamples = 0.1/speed;
-    int noSamples = floor(duration/timeBetweenSamples);
-    float xs[noSamples];
-    float ys[noSamples];
-    float intensities[noSamples+1];
-    m3pi.backward(speed);
-    for (int i = 0; i < noSamples; i++){
-        wait(timeBetweenSamples);
-        intensities[i] = m3pi.line_position();
-        xs[i] = currentX;
-        ys[i] = currentY;
-        updatePosition(-speed, timeBetweenSamples);
-    }
-    wait(duration - (noSamples * timeBetweenSamples));
-    updatePosition(-speed, duration - (noSamples * timeBetweenSamples));
-    m3pi.stop();
-}
-
-void updatePosition(float speed, float duration){
-    //TODO: update currentX, currentY based on speed, duration of forward/backward
-        // movement - use negative speed to represent backward
-}
-
-void updateOrientation(float rotationSpeed, float duration){
-    //TODO: update currentOrienation based on speed, duration of right/left
-        // movement - use negative rotationSpeed to represent right rotation
-}
-
+         
+/***** MAIN *****/
 int main() {
     m3pi.locate(0,1);
     m3pi.printf("TCP");
