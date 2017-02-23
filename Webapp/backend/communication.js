@@ -44,11 +44,11 @@ var receiveData = function(data, socket) {
 		var idNumber = parseInt(id);
 
 		var robot = getRobotByID(idNumber);
-		if (robot.nextMove === null) {
+		if (robot.nextMove) {
+			robot.nextMove();
+		} else {
 			// No queued moves, ask for new moves from the server
 			process.routeRobot(idNumber);
-		} else {
-			robot.nextMove();
 		}
 	} else if (data.startsWith("INTENSITY")) {
 		var intensities = data.substring("INTENSITY:".length).trim();
