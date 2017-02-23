@@ -72,7 +72,13 @@ var createTilesList = function() {
 * Get position in list.
 */
 var roundPosition = function(pos) {
-  return Math.floor(pos/tileSize);
+	if (pos < 0) {
+		return 0;
+	} else if (pos > length * tileSize) {
+		return length;
+	} else {
+		return Math.floor(pos/tileSize);
+	}
 }
 
 /*
@@ -388,5 +394,6 @@ if (TEST) {
 	exports.length = length;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
+
 	exports.roundPosition = roundPosition;
 }
