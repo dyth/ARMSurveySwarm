@@ -28,9 +28,15 @@ var server = net.createServer(function(socket) {
 });
 
 var receiveData = function(data, socket) {
-	if (data.startsWith("HELLO")) {
+	if (data.startsWith("HELLO:")) {
 		var id = data.substring("HELLO:".length).trim();
-		var idNumber = parseInt(id);
+		var idNumber = stringToNumber(id);
+
+		if (idNumber === null) {
+			return;
+		}
+
+		console.log("NUMBER" + idNumber);
 		// This is a connection message.
 		// Run the server
 		addRobotByID(idNumber, socket);
@@ -39,9 +45,12 @@ var receiveData = function(data, socket) {
 		if (processor.hasStartedProcessing()) {
 			processor.routeRobot(idNumber);
 		}
-	} else if (data.startsWith("DONE")) {
+	} else if (data.startsWith("DONE:")) {
 		var id = data.substring("DONE:".length).trim();
-		var idNumber = parseInt(id);
+		var idNumber = stringToNumber(id);
+		if (idNumber === null) {
+			return;
+		}
 
 		var robot = getRobotByID(idNumber);
 		if (robot === null) {
@@ -56,11 +65,14 @@ var receiveData = function(data, socket) {
 			// No queued moves, ask for new moves from the server
 			processor.routeRobot(idNumber);
 		}
-	} else if (data.startsWith("INTENSITY")) {
+	} else if (data.startsWith("INTENSITY:")) {
 		var intensities = data.substring("INTENSITY:".length).trim();
 		var contents = intensities.split(";");
 
-		var id = parseInt(contents[0]);
+		var id = stringToNumber(contents[0]);
+		if (id === null) {
+			return;
+		}
 
 		// Parse the intensities into  a list and then
 		// return them to the processor.
@@ -68,13 +80,32 @@ var receiveData = function(data, socket) {
 		for (var i = 1; i < contents.length; i ++) {
 			// String is in the format (X, Y, Intensity)
 			var string = contents[i].trim();
+			// Need to do a lot of verification here because
+			// the server should really not crash
+			if (string.length < 2) {
+				console.log("NON-FATAL ERROR ------------------------------");
+				console.log("Values: " + string + " not long enough");
+				return;
+			}
 			// Remove the ( ):
-			var data = string.substring(1, string.length - 2);
+			var data = string.substring(1, string.length - 1);
 			// Now split these out with commans:
 			var values = data.split(",");
-			var x = parseInt(values[0]);
-			var y = parseInt(values[1]);
-			var intensity = parseInt(values[2]);
+			if (values.length !== 3) {
+				console.log("NON-FATAL ERROR ------------------------------");
+				console.log("Expected 3 values, actually got: " + values.length);
+				console.log("Values are: " + values);
+				return;
+			}
+
+			var x = stringToNumber(values[0]);
+			var y = stringToNumber(values[1]);
+			var intensity = stringToNumber(values[2]);
+
+			if (x === null || y === null || intensity === null) {
+				return;
+			}
+
 			parsedData.push({x:x, y:y, lightIntensity: intensity});
 		}
 
@@ -84,6 +115,33 @@ var receiveData = function(data, socket) {
 		console.log("unknown message " + data);
 	}
 };
+
+var stringToNumber = function(string) {
+	if (isNaN(string)) {
+		// ID isn't a number. Print an error and return
+		console.log("NON-FATAL ERROR ------------------------------");
+		console.log("ID: " + string + " is not a number");
+		return null;
+	}
+
+	var idNumber = Number(string);
+
+	if (idNumber < 0 || idNumber > 100000) {
+		console.log("NON-FATAL ERROR ------------------------------");
+		console.log("Number " + idNumber + " is too big or too small");
+		console.log("Try a number under 100,000 and over 0");
+		return null;
+	}
+
+	if (idNumber % 1 !== 0) {
+		// This is a floating point number
+		console.log("NON-FATAL ERROR ------------------------------");
+		console.log("Number " + idNumber + " should not be floating point");
+		return null;
+	}
+
+	return idNumber;
+}
 
 
 

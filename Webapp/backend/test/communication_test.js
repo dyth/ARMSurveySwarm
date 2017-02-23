@@ -70,7 +70,25 @@ describe('receiveData', function() {
 			coms.robots = [];
 
 			setTimeout(function() {
-				expect(instructionsSent, ' robot failed to receive instructions').to.be.true;
+				expect(instructionsSent,
+					' robot failed to receive instructions').to.be.true;
 			}, 100);
+	});
+
+	it('should not crash easily', function() {
+		coms.receiveData("INTENSITY:()");
+		coms.receiveData("INTENSITY:;101JIAADFlfkdsjfalskdjffa");
+		coms.receiveData("INTENSITY:(-100, -100, 10000000)"); 
+		coms.receiveData("INTENSITY:((()))))");
+		coms.receiveData("HELLO:DATA");
+		coms.receiveData("HELLO:9999999999999999999999999999999999999999999999")
+		coms.receiveData("HELLO:-10101");
+		coms.receiveData("HELLO:-");
+		coms.receiveData("HELLO:1e400000");
+		coms.receiveData("HELLO:1.01");
+		coms.receiveData("BYEBYE:"); 
+		coms.receiveData("INTENSITY:");
+
+		expect(true, 'server did not crash').to.be.true;
 	});
 });
