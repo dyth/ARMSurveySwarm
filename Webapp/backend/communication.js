@@ -152,7 +152,7 @@ var resume = function(robotID) {
 
 	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
-		socket.write('resume');
+		socket.write('RESUME');
 	}
 };
 
@@ -162,7 +162,7 @@ var stop = function(robotID) {
 
 	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
-		socket.write('stop');
+		socket.write('STOP');
 	}
 };
 
@@ -173,7 +173,7 @@ var stopAll = function() {
 		// todo, check if socket is open and stop it.
 		if (!robots[i].socket.destroyed) {
 			console.log(robots[i]);
-			robots[i].socket.write('stop')
+			robots[i].socket.write('STOP')
 		}
 	}
 };
