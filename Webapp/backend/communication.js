@@ -28,7 +28,6 @@ var server = net.createServer(function(socket) {
 });
 
 var receiveData = function(data, socket) {
-	console.log(data);
 	if (data.startsWith("HELLO")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = parseInt(id);
@@ -45,8 +44,14 @@ var receiveData = function(data, socket) {
 		var idNumber = parseInt(id);
 
 		var robot = getRobotByID(idNumber);
+		if (robot === null) {
+			console.log("NON-FATAL ERROR ------------------------------");
+			console.log("Unknown ID " + idNumber);
+		}
 		if (robot.nextMove) {
-			robot.nextMove();
+			var robotMove = robot.nextMove;
+			robot.nextMove = null;
+			robotMove();
 		} else {
 			// No queued moves, ask for new moves from the server
 			processor.routeRobot(idNumber);
@@ -75,8 +80,8 @@ var receiveData = function(data, socket) {
 
 		processor.setTiles(id, parsedData);
 	} else {
-		console.log(data + " unknown message");
-		throw err; // Unknown data type
+		console.log("NON-FATAL ERROR ------------------------------------");
+		console.log("unknown message " + data);
 	}
 };
 
@@ -224,14 +229,19 @@ var move = function(robotID, degree, distance) {
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
   	durationRotate = addPadding(durationRotate, 4);
-		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
+		socket.write('direction = ' + direction +
+			', speed = 5000, duration = ' + durationRotate);
+
 		console.log('id ' + robotID.toString() + ' Direction:' + direction
 			+ ' Duration: ' + durationRotate);
+
 		robots[robotIndex].nextMove = function() {
-			socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+			socket.write('direction = ' + direction +
+				', speed = 5000, duration = ' + durationStraight);
 		}
 	} else {
-		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+		socket.write('direction = ' + direction +
+			', speed = 5000, duration = ' + durationStraight);
 		robots[robotIndex].nextMove = null;
 	}
 };
