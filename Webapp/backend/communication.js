@@ -218,7 +218,7 @@ var resume = function(robotID) {
 
 	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
-		socket.write('RESUME');
+		socket.write('RESUME\n');
 	}
 };
 
@@ -228,7 +228,7 @@ var stop = function(robotID) {
 
 	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
-		socket.write('STOP');
+		socket.write('STOP\n');
 	}
 };
 
@@ -239,16 +239,31 @@ var stopAll = function() {
 		// todo, check if socket is open and stop it.
 		if (!robots[i].socket.destroyed) {
 			console.log(robots[i]);
-			robots[i].socket.write('STOP')
+			robots[i].socket.write('STOP\n')
 		}
 	}
 };
 
 
 var addPadding = function(number, length) {
+	number = Math.round(number);
+
+	var negative = false;
+
+	// deal with the negative number case
+	if (number < 0) {
+		number = - number
+		length -= 1;
+		negative = true;
+	}
+
 	var formatted = '' + number;
 	while (formatted.length < length) {
 		formatted = '0' + formatted;
+	}
+
+	if (negative) {
+		formatted = '-' + formatted;
 	}
 	return formatted;
 }
@@ -258,8 +273,7 @@ var move = function(robotID, degree, distance) {
 	// turn robot degree radians clockwise
 	// degree in RADIANS
 
-	console.log("DEGREE: " + degree);
-	// TODO -- move the robot
+	// console.log("DEGREE: " + degree);
 	var socket = getSocketByID(robotID);
 	// At speed 0.5, it does 46 - 48 cm per second
 	// Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
@@ -276,25 +290,29 @@ var move = function(robotID, degree, distance) {
 		direction = "backward";
 	} else if (degree < 180) { // turn left
 		direction = 'left';
-		durationRotate = degree/180 * 2250; // 2.25 seconds for 180 degrees of rotation
+		// 2.25 seconds for 180 degrees of rotation
+		durationRotate = degree/180 * 2250; 
 	} else { // turn right
 		direction = 'right'
 		degree = 360 - degree;
 		durationRotate = degree/180 * 2250 ;
 	}
+
 	//convert durations to have leading 0s and be 4 digits long
 	durationStraight = addPadding(durationStraight, 4);
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
-  	durationRotate = addPadding(durationRotate, 4);
+		durationRotate = addPadding(durationRotate, 4);
+		// Send the current message to the robot.
 		socket.write('direction = ' + direction +
 			', speed = 5000, duration = ' + durationRotate);
 
 		console.log('id ' + robotID.toString() + ' Direction:' + direction
 			+ ' Duration: ' + durationRotate);
 
+		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
 			socket.write('direction = ' + direction +
 				', speed = 5000, duration = ' + durationStraight);
@@ -302,6 +320,8 @@ var move = function(robotID, degree, distance) {
 	} else {
 		socket.write('direction = ' + direction +
 			', speed = 5000, duration = ' + durationStraight);
+		// This is just a straight movement so just
+		// there is no next move.
 		robots[robotIndex].nextMove = null;
 	}
 };
@@ -319,4 +339,5 @@ if (TEST) {
 	exports.getConnectedRobots = getConnectedRobots;
 	exports.robots = robots;
 	exports.receiveData = receiveData;
+	exports.addPadding = addPadding;
 }
