@@ -229,10 +229,10 @@ var checkTile = function(robotID, tileX, tileY){
 	communication.move(robotID, angle, vectorLength(A)* tileSize);
 
 	//Set new orientation of robotID
-	setOrientation(robotID, angle);
+	rotateClockwise(robotID, angle);
 }
 
-var setOrientation = function(robotID, radians) {
+var rotateClockwise = function(robotID, radians) {
 	var currentOrientation = robots[robotID].orientation;
 	robots[robotID].orientation = (currentOrientation + radians) % 2*Math.PI;
 }
@@ -402,5 +402,5 @@ if (TEST) {
 	exports.totalTiles = totalTiles;
 
 	exports.roundPosition = roundPosition;
-	exports.setOrientation = setOrientation;
+	exports.rotateClockwise = rotateClockwise;
 }
