@@ -92,8 +92,10 @@ function updateCanvas() {
 
             if(tiles[i][j] == 1)
                 graph.graphics.beginFill("#000").drawRect(j*size, i*size, size, size);
-            else
+            else if(tiles[i][j] == 0)
                 graph.graphics.beginFill("#fff").drawRect(j*size, i*size, size, size);
+            else
+                graph.graphics.beginFill("#ccc").drawRect(j * size, i * size, size, size);
 
         }
 
