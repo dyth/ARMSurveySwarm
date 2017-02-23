@@ -4,6 +4,7 @@
  * Routing algorithm to calculate next destination,
  * avoiding collisions
  */
+ var TEST = true;
 
 // Each element is dictionary of x, y positions for unchecked tiles
 var uncheckedTiles = [];
@@ -26,7 +27,7 @@ var getRandomInt = function(min, max){
  * Choose tile to check next, return x and y positions.
  */
 var move = function(robotID, startX, startY) {
-	if (uncheckedTiles.length == 0) {
+	if (uncheckedTiles.length == 0) { 
 		// Covered all tiles?
 		// Trying to setup testing framework
 		return {xAfter: 0, yAfter: 0};

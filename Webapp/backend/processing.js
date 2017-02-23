@@ -84,7 +84,7 @@ var roundPosition = function(pos) {
 /*
  * Register communication of tile colour received from robots.
  */
-var setTile = function(robotID, messages) {
+var setTiles = function(robotID, messages) {
 	if (!startedProcessing) {
 		// If the processing hasn't started then
 		// all the state below hasn't been defined yet.
@@ -118,8 +118,6 @@ var setTile = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
-	// TODO: check that final destination has completed line needed to be covered.
-	console.log(robotID);
 	robots[robotID].xPrev = robots[robotID].xAfter;
 	robots[robotID].yPrev = robots[robotID].yAfter;
 
@@ -129,17 +127,17 @@ var routeRobot = function(robotID) {
 	// xA and yA to xB and yB and set Afters with data received from route.
 	var destination =
 		route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
+	if (destination.stopAll) {
+		stopAll();
+		return;
+	}
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
-	// // check for collisions with 4 other robots
-	// if (willCollide(robotID)) {
-	//   //TODO: move away - straight line or right angles?
-	// }
-	//
-	// if (willCollideEdge(robotID)) {
-	//   communication.move(robotID, 180, 2); //dummy distance
-	// }
+	// check for collisions with 4 other robots
+	if (willCollide(robotID) || willCollideEdge(robotID)) { // robot moves 3 tiles in opposite direction
+		communication.move(robotID, Math.PI, 3*tileSize);
+	}
 
 	// convert next location to angle + distance and call communication.move in
 	// checkTile
@@ -172,9 +170,8 @@ var twoColoursAgree = function(coordX, coordY){
 
 	if (numWhite == numBlack) {
 		// potentials are robots other than those that already checked
-		//TODO : Can't interrupt robot
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
-		reccheckTile(robotID, coordX, coordY);
+		checkTile(robotID, coordX, coordY);
 
 		// potentials are robots other than those that already checked
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
@@ -182,12 +179,12 @@ var twoColoursAgree = function(coordX, coordY){
 
 	} else if (numWhite > numBlack && numWhite >= 2) {
 		processingTiles[coordX][coordY][5] = 1;
-		server.setTile(coordX, coordY, 1);
+		server.setTiles(coordX, coordY, 1);
 		tilesCovered += 1;
 
 	} else if (numBlack > numWhite && numBlack >= 2) {
 		processingTiles[coordX][coordY][5] = 0;
-		server.setTile(coordX, coordY, 0);
+		server.setTiles(coordX, coordY, 0);
 		tileCovered += 1;
 	}
 }
@@ -213,7 +210,7 @@ var checkTile = function(robotID, tileX, tileY){
 	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
 
 	// Find angle between current robot orientation and direction to tile
-	// axb = |a||b| sin(theta)
+	// a.b = |a||b| sin(theta)
 	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
 
 	var angle = Math.asin(sin_theta);
@@ -283,7 +280,7 @@ var willCollideEdge = function(robotID) {
 	return false;
 }
 
-/* 
+/*
  * This tells callers whether the processor
  * has started mapping or not yet
  */
@@ -377,7 +374,7 @@ exports.willCollide = willCollide;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
-exports.setTile = setTile;
+exports.setTiles = setTiles;
 exports.startProcessing = startProcessing;
 exports.routeRobot = routeRobot;
 

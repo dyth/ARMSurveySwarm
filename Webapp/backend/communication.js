@@ -72,7 +72,7 @@ var receiveData = function(data, socket) {
 			parsedData.push({x:x, y:y, lightIntensity: intensity});
 		}
 
-		processor.setTile(id, parsedData);
+		processor.setTiles(id, parsedData);
 	} else {
 		console.log(data + " unknown message");
 		throw err; // Unknown data type
@@ -133,7 +133,7 @@ var getSocketByID = function(robotID) {
 var getConnectedRobots = function() {
 	var connections = [];
 
-	for (var i = 0; i < robots.length; i ++) {
+	for (var i = 0; i < robots.length; i++) {
 		if (!robots[i].destroyed) {
 			connections.push(robots[i].id);
 		}
@@ -217,11 +217,11 @@ var move = function(robotID, degree, distance) {
 	}
 	//convert durations to have leading 0s and be 4 digits long
 	durationStraight = addPadding(durationStraight, 4);
-	durationRotate = addPadding(durationRotate, 4);
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
+  	durationRotate = addPadding(durationRotate, 4);
 		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
 		console.log('id ' + robotID.toString() + ' Direction:' + direction
 			+ ' Duration: ' + durationRotate);
