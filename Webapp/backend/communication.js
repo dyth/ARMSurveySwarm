@@ -23,11 +23,12 @@ var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
 	socket.on('data', function(data) {
-		receiveData(data, socket);
+		receiveData(data.toString(), socket);
 	});
 });
 
 var receiveData = function(data, socket) {
+	console.log(data);
 	if (data.startsWith("HELLO")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = parseInt(id);
