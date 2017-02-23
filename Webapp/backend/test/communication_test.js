@@ -32,16 +32,16 @@ describe('robot list management', function() {
 });
 
 describe('receiveData', function() {
-	it('should add a robot to the list of robots on receipt of a hello message', 
+	it('should add a robot to the list of robots on receipt of a hello message',
 		function() {
-			coms.receiveData("HELLO: 1", 
+			coms.receiveData("HELLO: 1",
 				{test: 100, destroyed: false, write: function() {}});
 			var socket = coms.getSocketByID(1);
-			
+
 			expect(socket.test).to.equal(100);
 	});
-	
-	it('should send a message to the robot', 
+
+	it('should send a message to the robot',
 		function(done) {
 			// To test this, we need some tiles set in processing.
 			processor.setGridDimensions({x: 10, y: 10});
@@ -49,16 +49,16 @@ describe('receiveData', function() {
 			// This is done because this can be triggered at a later
 			// date by another test.
 			var doneCalled = false;
-			coms.receiveData("HELLO: 2", 
+			coms.receiveData("HELLO: 2",
 				{destroyed: false, write: function(message) {
 					instructionsSent = true;
-					
+
 					if (message !== "STOP\n" && message !== "RESUME\n") {
 						// In this case it must be a data message
 						var contents = message.split(',');
 						expect(contents.length, '3 things sent to robot').to.equal(3);
 						console.log(contents);
-					}	
+					}
 
 					if (!doneCalled) {
 						doneCalled = true;
@@ -78,7 +78,7 @@ describe('receiveData', function() {
 	it('should not crash easily', function() {
 		coms.receiveData("INTENSITY:()");
 		coms.receiveData("INTENSITY:;101JIAADFlfkdsjfalskdjffa");
-		coms.receiveData("INTENSITY:(-100, -100, 10000000)"); 
+		coms.receiveData("INTENSITY:(-100, -100, 10000000)");
 		coms.receiveData("INTENSITY:((()))))");
 		coms.receiveData("HELLO:DATA");
 		coms.receiveData("HELLO:9999999999999999999999999999999999999999999999")
@@ -86,7 +86,7 @@ describe('receiveData', function() {
 		coms.receiveData("HELLO:-");
 		coms.receiveData("HELLO:1e400000");
 		coms.receiveData("HELLO:1.01");
-		coms.receiveData("BYEBYE:"); 
+		coms.receiveData("BYEBYE:");
 		coms.receiveData("INTENSITY:");
 
 		expect(true, 'server did not crash').to.be.true;
@@ -145,6 +145,6 @@ describe('Add padding', function() {
 	});
 });
 
-describe('the move function', function() {
+describe('Move function sending instructions to robot', function() {
 	// TODO -- get Kamile to write tests for this one
 });

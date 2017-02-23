@@ -56,12 +56,28 @@ describe('Set Tile with light intensity given x and y positions', function() {
 	});
 });
 
-
 describe('Set orientation', function() {
 	it('Given orientation to turn clockwise, next orientation is calculated' +
 	' as being between 0 and 2PI', function() {
 	console.log(processor.robots[0].orientation);
 	processor.rotateClockwise(0, 3*Math.PI);
 	expect(processor.robots[0].orientation).at.most(2*Math.PI);
+	});
+});
+
+describe('Vector Length', function() {
+	it('Given a vector [1,1], length returned should be 1', function() {
+		expect(Math.sqrt(2)).to.equal(processor.vectorLength([1,1]));
+	});
+	it('Given a vector [3,4], length returned should be 5', function() {
+		expect(5).to.equal(processor.vectorLength([3,4]));
+	});
+});
+
+describe('Route robot', function() {
+	it('Check that route does not set robots to recheck current tile', function() {
+		processor.routeRobot(0);
+		expect(processor.robots[0].xPrev).to.not.equal(processor.robots[0].xAfter);
+		expect(processor.robots[0].yPrev).to.not.equal(processor.robots[0].yAfter);
 	});
 });

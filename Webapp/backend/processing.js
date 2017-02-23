@@ -204,6 +204,7 @@ var vectorLength = function(vector) {
  * Set orientation of given robot in direction of tile.
  */
 var checkTile = function(robotID, tileX, tileY){
+	console.log('CHECK TILE');
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
@@ -213,12 +214,15 @@ var checkTile = function(robotID, tileX, tileY){
 	// make A unit vector
 	A[0] = A[0]/ vectorLength(A);
 	A[1] = A[1]/ vectorLength(A);
+	console.log(vectorLength(A));
 
 	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
+	console.log(vectorLength(B));
 
 	// Find angle between current robot orientation and direction to tile
 	// a.b = |a||b| sin(theta)
 	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
+
 
 	var angle = Math.asin(sin_theta);
 	if (angle < 0) {
@@ -226,7 +230,7 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	// Turn by angle clockwise
-	communication.move(robotID, angle, vectorLength(A)* tileSize);
+	communication.move(robotID, angle, vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
 	rotateClockwise(robotID, angle);
@@ -403,4 +407,5 @@ if (TEST) {
 
 	exports.roundPosition = roundPosition;
 	exports.rotateClockwise = rotateClockwise;
+	exports.vectorLength = vectorLength;
 }
