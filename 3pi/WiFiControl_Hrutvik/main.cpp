@@ -34,6 +34,7 @@ PwmOut led4(LED4);
 
 float currentX = 0.0;
 float currentY = 0.0;
+float currentOrienation = 0.0;
 
 void tcp_control(){
     // expect instructions of form <direction> <speed> <duration> <termination>
@@ -44,15 +45,19 @@ void tcp_control(){
     
     while(true) {
         //ASSUME THAT INSTRUCTION IS WELL_FORMED
+        
+        //TODO: MUST LOOP AND ACCEPT INDIVIDUAL BYTES COS SOCKETS ARE STUPID
+        
+        
         // receive <direction> <speed> <duration> <termination> into received array
-        socket.recv(received, (sizeof received)-1);
+        socket.recv(received, (sizeof received)-1); // ensure final '\0' character is never ovewritten to allow for use of string methods
         
         // calculate no. chars in instruction before first '\n' (i.e. termination character)
         int instr_size = strcspn(instruction, '\n');
         
         // copy across instruction-only bytes (i.e. before '\n')
         char instruction[instr_size+1];
-        memset(instruction, '\0', sizeof(instruction));
+        memset(instruction, '\0', sizeof(instruction)); // ensure final character is '\0'
         strncpy(instruction, received, instr_size);
         
        
@@ -67,7 +72,7 @@ void tcp_control(){
         strcpy(direction, token);
         
         if (strcmp(direction, "STOP") == 0){
-            waitForResume(); //TODO write this
+            waitForResume();
         } else if (strcomp(direction, "RESUME") == 0){
             continue;
         } else {
@@ -86,36 +91,76 @@ void tcp_control(){
                 wait(duration);
                 m3pi.stop();
                 led2 = 0.0;
+                updateOrientation(speed, duration);
             } else if (strcmp(direction, "right") == 0){
                 m3pi.right(speed);
                 led4 = speed;
                 wait(duration);
                 m3pi.stop();
                 led2 = 0.0;
+                updateOrientation(-speed, duration);
             } else {
                 continue; //not expected - would imply malformed instruction
-            }    
+            }
+            //TODO: OUTPUT DONE: ID    
         }   
     }
 }
 
-void waitForResume(){
+void waitForResume(){ // ASSUMPTION: RESUME is first instruction received after STOP
+    char resume[8];
+    memset(resume, '\0', sizeof(resume)); // ensure final character is '\0'
+    for (int i = 0; i < 
+
+    
 }
 
 void moveForward(float speed, float duration){
     float timeBetweenSamples = 0.1/speed;
     int noSamples = floor(duration/timeBetweenSamples);
-    m3pi.forward(speed);
     float xs[noSamples];
     float ys[noSamples];
-    float intensities[noSamples];
+    float intensities[noSamples+1];
+    m3pi.forward(speed);
     for (int i = 0; i < noSamples; i++){
-        
+        wait(timeBetweenSamples);
+        intensities[i] = m3pi.line_position();
+        xs[i] = currentX;
+        ys[i] = currentY;
+        updatePosition(speed, timeBetweenSamples);
     }
-    
+    wait(duration - (noSamples * timeBetweenSamples));
+    updatePosition(speed, duration - (noSamples * timeBetweenSamples));
+    m3pi.stop();
 }
 
 void moveBackward(float speed, float duration){
+    float timeBetweenSamples = 0.1/speed;
+    int noSamples = floor(duration/timeBetweenSamples);
+    float xs[noSamples];
+    float ys[noSamples];
+    float intensities[noSamples+1];
+    m3pi.backward(speed);
+    for (int i = 0; i < noSamples; i++){
+        wait(timeBetweenSamples);
+        intensities[i] = m3pi.line_position();
+        xs[i] = currentX;
+        ys[i] = currentY;
+        updatePosition(-speed, timeBetweenSamples);
+    }
+    wait(duration - (noSamples * timeBetweenSamples));
+    updatePosition(-speed, duration - (noSamples * timeBetweenSamples));
+    m3pi.stop();
+}
+
+void updatePosition(float speed, float duration){
+    //TODO: update currentX, currentY based on speed, duration of forward/backward
+        // movement - use negative speed to represent backward
+}
+
+void updateOrientation(float rotationSpeed, float duration){
+    //TODO: update currentOrienation based on speed, duration of right/left
+        // movement - use negative rotationSpeed to represent right rotation
 }
 
 int main() {
