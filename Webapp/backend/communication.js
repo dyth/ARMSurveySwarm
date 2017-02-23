@@ -48,7 +48,7 @@ var receiveData = function(data, socket) {
 			robot.nextMove();
 		} else {
 			// No queued moves, ask for new moves from the server
-			process.routeRobot(idNumber);
+			processor.routeRobot(idNumber);
 		}
 	} else if (data.startsWith("INTENSITY")) {
 		var intensities = data.substring("INTENSITY:".length).trim();
@@ -96,16 +96,36 @@ var addRobotByID = function(robotID, socket) {
 	robots.push({id: robotID, socket: socket});
 };
 
+var getRobotIndex = function(robotID) {
+	for(var i = 0; i < robots.length; i ++) {
+		if (robotID === robots[i].id) {
+			return i;
+		}
+	}
+
+	return null;
+};
+
+var getRobotByID = function(robotID) {
+	var index = getRobotIndex(robotID);
+
+	if (index === null) { return null;
+	} else {
+		return robots[index];
+	}
+}
+
 // Idea is to return the socket of a particular
 // robot in the system. Returns null
 // if the robot is not found.
 var getSocketByID = function(robotID) {
-	for(var i = 0; i < robots.length; i ++) {
-		if (robotID === robots[i].id) {
-			return robots[i].socket;
-		}
+	var robot = getRobotByID(robotID);
+
+	if (robot !== null) {
+		return robot.socket;
+	} else {
+		return null
 	}
-	return null;
 };
 
 // Returns a list of the IDs of the
@@ -200,10 +220,10 @@ var move = function(robotID, degree, distance) {
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
-	if (durationRotation != null) {
+	if (durationRotate != null) {
 		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
 		console.log('id ' + robotID.toString() + ' Direction:' + direction
-			+ ' Duration: ' + duration);
+			+ ' Duration: ' + durationRotate);
 		robots[robotIndex].nextMove = function() {
 			socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
 		}

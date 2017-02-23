@@ -146,7 +146,7 @@ var routeRobot = function(robotID) {
 	checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
-	udpateStatus(robotID);
+	server.updateStatus(robotID);
 }
 
 /*
@@ -228,9 +228,9 @@ var checkTile = function(robotID, tileX, tileY){
 	setOrientation(robotID, angle);
 }
 
-var setOrientation = function(robotID, degree) {
+var setOrientation = function(robotID, radians) {
 	var currentOrientation = robots[robotID].orientation;
-	robots[robotID].orientation = (currentOrientation + orientation) % Math.PI;
+	robots[robotID].orientation = (currentOrientation + radians) % Math.PI;
 }
 
 /*
