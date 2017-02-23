@@ -23,12 +23,14 @@ var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
 	socket.on('data', function(data) {
+		// TODO -- Go till the end of message signal
+		// and pass that. Then save the rest for later.
 		receiveData(data.toString(), socket);
 	});
 });
 
 var receiveData = function(data, socket) {
-	if (data.startsWith("HELLO:")) {
+	if (data.substring(0, "HELLO:".length) === ("HELLO:")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = stringToNumber(id);
 
@@ -45,7 +47,7 @@ var receiveData = function(data, socket) {
 		if (processor.hasStartedProcessing()) {
 			processor.routeRobot(idNumber);
 		}
-	} else if (data.startsWith("DONE:")) {
+	} else if (data.substring(0, "DONE:".length) === "DONE:") {
 		var id = data.substring("DONE:".length).trim();
 		var idNumber = stringToNumber(id);
 		if (idNumber === null) {
@@ -65,7 +67,7 @@ var receiveData = function(data, socket) {
 			// No queued moves, ask for new moves from the server
 			processor.routeRobot(idNumber);
 		}
-	} else if (data.startsWith("INTENSITY:")) {
+	} else if (data.substring(0, "INTENSITY:".length) === "INTENSITY:") {
 		var intensities = data.substring("INTENSITY:".length).trim();
 		var contents = intensities.split(";");
 
