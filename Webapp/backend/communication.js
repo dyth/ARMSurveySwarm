@@ -32,7 +32,7 @@ var receiveData = function(data, socket) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = parseInt(id);
 		// This is a connection message.
-		// Run the server 
+		// Run the server
 		addRobotByID(idNumber, socket);
 		// If the processing has started, then call route robot
 		// Otherwise it will be started when the server starts.
@@ -177,6 +177,7 @@ var stopAll = function() {
 		}
 	}
 };
+
 
 var addPadding = function(number, length) {
 	var formatted = '' + number;
