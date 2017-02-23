@@ -6,8 +6,13 @@ describe('A call to route', function() {
 			' with keys xAfter, yAfter', function() { 
 		var results = routing.move(0, 10, 10);
 
-		expect(results.xAfter).to.be.at.least(0);
-		expect(results.yAfter).to.be.at.least(0);
+		if (results.stopAll ===false) {
+			expect(results.xAfter).to.be.at.least(0);
+			expect(results.yAfter).to.be.at.least(0);
+		} else {
+			expect(results.xAfter).to.equal(-1);
+			expect(results.yAfter).to.equal(-1);
+		}
 	});
 });
 
