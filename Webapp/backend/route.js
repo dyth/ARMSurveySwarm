@@ -40,8 +40,8 @@ var move = function(robotID, startX, startY) {
 		return {xAfter: -1, yAfter: -1, stopAll: true}
 	} else {
 		var tileIndex = getRandomInt(0, uncheckedTiles.length);
-		var nextX = uncheckedTile[tileIndex].xPos;
-		var nextY = uncheckedTile[tileIndex].yPos;
+		var nextX = uncheckedTiles[tileIndex].xPos;
+		var nextY = uncheckedTiles[tileIndex].yPos;
 		return {xAfter: nextX, yAfter: nextY, stopAll: false};
 	}
 }
