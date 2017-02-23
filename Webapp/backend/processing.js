@@ -113,8 +113,7 @@ var setTiles = function(robotID, messages) {
 		// if two robots agree on colour, set finalColour,
 		twoColoursAgree(coordX, coordY);
 	}
-
-
+	
 	//check if whole board covered
 	if (tilesCovered == totalTiles) {
 		communication.stopAll();

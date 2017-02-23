@@ -47,3 +47,4 @@ var move = function(robotID, startX, startY) {
 }
 exports.move = move;
 exports.setUp = setUp;
+exports.removeTile = removeTile;
