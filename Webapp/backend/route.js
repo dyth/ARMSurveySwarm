@@ -29,8 +29,7 @@ var getRandomInt = function(min, max){
 var move = function(robotID, startX, startY) {
 	if (uncheckedTiles.length == 0) { 
 		// Covered all tiles?
-		// Trying to setup testing framework
-		return {xAfter: 0, yAfter: 0};
+		return {xAfter: -1, yAfter: -1, stopAll: true}
 	} else {
 		var tileIndex = getRandomInt(0, uncheckedTile.length);
 		var nextX = uncheckedTile[tileIndex].xPos;
@@ -39,7 +38,7 @@ var move = function(robotID, startX, startY) {
 		// Remove this tile from uncheckedTiles so that no other robotID
 		// is routed to it.
 		uncheckedTiles.splice(tileIndex,1);
-		return {xAfter: nextX, yAfter: nextY};
+		return {xAfter: nextX, yAfter: nextY, stopAll: false};
 	}
 }
 exports.move = move;
