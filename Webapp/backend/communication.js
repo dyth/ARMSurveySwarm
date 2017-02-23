@@ -192,6 +192,7 @@ var move = function(robotID, degree, distance) {
 	// turn robot degree radians clockwise
 	// degree in RADIANS
 
+	console.log("DEGREE: " + degree);
 	// TODO -- move the robot
 	var socket = getSocketByID(robotID);
 	// At speed 0.5, it does 46 - 48 cm per second
