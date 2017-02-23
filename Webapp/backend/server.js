@@ -51,7 +51,6 @@ io.sockets.on('connection', function(socket) {
 		yDim: gridSize.y});
 
 	setTimeout(function() {
-		updateGrid(10, 10);
 		updateTile(0, 0, 1);
 		updateTile(1, 0, 1);
 		updateTile(3, 0, 1);
@@ -89,10 +88,15 @@ io.sockets.on('connection', function(socket) {
 	socket.on('startRobots', function(input) {
 		console.log("tile size " + input.tileSize.toString());
 		console.log("grid size " + input.gridSize.toString());
+
+		var numTiles = input.gridSize / input.tileSize;
+
+		console.log("num tiles " + numTiles);
+
 		// ready? 
 		processor.setTileSize(input.tileSize);
 		// READY?
-		processor.setGridDimensions({x: input.gridSize, y: input.gridSize});
+		processor.setGridDimensions({x: numTiles, y: numTiles});
 		// SET?
 		processor.createTilesList();
 		// GO!!

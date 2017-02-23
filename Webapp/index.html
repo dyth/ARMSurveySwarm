@@ -22,14 +22,24 @@
             <div class="col-xs-6 col-xs-offset-3">
                 <form action="run.html" method="get" id="inputForm">
 
+                    <div class="alert alert-danger" role="alert" id="error-message">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">Error:</span>
+                        <span class="text"></span>
+                    </div>
+
                     <div class="form-group">
                         <label for="inputTileSize">Tile Size (cm)</label>
-                        <input type="text" class="form-control" id="inputTileSize">
+                        <input type="text" class="form-control" id="inputTileSize" pattern="^[1-9]\d*$"
+                               oninvalid="setCustomValidity('Enter a positive number')"
+                               onchange="try{setCustomValidity('')}catch(e){}">
                     </div>
 
                     <div class="form-group">
                         <label for="inputTileSize">Grid Size (cm)</label>
-                        <input type="text" class="form-control" id="inputGridSize">
+                        <input type="text" class="form-control" id="inputGridSize" pattern="^[1-9]\d*$"
+                               oninvalid="setCustomValidity('Enter a positive number')"
+                               onchange="try{setCustomValidity('')}catch(e){}">
                     </div>
 
                     <button type="submit" class="btn btn-default">Start</button>
