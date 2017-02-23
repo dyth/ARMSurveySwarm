@@ -53,7 +53,7 @@ describe('receiveData', function() {
 				{destroyed: false, write: function(message) {
 					instructionsSent = true;
 					
-					if (message !== "STOP" && message !== "RESUME") {
+					if (message !== "STOP\n" && message !== "RESUME\n") {
 						// In this case it must be a data message
 						var contents = message.split(',');
 						expect(contents.length, '3 things sent to robot').to.equal(3);
@@ -91,4 +91,60 @@ describe('receiveData', function() {
 
 		expect(true, 'server did not crash').to.be.true;
 	});
+});
+
+describe('stop, resume and stopAll', function() {
+	var dataReceived;
+	var dataReceived2;
+	it('should add a robot with a callback', function() {
+		// Add a couple of robots
+		coms.receiveData("HELLO:1", {destroyed: false, write:
+			function(data) {
+				dataReceived = data;
+			}});
+		coms.receiveData("HELLO:2", {destroyed: false, write:
+			function(data) {
+				dataReceived2 = data;
+			}});
+	});
+
+	it('stop should send out a STOP\n message', function() {
+		coms.stop(1);
+		expect(dataReceived).to.equal('STOP\n');
+	});
+
+	it('resume should send out a RESUME\n message', function() {
+		coms.resume(1);
+		expect(dataReceived).to.equal('RESUME\n');
+	});
+
+	it('stop all should sent out some STOP\n messages', function() {
+		coms.stopAll();
+		expect(dataReceived).to.equal('STOP\n');
+		expect(dataReceived2).to.equal('STOP\n');
+	});
+});
+
+describe('Add padding', function() {
+	it('should pad a number out to N digits and preserve equality', function() {
+		// Checking length properties
+		expect(coms.addPadding(1, 10).length).to.equal(10);
+		expect(coms.addPadding(5, 2).length).to.equal(2);
+		expect(coms.addPadding(-5, 3).length).to.equal(3);
+
+		// checking preservation properties
+		expect(Number(coms.addPadding(5, 2))).to.equal(5);
+		expect(Number(coms.addPadding(-5, 4))).to.equal(-5);
+	});
+
+	it('should round floating point numbers', function() {
+		expect(Number(coms.addPadding(1/3, 10))).to.equal(0);
+		expect(Number(coms.addPadding(2/3, 1))).to.equal(1);
+
+		expect(coms.addPadding(23.1, 3)).to.equal("023");
+	});
+});
+
+describe('the move function', function() {
+	// TODO -- get Kamile to write tests for this one
 });
