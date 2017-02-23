@@ -50,5 +50,18 @@ describe('Set Tile with light intensity given x and y positions', function() {
 		processor.setTiles(4, [{x: 51.75, y:82.56, lightIntensity: 1}]);
 		expect(0).to.equal(processor.processingTiles[5][8][2]);
 		expect(1).to.equal(processor.processingTiles[5][8][4]);
+
+		//check that final colour has NOT been setTimeout
+		expect(2).to.equal(processor.processingTiles[5][8][5]);
+	});
+});
+
+
+describe('Set orientation', function() {
+	it('Given orientation to turn clockwise, next orientation is calculated' +
+	' as being between 0 and 2PI', function() {
+	console.log(processor.robots[0].orientation);
+	processor.rotateClockwise(0, 3*Math.PI);
+	expect(processor.robots[0].orientation).at.most(2*Math.PI);
 	});
 });
