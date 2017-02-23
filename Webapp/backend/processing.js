@@ -113,7 +113,7 @@ var setTiles = function(robotID, messages) {
 		// if two robots agree on colour, set finalColour,
 		twoColoursAgree(coordX, coordY);
 	}
-	
+
 	//check if whole board covered
 	if (tilesCovered == totalTiles) {
 		communication.stopAll();
@@ -182,10 +182,6 @@ var twoColoursAgree = function(coordX, coordY){
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
 		checkTile(robotID, coordX, coordY);
 
-		// potentials are robots other than those that already checked
-		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
-		checkTile(robotID, coordX, coordY);
-
 	} else if (numWhite > numBlack && numWhite >= 2) {
 		processingTiles[coordX][coordY][5] = 1;
 		server.updateTile(coordX, coordY, 1);
@@ -238,7 +234,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 var setOrientation = function(robotID, radians) {
 	var currentOrientation = robots[robotID].orientation;
-	robots[robotID].orientation = (currentOrientation + radians) % Math.PI;
+	robots[robotID].orientation = (currentOrientation + radians) % 2*Math.PI;
 }
 
 /*
@@ -406,4 +402,5 @@ if (TEST) {
 	exports.totalTiles = totalTiles;
 
 	exports.roundPosition = roundPosition;
+	exports.setOrientation = setOrientation;
 }
