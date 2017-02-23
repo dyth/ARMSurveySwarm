@@ -104,6 +104,8 @@ var setTiles = function(robotID, messages) {
 		coordX = roundPosition(messages[i].x);
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
+
+		console.log('X: ' + coordX + ' Y: ' + coordY + ' LI: ' + lightIntensity);
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 		server.updateTile(coordX, coordY, lightIntensity);
 		server.updateStatus(robotID, coordX, coordY, robots[robotID].robotStatus);
