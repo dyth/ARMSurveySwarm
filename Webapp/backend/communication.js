@@ -76,153 +76,154 @@ var receiveData = function(data, socket) {
 	} else {
 		console.log(data + " unknown message");
 		throw err; // Unknown data type
-	};
+	}
+};
 
 
 
-	var addRobotByID = function(robotID, socket) {
-		// /console.log(socket);
-		// Check if the robot is in the robots list.
-		// If not then add it. Otherwise, update the socket.
-		for (var i = 0; i < robots.length; i++) {
-			if (robots[i].id === robotID) {
-				// update the socket and return
-				robots[i].socket = socket;
-				return;
-			}
+var addRobotByID = function(robotID, socket) {
+	// /console.log(socket);
+	// Check if the robot is in the robots list.
+	// If not then add it. Otherwise, update the socket.
+	for (var i = 0; i < robots.length; i++) {
+		if (robots[i].id === robotID) {
+			// update the socket and return
+			robots[i].socket = socket;
+			return;
 		}
-		// Otherwise add a new entry into the list.
-		robots.push({id: robotID, socket: socket});
-	};
+	}
+	// Otherwise add a new entry into the list.
+	robots.push({id: robotID, socket: socket});
+};
 
-	// Idea is to return the socket of a particular
-	// robot in the system. Returns null
-	// if the robot is not found.
-	var getSocketByID = function(robotID) {
-		for(var i = 0; i < robots.length; i ++) {
-			if (robotID === robots[i].id) {
-				return robots[i].socket;
-			}
+// Idea is to return the socket of a particular
+// robot in the system. Returns null
+// if the robot is not found.
+var getSocketByID = function(robotID) {
+	for(var i = 0; i < robots.length; i ++) {
+		if (robotID === robots[i].id) {
+			return robots[i].socket;
 		}
-		return null;
-	};
+	}
+	return null;
+};
 
-	// Returns a list of the IDs of the
-	// connected robots.
-	var getConnectedRobots = function() {
-		var connections = [];
+// Returns a list of the IDs of the
+// connected robots.
+var getConnectedRobots = function() {
+	var connections = [];
 
-		for (var i = 0; i < robots.length; i ++) {
-			if (!robots[i].destroyed) {
-				connections.push(robots[i].id);
-			}
+	for (var i = 0; i < robots.length; i ++) {
+		if (!robots[i].destroyed) {
+			connections.push(robots[i].id);
 		}
-
-		return connections;
-	};
-
-	server.listen(8000, '127.0.0.1');
-
-	var processor = require('./processing');
-
-	/* Messages to Robot */
-	var resume = function(robotID) {
-		var socket = getSocketByID(robotID);
-
-		// todo -- actually send a resume message
-		if (socket !== null && !socket.destroyed) {
-			socket.write('resume');
-		}
-	};
-
-	var stop = function(robotID) {
-		// Stop a robot from moving
-		var socket = getSocketByID(robotID);
-
-		// todo -- actually send a resume message
-		if (socket !== null && !socket.destroyed) {
-			socket.write('stop');
-		}
-	};
-
-	var stopAll = function() {
-		// Stop all robots from moving
-		// Send a stop message to all connected
-		for (var i = 0; i < robots.length; i ++) {
-			// todo, check if socket is open and stop it.
-			if (!robots[i].socket.destroyed) {
-				console.log(robots[i]);
-				robots[i].socket.write('stop')
-			}
-		}
-	};
-
-	var addPadding = function(number, length) {
-		var formatted = '' + number;
-		while (formatted.length < length) {
-			formatted = '0' + formatted;
-		}
-		return formatted;
 	}
 
+	return connections;
+};
 
-	var move = function(robotID, degree, distance) {
-		// turn robot degree radians clockwise
-		// degree in RADIANS
+server.listen(8000, '127.0.0.1');
 
-		// TODO -- move the robot
-		var socket = getSocketByID(robotID);
-		// At speed 0.5, it does 46 - 48 cm per second
-		// Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
-		distance = distance * 10; // convert distances to mm
-		degree = degree * 180 / Math.PI;
+var processor = require('./processing');
 
-		var speed = 470; // fixed at 470mm per second
-		var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
-		var durationRotate;
-		var direction; // directions forward, back, left, right.
-		if (degree == 0) {
-			direction = "forward";
-		} else if (degree == 180) {
-			direction = "backward";
-		} else if (degree < 180) { // turn left
-			direction = 'left';
-			durationRotate = degree/180 * 2250; // 2.25 seconds for 180 degrees of rotation
-		} else { // turn right
-			direction = 'right'
-			degree = 360 - degree;
-			durationRotate = degree/180 * 2250 ;
+/* Messages to Robot */
+var resume = function(robotID) {
+	var socket = getSocketByID(robotID);
+
+	// todo -- actually send a resume message
+	if (socket !== null && !socket.destroyed) {
+		socket.write('resume');
+	}
+};
+
+var stop = function(robotID) {
+	// Stop a robot from moving
+	var socket = getSocketByID(robotID);
+
+	// todo -- actually send a resume message
+	if (socket !== null && !socket.destroyed) {
+		socket.write('stop');
+	}
+};
+
+var stopAll = function() {
+	// Stop all robots from moving
+	// Send a stop message to all connected
+	for (var i = 0; i < robots.length; i ++) {
+		// todo, check if socket is open and stop it.
+		if (!robots[i].socket.destroyed) {
+			console.log(robots[i]);
+			robots[i].socket.write('stop')
 		}
-		//convert durations to have leading 0s and be 4 digits long
-		durationStraight = addPadding(durationStraight, 4);
-		durationRotate = addPadding(durationRotate, 4);
+	}
+};
 
-		// speed is set to 5000 to be half the power
-		var robotIndex = getRobotIndex(robotID);
-		if (durationRotation != null) {
-			socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
-			console.log('id ' + robotID.toString() + ' Direction:' + direction
-				+ ' Duration: ' + duration);
-			robots[robotIndex].nextMove = function() {
-				socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
-			}
-		} else {
+var addPadding = function(number, length) {
+	var formatted = '' + number;
+	while (formatted.length < length) {
+		formatted = '0' + formatted;
+	}
+	return formatted;
+}
+
+
+var move = function(robotID, degree, distance) {
+	// turn robot degree radians clockwise
+	// degree in RADIANS
+
+	// TODO -- move the robot
+	var socket = getSocketByID(robotID);
+	// At speed 0.5, it does 46 - 48 cm per second
+	// Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
+	distance = distance * 10; // convert distances to mm
+	degree = degree * 180 / Math.PI;
+
+	var speed = 470; // fixed at 470mm per second
+	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
+	var durationRotate;
+	var direction; // directions forward, back, left, right.
+	if (degree == 0) {
+		direction = "forward";
+	} else if (degree == 180) {
+		direction = "backward";
+	} else if (degree < 180) { // turn left
+		direction = 'left';
+		durationRotate = degree/180 * 2250; // 2.25 seconds for 180 degrees of rotation
+	} else { // turn right
+		direction = 'right'
+		degree = 360 - degree;
+		durationRotate = degree/180 * 2250 ;
+	}
+	//convert durations to have leading 0s and be 4 digits long
+	durationStraight = addPadding(durationStraight, 4);
+	durationRotate = addPadding(durationRotate, 4);
+
+	// speed is set to 5000 to be half the power
+	var robotIndex = getRobotIndex(robotID);
+	if (durationRotation != null) {
+		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);
+		console.log('id ' + robotID.toString() + ' Direction:' + direction
+			+ ' Duration: ' + duration);
+		robots[robotIndex].nextMove = function() {
 			socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
-			robots[robotIndex].nextMove = null;
 		}
-	};
-
-	exports.resume = resume;
-	exports.stop = stop;
-	exports.stopAll = stopAll;
-	exports.move = move;
-	exports.getConnectedRobots = getConnectedRobots;
-
-	if (TEST) {
-		exports.TEST = TEST;
-		exports.addRobotByID = addRobotByID;
-		exports.getSocketByID = getSocketByID;
-		exports.getConnectedRobots = getConnectedRobots;
-		exports.robots = robots;
-		exports.receiveData = receiveData;
+	} else {
+		socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationStraight);
+		robots[robotIndex].nextMove = null;
 	}
+};
+
+exports.resume = resume;
+exports.stop = stop;
+exports.stopAll = stopAll;
+exports.move = move;
+exports.getConnectedRobots = getConnectedRobots;
+
+if (TEST) {
+	exports.TEST = TEST;
+	exports.addRobotByID = addRobotByID;
+	exports.getSocketByID = getSocketByID;
+	exports.getConnectedRobots = getConnectedRobots;
+	exports.robots = robots;
+	exports.receiveData = receiveData;
+}
