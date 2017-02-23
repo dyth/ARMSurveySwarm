@@ -8,6 +8,7 @@
 
 // Each element is dictionary of x, y positions for unchecked tiles
 var uncheckedTiles = [];
+
 var setUp = function(tileNumber) {
 	for(var i = 0; i < tileNumber; i++){
 		for(var j = 0; j < tileNumber; j++) {
@@ -17,7 +18,10 @@ var setUp = function(tileNumber) {
 }
 
 var removeTile = function(coordX, coordY) {
-  uncheckedTiles.indexOf({xPos:coordX, yPos:coordY});
+  var index = uncheckedTiles.indexOf({xPos:coordX, yPos:coordY});
+  if (index > -1) {
+    uncheckedTiles.splice(index, 1);
+  }
 }
 
 /*
@@ -38,10 +42,6 @@ var move = function(robotID, startX, startY) {
 		var tileIndex = getRandomInt(0, uncheckedTile.length);
 		var nextX = uncheckedTile[tileIndex].xPos;
 		var nextY = uncheckedTile[tileIndex].yPos;
-
-		// Remove this tile from uncheckedTiles so that no other robotID
-		// is routed to it.
-		uncheckedTiles.splice(tileIndex,1);
 		return {xAfter: nextX, yAfter: nextY, stopAll: false};
 	}
 }
