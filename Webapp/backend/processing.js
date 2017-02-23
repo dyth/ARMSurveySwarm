@@ -109,8 +109,6 @@ var setTile = function(robotID, messages) {
   if (tilesCovered == totalTiles) {
     communication.stopAll();
   }
-  // after updating the tiles, route the robot.
-  routeRobot(robotID);
 }
 
 var routeRobot = function(robotID) {
@@ -279,6 +277,14 @@ var willCollideEdge = function(robotID) {
   return false;
 }
 
+/* 
+ * This tells callers whether the processor
+ * has started mapping or not yet
+ */
+var hasStartedProcessing = function() {
+	return startedProcessing;
+}
+
 /*
  * This unpacks the dictionary for the robot status and sends it on to the
  * server
@@ -356,6 +362,7 @@ var startProcessing = function() {
 
 }
 
+exports.hasStartedProcessing = hasStartedProcessing;
 exports.setTileSize = setTileSize;
 exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
@@ -366,6 +373,7 @@ exports.stop = stop;
 exports.stopAll = stopAll;
 exports.setTile = setTile;
 exports.startProcessing = startProcessing;
+exports.routeRobot = routeRobot;
 
 /*
 * Unit testing
