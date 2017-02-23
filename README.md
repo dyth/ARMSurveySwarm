@@ -1,5 +1,7 @@
 # ARMSurveySwarm
 
+[![Build Status](https://travis-ci.org/dyth/ARMSurveySwarm.svg?branch=master)](https://travis-ci.org/dyth/ARMSurveySwarm)
+
 Code to run on ARM mbed enhanced Pololu 3pi robots as part of Part IB Computer Science Tripos Group Project.
 
 ## Setting up an IDE to create code to run on robots
