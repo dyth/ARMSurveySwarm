@@ -118,6 +118,15 @@ var stopAll = function() {
 	}
 };
 
+var addPadding = function(number, length) {
+    var formatted = '' + number;
+    while (formatted.length < length) {
+      formatted = '0' + formatted;
+    }
+    return formatted;
+}
+
+
 var move = function(robotID, degree, distance) {
 	// turn robot degree radians clockwise
   // degree in RADIANS
@@ -145,7 +154,11 @@ var move = function(robotID, degree, distance) {
     degree = 360 - degree;
     durationRotate = degree/180 * 2250 ;
   }
+  //convert durations to have leading 0s and be 4 digits long
+  durationStraight = addPadding(durationStraight, 4);
+  durationRotate = addPadding(durationRotate, 4);
 
+  // speed is set to 5000 to be half the power
   var robotIndex = getRobotIndex(robotID);
   if (durationRotation != null) {
     socket.write('direction = ' + direction + ', speed = 5000, duration = ' + durationRotate);

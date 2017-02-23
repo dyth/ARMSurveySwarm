@@ -9,3 +9,9 @@ describe('Create tiles list', function() {
 		expect(10).to.equal(processor.processingTiles.length);
 	});
 });
+
+describe('Round given position to correspond to tile index', function() {
+	it('Given input 34.43, position should be rounded down to 30 if tile size is 10', function() {
+		expect(30).to.equal(processor.roundPosition(34.43));
+	});
+});

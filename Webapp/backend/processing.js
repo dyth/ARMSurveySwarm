@@ -219,7 +219,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 	// Turn by angle clockwise
 	communication.move(robotID, angle, vectorLength(A)* tileSize);
-	
+
 	//Set new orientation of robotID
 	setOrientation(robotID, angle);
 }
@@ -380,4 +380,5 @@ if (TEST) {
 	exports.length = length;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
+	exports.roundPosition = roundPosition;
 }
