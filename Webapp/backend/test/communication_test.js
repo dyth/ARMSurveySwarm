@@ -58,14 +58,8 @@ describe('receiveData', function() {
 						var contents = message.split(',');
 						expect(contents.length, '3 things sent to robot').to.equal(3);
 						console.log(contents);
-					} else {
-						if (!doneCalled) {
-							// This is NOT the order that was expected
-							expect(false, 
-								'messages delivered in wrong order. Expecting directions, got ' +
-									message).to.be.true;
-						}
-					}
+					}	
+
 					if (!doneCalled) {
 						doneCalled = true;
 						done();
