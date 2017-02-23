@@ -1,10 +1,10 @@
 /**
-* Backend to deal with messages from robots
-* deal with representation of floor pattern.
-*
-* light intensity: 0 = black, 1 = white.
-*
-*/
+ * Backend to deal with messages from robots
+ * deal with representation of floor pattern.
+ *
+ * light intensity: 0 = black, 1 = white.
+ *
+ */
 // Call server.updateStatus(robotID, xPosition, yPosition, status)
 // server.updateGrid(x, y), updates the size of the grid.
 // server.updateTile(x, y, value) updates a tile.
@@ -36,41 +36,41 @@ var tileSize = 0;
 var startedProcessing = false;
 
 /*
-* Create new tilesList
-*
-* Does not delete any contents of the list
-* if they are already defined.
-*/
+ * Create new tilesList
+ *
+ * Does not delete any contents of the list
+ * if they are already defined.
+ */
 var createTilesList = function() {
-  totalTiles = width * length;
-  // Increases the number of tiles up to the
-  // width and length.
-  for(var i = processingTiles.length; i < width; i++){
-    var columns = [];
+	totalTiles = width * length;
+	// Increases the number of tiles up to the
+	// width and length.
+	for(var i = processingTiles.length; i < width; i++){
+		var columns = [];
 
-	if (i < processingTiles.length) {
-	  // There are already tiles here.
-	  // We don't want to lose information on them.
-      columns = processingTiles[i];
+		if (i < processingTiles.length) {
+			// There are already tiles here.
+			// We don't want to lose information on them.
+			columns = processingTiles[i];
+		}
+
+		for(var j = columns.length; j < length; j++) {
+			// initial tile state is a 6 element list.
+			columns.push(initialTileState);
+		}
+
+		if (i < processingTiles.length) {
+			processingTiles[i] = columns;
+		} else {
+			processingTiles.push(columns);
+		}
 	}
-
-    for(var j = columns.length; j < length; j++) {
-	  // initial tile state is a 6 element list.
-      columns.push(initialTileState);
-    }
-
-    if (i < processingTiles.length) {
-      processingTiles[i] = columns;
-	} else {
-	  processingTiles.push(columns);
-	}
-  }
-  console.log(processingTiles.length);
+	console.log(processingTiles.length);
 }
 /* Function to round accurate position to correspond
-* to bottom left corner of tile.
-* Get position in list.
-*/
+ * to bottom left corner of tile.
+ * Get position in list.
+ */
 var roundPosition = function(pos) {
 	if (pos < 0) {
 		return 0;
@@ -82,15 +82,15 @@ var roundPosition = function(pos) {
 }
 
 /*
-* Register communication of tile colour received from robots.
-*/
+ * Register communication of tile colour received from robots.
+ */
 var setTile = function(robotID, messages) {
-  if (!startedProcessing) {
-    // If the processing hasn't started then
-    // all the state below hasn't been defined yet.
-    return;
-  }
-  // update tile table for current position
+	if (!startedProcessing) {
+		// If the processing hasn't started then
+		// all the state below hasn't been defined yet.
+		return;
+	}
+	// update tile table for current position
 
 	// List of dictionaries in messages
 	// Get x, y, light intensity, add to processing tiles
@@ -108,13 +108,13 @@ var setTile = function(robotID, messages) {
 		server.updateTile(coordX, coordY, lightIntensity);
 		server.updateStatus(robotID, coordX, coordY, robots[robotID].robotStatus);
 		// if two robots agree on colour, set finalColour,
-	  twoColoursAgree(coordX, coordY);
+		twoColoursAgree(coordX, coordY);
 	}
 
-  //check if whole board covered
-  if (tilesCovered == totalTiles) {
-    communication.stopAll();
-  }
+	//check if whole board covered
+	if (tilesCovered == totalTiles) {
+		communication.stopAll();
+	}
 }
 
 var routeRobot = function(robotID) {
@@ -127,19 +127,19 @@ var routeRobot = function(robotID) {
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
- 	var destination =
+	var destination =
 		route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
-  // // check for collisions with 4 other robots
-  // if (willCollide(robotID)) {
-  //   //TODO: move away - straight line or right angles?
-  // }
+	// // check for collisions with 4 other robots
+	// if (willCollide(robotID)) {
+	//   //TODO: move away - straight line or right angles?
+	// }
 	//
-  // if (willCollideEdge(robotID)) {
-  //   communication.move(robotID, 180, 2); //dummy distance
-  // }
+	// if (willCollideEdge(robotID)) {
+	//   communication.move(robotID, 180, 2); //dummy distance
+	// }
 
 	// convert next location to angle + distance and call communication.move in
 	// checkTile
@@ -150,46 +150,46 @@ var routeRobot = function(robotID) {
 }
 
 /*
-* At least two robots need to agree on colour for the final colour to be set,
-* which is then sent to the webapp.
-* If two robots disagree, delegate another robot to re-check the tile.
-*/
+ * At least two robots need to agree on colour for the final colour to be set,
+ * which is then sent to the webapp.
+ * If two robots disagree, delegate another robot to re-check the tile.
+ */
 var twoColoursAgree = function(coordX, coordY){
-  var numWhite = 0;
-  var numBlack = 0;
-  var tile = processingTiles[coordX][coordY];
-  var potentials = [];
+	var numWhite = 0;
+	var numBlack = 0;
+	var tile = processingTiles[coordX][coordY];
+	var potentials = [];
 
-  for (var i = 0; i < 5; i++){
-    if (tile[i] == 0) {
-      numBlack += 1;
-    } else if (tile[i] == 1) {
-      numWhite += 1;
-    } else {
-	  potentials.push(i);
+	for (var i = 0; i < 5; i++){
+		if (tile[i] == 0) {
+			numBlack += 1;
+		} else if (tile[i] == 1) {
+			numWhite += 1;
+		} else {
+			potentials.push(i);
+		}
 	}
-  }
 
-  if (numWhite == numBlack) {
-	// potentials are robots other than those that already checked
-	//TODO : Can't interrupt robot
-	var robotID = potentials[Math.floor(Math.random() * potentials.length)];
-    reccheckTile(robotID, coordX, coordY);
+	if (numWhite == numBlack) {
+		// potentials are robots other than those that already checked
+		//TODO : Can't interrupt robot
+		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+		reccheckTile(robotID, coordX, coordY);
 
 		// potentials are robots other than those that already checked
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
-    checkTile(robotID, coordX, coordY);
+		checkTile(robotID, coordX, coordY);
 
-  } else if (numWhite > numBlack && numWhite >= 2) {
-    processingTiles[coordX][coordY][5] = 1;
-    server.setTile(coordX, coordY, 1);
-    tilesCovered += 1;
+	} else if (numWhite > numBlack && numWhite >= 2) {
+		processingTiles[coordX][coordY][5] = 1;
+		server.setTile(coordX, coordY, 1);
+		tilesCovered += 1;
 
-  } else if (numBlack > numWhite && numBlack >= 2) {
-    processingTiles[coordX][coordY][5] = 0;
-    server.setTile(coordX, coordY, 0);
-    tileCovered += 1;
-  }
+	} else if (numBlack > numWhite && numBlack >= 2) {
+		processingTiles[coordX][coordY][5] = 0;
+		server.setTile(coordX, coordY, 0);
+		tileCovered += 1;
+	}
 }
 
 var vectorLength = function(vector) {
@@ -197,8 +197,8 @@ var vectorLength = function(vector) {
 }
 
 /*
-* Set orientation of given robot in direction of tile.
-*/
+ * Set orientation of given robot in direction of tile.
+ */
 var checkTile = function(robotID, tileX, tileY){
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
@@ -234,9 +234,9 @@ var setOrientation = function(robotID, degree) {
 }
 
 /*
-* 2D collision between two robots
-* Assume robot takes up one tile.
-* Take axis-aligned bounding box as 3 x 3 tiles.
+ * 2D collision between two robots
+ * Assume robot takes up one tile.
+ * Take axis-aligned bounding box as 3 x 3 tiles.
   ------t-------
 		 |    |
   --------------
@@ -244,43 +244,43 @@ l    | XX |     r
   --------------
 		 |    |
   ------b-------
- */
+  */
 var willCollide = function(robotID) {
-  var l1 = robots[robotID].xPrev - tileSize;
-  var r1 = robots[robotID].xPrev + tileSize;
-  var b1 = robots[robotID].yPrev - tileSize;
-  var t1 = robots[robotID].yPrev + tileSize;
-  var l2, r2, b2, t2;
+	var l1 = robots[robotID].xPrev - tileSize;
+	var r1 = robots[robotID].xPrev + tileSize;
+	var b1 = robots[robotID].yPrev - tileSize;
+	var t1 = robots[robotID].yPrev + tileSize;
+	var l2, r2, b2, t2;
 
-  var potentials = robots.slice(0, robotID).concat(robots.slice(robotID+1, 6));
+	var potentials = robots.slice(0, robotID).concat(robots.slice(robotID+1, 6));
 
-  for (var i = 0; i < potentials.length; i ++) {
-    l2 = potentials[i].xPrev - tileSize;
-    r2 = potentials[i].xPrev + tileSize;
-    b2 = potentials[i].xPrev - tileSize;
-    t2 = potentials[i].yPrev + tileSize;
-    if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
-      return true;
-    }
-  }
-  return false;
+	for (var i = 0; i < potentials.length; i ++) {
+		l2 = potentials[i].xPrev - tileSize;
+		r2 = potentials[i].xPrev + tileSize;
+		b2 = potentials[i].xPrev - tileSize;
+		t2 = potentials[i].yPrev + tileSize;
+		if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /*
-* Check that robots do not go out of bounds of the floor pattern
-* If robot near bounding edges of the floor pattern,
-* turn in the opposite direction.
-*/
+ * Check that robots do not go out of bounds of the floor pattern
+ * If robot near bounding edges of the floor pattern,
+ * turn in the opposite direction.
+ */
 var willCollideEdge = function(robotID) {
-  var coordX = robots[robotID].xPrev;
-  var coordY = robots[robotID].yPrev;
-  if (coordX <= 0 || coordX >= width) {
-    return true;
-  }
-  if (coordY <= 0 || coordY >= length) {
-    return true;
-  }
-  return false;
+	var coordX = robots[robotID].xPrev;
+	var coordY = robots[robotID].yPrev;
+	if (coordX <= 0 || coordX >= width) {
+		return true;
+	}
+	if (coordY <= 0 || coordY >= length) {
+		return true;
+	}
+	return false;
 }
 
 /* 
@@ -301,9 +301,9 @@ var sendStatusUpdate = function(robotID) {
 }
 
 /*
-* Command from user to resume traversal of robots
-* Sent to communication.js to notify the robots.
-*/
+ * Command from user to resume traversal of robots
+ * Sent to communication.js to notify the robots.
+ */
 var resume = function(robotID) {
 	robots[robotID].robotStatus = 1;
 	sendStatusUpdate(robotID);
@@ -311,8 +311,8 @@ var resume = function(robotID) {
 }
 
 /*
-* Command from user to stop the traversal of one robot
-*/
+ * Command from user to stop the traversal of one robot
+ */
 var stop = function(robotID) {
 	robots[robotID].robotStatus = 2;
 	sendStatusUpdate(robotID);
@@ -320,19 +320,19 @@ var stop = function(robotID) {
 }
 
 /*
-* Command from user to stop the traversal of all robots
-*/
+ * Command from user to stop the traversal of all robots
+ */
 var stopAll = function() {
-  for (var i = 0; i < robots.length; i ++) {
-    robots[i].robotStatus = 2;
-    sendStatusUpdate(i);
-  }
-  communication.stopAll();
+	for (var i = 0; i < robots.length; i ++) {
+		robots[i].robotStatus = 2;
+		sendStatusUpdate(i);
+	}
+	communication.stopAll();
 }
 
 /*
-* Get user input of tile size
-*/
+ * Get user input of tile size
+ */
 var setTileSize = function(size) {
 	tileSize = size;
 }
@@ -382,9 +382,9 @@ exports.startProcessing = startProcessing;
 exports.routeRobot = routeRobot;
 
 /*
-* Unit testing
-* Module exports added for testing
-*/
+ * Unit testing
+ * Module exports added for testing
+ */
 if (TEST) {
 	exports.createTilesList = createTilesList;
 	exports.processingTiles = processingTiles;
