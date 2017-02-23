@@ -27,16 +27,22 @@ describe('Round given position to correspond to tile index', function() {
 	});
 });
 
-describe('Set Tile light intensity given x and y positions', function() {
-	it('Given positions 10.12, 45.31, round to x=1, y=4 and set tile to white=1', function() {
-		//processor.startProcessing();
-		processor.startProcessing = true;
+describe('Set Tile with light intensity given x and y positions', function() {
+	it('Round to tile indices and set tile to light Intensity', function() {
+		processor.startProcessing();
 		route.setUp(processor.width);
+		//console.log(processor.processingTiles);
 		processor.setTiles(0, [{x: 10.12, y: 45.31, lightIntensity: 1},
-													 {x: 0, y:0, lightIntesity:0},
-												   {x: 32.12, y: 76.23, lightIntensity: 1}]);
-		expect(1).to.equal(processor.processingTiles[1][3][0]);
+													 {x: 0, y: 0, lightIntensity: 0},
+												   {x: 34.52, y: 78.23, lightIntensity: 1}]);
+		//console.log(processor.processingTiles);
+		expect(1).to.equal(processor.processingTiles[1][4][0]);
 		expect(0).to.equal(processor.processingTiles[0][0][0]);
 		expect(1).to.equal(processor.processingTiles[3][7][0]);
+	});
+	it('When two colours agree, set final tile - position 5', function() {
+		processor.setTiles(1, [{x: 12.42, y:47.23, lightIntensity: 1}]);
+		expect(1).to.equal(processor.processingTiles[1][4][1]);
+		expect(1).to.equal(processor.processingTiles[1][4][5]);
 	});
 });

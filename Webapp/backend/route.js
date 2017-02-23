@@ -16,6 +16,10 @@ var setUp = function(tileNumber) {
 	}
 }
 
+var removeTile = function(coordX, coordY) {
+  uncheckedTiles.indexOf({xPos:coordX, yPos:coordY});
+}
+
 /*
  * Returns random integer between min and max.
  */
@@ -27,7 +31,7 @@ var getRandomInt = function(min, max){
  * Choose tile to check next, return x and y positions.
  */
 var move = function(robotID, startX, startY) {
-	if (uncheckedTiles.length == 0) { 
+	if (uncheckedTiles.length == 0) {
 		// Covered all tiles?
 		return {xAfter: -1, yAfter: -1, stopAll: true}
 	} else {

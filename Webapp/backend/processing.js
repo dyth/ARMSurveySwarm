@@ -56,7 +56,7 @@ var createTilesList = function() {
 
 		for(var j = columns.length; j < length; j++) {
 			// initial tile state is a 6 element list.
-			columns.push(initialTileState);
+			columns.push(initialTileState.slice());
 		}
 
 		if (i < processingTiles.length) {
@@ -105,13 +105,15 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
-		console.log('X: ' + coordX + ' Y: ' + coordY + ' LI: ' + lightIntensity);
+		console.log('X: ' + coordX + ' Y: ' + coordY + ' LI: ' + lightIntensity + ' i: ' + i);
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
-		server.updateTile(coordX, coordY, lightIntensity);
+
+		server.updateTile(coordX, coordY, 3);
 		server.updateStatus(robotID, coordX, coordY, robots[robotID].robotStatus);
 		// if two robots agree on colour, set finalColour,
 		twoColoursAgree(coordX, coordY);
 	}
+
 
 	//check if whole board covered
 	if (tilesCovered == totalTiles) {
@@ -120,6 +122,11 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
+	console.log(robotID);
+	if (robotID >= robots.length) {
+		console.log("unexpected robot " + robotID);
+		return;
+	}
 	robots[robotID].xPrev = robots[robotID].xAfter;
 	robots[robotID].yPrev = robots[robotID].yAfter;
 
@@ -155,6 +162,7 @@ var routeRobot = function(robotID) {
  * If two robots disagree, delegate another robot to re-check the tile.
  */
 var twoColoursAgree = function(coordX, coordY){
+
 	var numWhite = 0;
 	var numBlack = 0;
 	var tile = processingTiles[coordX][coordY];
@@ -181,12 +189,14 @@ var twoColoursAgree = function(coordX, coordY){
 
 	} else if (numWhite > numBlack && numWhite >= 2) {
 		processingTiles[coordX][coordY][5] = 1;
-		server.setTiles(coordX, coordY, 1);
+		server.updateTile(coordX, coordY, 1);
+		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
 
 	} else if (numBlack > numWhite && numBlack >= 2) {
 		processingTiles[coordX][coordY][5] = 0;
-		server.setTiles(coordX, coordY, 0);
+		server.updateTile(coordX, coordY, 0);
+		route.removeTile(coordX, coordY);
 		tileCovered += 1;
 	}
 }
@@ -358,6 +368,8 @@ var startProcessing = function() {
 	// them off:
 	var connectedRobots = communication.getConnectedRobots();
 	console.log('starting');
+
+	route.setUp(width); // set up uncheckedTiles lists
 
 	for (var i = 0; i < connectedRobots.length; i ++) {
 		// connectedRobots[i] is an ID.
