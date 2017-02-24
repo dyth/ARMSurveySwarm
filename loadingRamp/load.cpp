@@ -17,7 +17,7 @@ int main() {
     m3pi.locate(0,1);
     m3pi.printf("Line PID");
  
-    wait(2.0);
+    wait(0.5);
  
     m3pi.sensor_auto_calibrate();
  
@@ -29,11 +29,10 @@ int main() {
     float power;
     float speed = MAX;
     
-    float totalRight = 0;
-    float totalLeft = 0;
-    float offset = 50;
-    
-    while (totalRight + offset > totalLeft) {
+    int count = 0;
+     
+    while (1) {
+        count++;
  
         // Get the position of the line.
         current_pos_of_line = m3pi.line_position();        
@@ -56,33 +55,26 @@ int main() {
         left  = speed-power;
         
         // limit checks
-        if (right < MIN)
+        if (right < MIN) {
             right = MIN;
-        else if (right > MAX)
+        } else if (right > MAX) {
             right = MAX;
+        }
             
-        if (left < MIN)
+        if (left < MIN) {
             left = MIN;
-        else if (left > MAX)
+        } else if (left > MAX) {
             left = MAX;
-            
-       // set speed 
+        }
+        
+        if (count > 10 && left < 0.05 && right == MAX) {
+            break;
+        }
+        
+        // set speed 
         m3pi.left_motor(left);
         m3pi.right_motor(right);
-        
-        // CHANGEME: take count of moved position
-        totalRight += right;
-        totalLeft += left;
+ 
     }
-    // when left and right are out by more than offset, then it has left the ramp
-    // move left motor back
-    m3pi.left_motor(-0.5);
-    m3pi.wait(0.25);
-    // move back
-    // rotate until sees black line
-    m3pi.backward(0.5);
-    while(abs(m3pi.linePosition()) > 0.2) {
-        m3pi.left_motor(0.5);
-    }
-    // then ensures in same position to start
+    m3pi.stop();
 }
