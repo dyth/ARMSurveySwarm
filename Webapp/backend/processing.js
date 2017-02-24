@@ -65,7 +65,6 @@ var createTilesList = function() {
 			processingTiles.push(columns);
 		}
 	}
-	console.log(processingTiles.length);
 }
 /* Function to round accurate position to correspond
  * to bottom left corner of tile.
@@ -105,7 +104,6 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
-		console.log('X: ' + coordX + ' Y: ' + coordY + ' LI: ' + lightIntensity + ' i: ' + i);
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);
@@ -121,7 +119,6 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
-	console.log(robotID);
 	if (robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
@@ -142,8 +139,6 @@ var routeRobot = function(robotID) {
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
-	console.log('///// routeRobot - xP: '+ robots[robotID].xPrev + ' xA: ' + robots[robotID].xAfter);
-	console.log('///// routeRobot - yP: '+ robots[robotID].yPrev + ' yA: ' + robots[robotID].yAfter);
 	// check for collisions with 4 other robots
 	if (willCollide(robotID) || willCollideEdge(robotID)) { // robot moves 3 tiles in opposite direction
 		communication.move(robotID, Math.PI, 3*tileSize);
@@ -206,7 +201,6 @@ var vectorLength = function(vector) {
  * Set orientation of given robot in direction of tile.
  */
 var checkTile = function(robotID, tileX, tileY){
-	console.log('CHECK TILE');
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
@@ -222,10 +216,8 @@ var checkTile = function(robotID, tileX, tileY){
 	// make A unit vector
 	A[0] = A[0]/ vectorLength(A);
 	A[1] = A[1]/ vectorLength(A);
-	console.log(vectorLength(A));
 
 	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
-	console.log(vectorLength(B));
 
 	// Find angle between current robot orientation and direction to tile
 	// a.b = |a||b| sin(theta)
@@ -374,14 +366,14 @@ var startProcessing = function() {
 	// Now do the routing for each of the robots to start
 	// them off:
 	var connectedRobots = communication.getConnectedRobots();
-	console.log('starting');
+	// console.log('starting');
 
 	route.setUp(width); // set up uncheckedTiles lists
 
 	for (var i = 0; i < connectedRobots.length; i ++) {
 		// connectedRobots[i] is an ID.
 		routeRobot(connectedRobots[i]);
-		console.log('sent out start message');
+		// console.log('sent out start message');
 	}
 
 }

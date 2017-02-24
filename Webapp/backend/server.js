@@ -29,7 +29,7 @@ server.listen(80);
 var updateStatus = function(robotID, x, y, status) {
 	// todo fix this up
 	io.emit('sendRobotStatus', {id: robotID, x: x, y: y, status: status});
-	console.log('status update emitted');
+	// console.log('status update emitted');
 };
 
 var updateGrid = function(x, y) {
@@ -38,7 +38,7 @@ var updateGrid = function(x, y) {
 
 var updateTile = function(x, y, tileValue) {
 	io.emit('sendTileData', {x: x, y: y, value: tileValue});
-	console.log('tile data sent');
+	// console.log('tile data sent');
 };
 
 io.sockets.on('connection', function(socket) {
@@ -64,7 +64,7 @@ io.sockets.on('connection', function(socket) {
 	}, 5000);
 
 	socket.on('stop', function(robot) {
-		console.log('robot ' + robot.toString() + ' stopped');
+		// console.log('robot ' + robot.toString() + ' stopped');
 		processor.stop(robot.id);
 
 		// For testing purposes only.
@@ -86,14 +86,14 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('startRobots', function(input) {
-		console.log("tile size " + input.tileSize.toString());
-		console.log("grid size " + input.gridSize.toString());
+		// console.log("tile size " + input.tileSize.toString());
+		// console.log("grid size " + input.gridSize.toString());
 
 		var numTiles = input.gridSize / input.tileSize;
 
-		console.log("num tiles " + numTiles);
+		// console.log("num tiles " + numTiles);
 
-		// ready? 
+		// ready?
 		processor.setTileSize(input.tileSize);
 		// READY?
 		processor.setGridDimensions({x: numTiles, y: numTiles});

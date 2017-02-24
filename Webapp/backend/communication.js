@@ -46,7 +46,6 @@ var receiveData = function(data, socket) {
 			return;
 		}
 
-		console.log("NUMBER" + idNumber);
 		// This is a connection message.
 		// Run the server
 		addRobotByID(idNumber, socket);
@@ -155,8 +154,6 @@ var stringToNumber = function(string) {
 
 
 var addRobotByID = function(robotID, socket) {
-
-	console.log('robotID ' + robotID + ' socket ' + socket);
 	// Check if the robot is in the robots list.
 	// If not then add it. Otherwise, update the socket.
 	for (var i = 0; i < robots.length; i++) {
@@ -245,7 +242,6 @@ var stopAll = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		// todo, check if socket is open and stop it.
 		if (!robots[i].socket.destroyed) {
-			console.log(robots[i]);
 			robots[i].socket.write('STOP\n')
 		}
 	}
@@ -317,8 +313,6 @@ var move = function(robotID, degree, distance) {
 
 	//convert durations to have leading 0s and be 4 digits long
 	durationStraight = addPadding(durationStraight, 4);
-  console.log('id ' + robotID.toString() + ' Direction: forward'
-    + ' DurationStraight: ' + durationStraight);
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
@@ -328,8 +322,9 @@ var move = function(robotID, degree, distance) {
 		socket.write('direction = ' + direction +
 			', speed = 5000, duration = ' + durationRotate);
 
-		console.log('id ' + robotID.toString() + ' Direction:' + direction
-			+ ' Duration: ' + durationRotate);
+		// console.log('id ' + robotID.toString() + ' Direction:' + direction
+		// 	+ ' Duration: ' + durationRotate
+    //   + ' DurationStraight: ' + durationStraight);
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
@@ -344,7 +339,6 @@ var move = function(robotID, degree, distance) {
 		robots[robotIndex].nextMove = null;
 	}
 
-  console.log(getRobotByID(robotID));
 };
 
 exports.resume = resume;
