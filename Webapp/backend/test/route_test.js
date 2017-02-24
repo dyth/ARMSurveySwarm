@@ -36,7 +36,7 @@ describe('Test move call to route', function() {
 describe('setUp ', function() {
 	it('should fail if setup is called multiple times', function() {
 		routing.setUp(10);
-		expect(routing.uncheckedTiles.length).to.equal(99);
+		expect(routing.uncheckedTiles.length).to.equal(100);
 	});
 });
 

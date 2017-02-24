@@ -7,22 +7,22 @@
 var TEST = true;
 
 // Each element is dictionary of x, y positions for unchecked tiles
-this.uncheckedTiles = [];
+uncheckedTiles = [];
 
-var setUp = function(tileNumber) {
-	this.uncheckedTiles = [];
-	for(var i = 0; i < tileNumber; i++){
-		for(var j = 0; j < tileNumber; j++) {
-			this.uncheckedTiles.push({xPos: i, yPos: j});
+var setUp = function(length) {
+	uncheckedTiles.length = 0;
+	for(var i = 0; i < length; i++){
+		for(var j = 0; j < length; j++) {
+			uncheckedTiles.push({xPos: i, yPos: j});
 		}
 	}
 	removeTile(0,0); //remove starter Tile - all robots will scan at start
 }
 
 var removeTile = function(coordX, coordY) {
-	var index = this.uncheckedTiles.indexOf({xPos:coordX, yPos:coordY});
+	var index = uncheckedTiles.indexOf({xPos:coordX, yPos:coordY});
 	if (index > -1) {
-		this.uncheckedTiles.splice(index, 1);
+		uncheckedTiles.splice(index, 1);
 	}
 }
 
@@ -37,13 +37,13 @@ var getRandomInt = function(min, max){
  * Choose tile to check next, return x and y positions.
  */
 var move = function(robotID, startX, startY) {
-	if (this.uncheckedTiles.length == 0) {
+	if (uncheckedTiles.length == 0) {
 		// Covered all tiles?
 		return {xAfter: -1, yAfter: -1, stopAll: true}
 	} else {
-		var tileIndex = getRandomInt(0, this.uncheckedTiles.length);
-		var nextX = this.uncheckedTiles[tileIndex].xPos;
-		var nextY = this.uncheckedTiles[tileIndex].yPos;
+		var tileIndex = getRandomInt(0, uncheckedTiles.length);
+		var nextX = uncheckedTiles[tileIndex].xPos;
+		var nextY = uncheckedTiles[tileIndex].yPos;
 		return {xAfter: nextX, yAfter: nextY, stopAll: false};
 	}
 }
@@ -53,5 +53,5 @@ exports.removeTile = removeTile;
 
 if (TEST) {
 	exports.getRandomInt = getRandomInt;
-	exports.uncheckedTiles = this.uncheckedTiles;
+	exports.uncheckedTiles = uncheckedTiles;
 }
