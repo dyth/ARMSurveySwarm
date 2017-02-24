@@ -339,6 +339,7 @@ var move = function(robotID, degree, distance) {
 		robots[robotIndex].nextMove = null;
 	}
 
+	console.log(getRobotByID(robotID));
 };
 
 exports.resume = resume;
@@ -355,7 +356,6 @@ if (TEST) {
 	exports.robots = robots;
 	exports.receiveData = receiveData;
 	exports.addPadding = addPadding;
-  exports.getRobotIndex = getRobotIndex;
-  exports.getRobotByID = getRobotByID;
-
+	exports.getRobotIndex = getRobotIndex;
+	exports.getRobotByID = getRobotByID;
 }
