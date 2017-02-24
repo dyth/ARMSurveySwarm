@@ -14,9 +14,9 @@ describe('Test move call to route', function() {
 		}
 	});
 
-	it('should respond with actual results once the processing has started', 
+	it('should respond with actual results once the processing has started',
 		function() {
-			routing.setUp(100);
+			routing.setUp(10);
 			var results = routing.move(0, 1, 1);
 			expect(results.stopAll).to.be.false;
 			expect(results.xAfter).to.be.at.least(0);
@@ -35,8 +35,6 @@ describe('Test move call to route', function() {
 
 describe('setUp ', function() {
 	it('should work if setup is called multiple times', function() {
-		routing.setUp(10);
-		expect(routing.uncheckedTiles.length).to.equal(99);
 		routing.setUp(10);
 		expect(routing.uncheckedTiles.length).to.equal(99);
 	});

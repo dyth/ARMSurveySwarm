@@ -154,16 +154,16 @@ describe('Move function sending instructions to robot', function() {
 	var directions = ['forward', 'backward','left', 'right'];
 	var secondaryDirections = ['forward', 'forward'];
 
-	var durations = ['10420', '7292', '0375', '1088'];
+	var durations = ['8750', '7292', '0375', '1088'];
 	var secondaryDurations = ['2500', '7500'];
 
 
 	var robot = coms.getRobotByID(3);
 	console.log(robot);
 
-	it('Robot set to move for 50cm with degree 0 should' +
-		' just send one move forward message for 10.42s', function(){
-		coms.move(3, 0, 50);
+	it('Robot set to move for 42cm with degree 0 should' +
+		' just send one move forward message for 8.75s', function(){
+		coms.move(3, 0, 42);
 		expect(robot.nextMove).to.be.null;
 
 	});
@@ -186,7 +186,6 @@ describe('Move function sending instructions to robot', function() {
 					expect(contents[2]).to.equal('duration = ' + durations[n]);
 					console.log(contents);
 				}
-
 				if (!doneCalled) {
 					doneCalled = true;
 					done();
@@ -211,7 +210,7 @@ describe('Move function sending instructions to robot', function() {
 
 		setTimeout(function() {
 			expect(instructionsSent,
-				' robot failed to receive instructions').to.be.true;
+				'Robot failed to receive instructions').to.be.true;
 		}, 100);
 	});
 
@@ -219,17 +218,22 @@ describe('Move function sending instructions to robot', function() {
 		' just send one move backwards message for 7.29s', function(){
 		coms.move(3, Math.PI, 35);
 		expect(robot.nextMove).to.be.null;
+
 	});
 
 	it('Robot set to move for 12cm with degree 30 should' +
 		' rotate left 0.375s then move forward 2.5s', function(){
 		coms.move(3, Math.PI/6, 12);
 		expect(robot.nextMove).to.be.not.null;
+
 	});
 
 	it('Robot set to move for 36cm with degree 273 should' +
 		' rotate right 1.088s then move forward 7.5s', function(){
 		coms.move(3, 91*Math.PI/60, 36);
 		expect(robot.nextMove).to.be.not.null;
+
 	});
+
+
 });

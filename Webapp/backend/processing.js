@@ -119,6 +119,7 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
+	console.log(robots.length + ' ' + robotID)
 	if (robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
