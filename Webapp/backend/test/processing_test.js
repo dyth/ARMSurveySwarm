@@ -77,7 +77,12 @@ describe('Vector Length', function() {
 describe('Route robot', function() {
 	it('Check that route does not set robots to recheck current tile', function() {
 		processor.routeRobot(0);
-		expect(processor.robots[0].xPrev).to.not.equal(processor.robots[0].xAfter);
-		expect(processor.robots[0].yPrev).to.not.equal(processor.robots[0].yAfter);
+		//TODO: can have xs, ys the same as long as they are not BOTH the same
+
+		if (processor.robots[0].xPrev == processor.robots[0].xAfter) {
+			expect(processor.robots[0].yPrev).to.not.equal(processor.robots[0].yAfter);
+		} else if (processor.robots[0].yPrev == processor.robots[0].yAfter) {
+			expect(processor.robots[0].xPrev).to.not.equal(processor.robots[0].xAfter);
+		}
 	});
 });

@@ -15,6 +15,7 @@ var setUp = function(tileNumber) {
 			uncheckedTiles.push({xPos: i, yPos: j});
 		}
 	}
+  removeTile(0,0); //remove starter Tile - all robots will scan at start
 }
 
 var removeTile = function(coordX, coordY) {

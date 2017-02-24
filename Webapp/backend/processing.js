@@ -20,13 +20,13 @@ var initialTileState = [2,2,2,2,2,2];
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
 // on the frontend.
-// Orienttation in Radians
+// Orientation in Radians
 var robots = [
-	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
-	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
-	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
-	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2},
-	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2}];
+	{id: 0, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 1, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 2, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 3, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 4, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2}];
 
 var width = 0;
 var length = 0;
@@ -142,6 +142,8 @@ var routeRobot = function(robotID) {
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
+	console.log('///// routeRobot - xP: '+ robots[robotID].xPrev + ' xA: ' + robots[robotID].xAfter);
+	console.log('///// routeRobot - yP: '+ robots[robotID].yPrev + ' yA: ' + robots[robotID].yAfter);
 	// check for collisions with 4 other robots
 	if (willCollide(robotID) || willCollideEdge(robotID)) { // robot moves 3 tiles in opposite direction
 		communication.move(robotID, Math.PI, 3*tileSize);
@@ -208,6 +210,12 @@ var checkTile = function(robotID, tileX, tileY){
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
+
+	if (coordX == tileX && coordY == tileY){
+		console.log("Routing to current tile - abort. ");
+		return;
+	}
+
 	var orientation = robots[robotID].orientation;
 	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 
