@@ -79,6 +79,7 @@ describe('receiveData', function() {
 		coms.receiveData("INTENSITY:()");
 		coms.receiveData("INTENSITY:;101JIAADFlfkdsjfalskdjffa");
 		coms.receiveData("INTENSITY:(-100, -100, 10000000)");
+		coms.receiveData("INTENSITY:(1, 10)");
 		coms.receiveData("INTENSITY:((()))))");
 		coms.receiveData("HELLO:DATA");
 		coms.receiveData("HELLO:9999999999999999999999999999999999999999999999")
@@ -88,6 +89,9 @@ describe('receiveData', function() {
 		coms.receiveData("HELLO:1.01");
 		coms.receiveData("BYEBYE:");
 		coms.receiveData("INTENSITY:");
+		coms.receiveData("yyyyyyyyyyyyyyhhhh");
+		coms.receiveData("HELLO: 1 1 1 2 3 3 3");
+		coms.receiveData("");
 
 		expect(true, 'server did not crash').to.be.true;
 	});
