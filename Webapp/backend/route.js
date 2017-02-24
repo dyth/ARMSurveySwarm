@@ -20,7 +20,16 @@ var setUp = function(length) {
 }
 
 var removeTile = function(coordX, coordY) {
-	var index = uncheckedTiles.indexOf({xPos:coordX, yPos:coordY});
+	var index = -1;
+
+	for (var i = 0; i < uncheckedTiles.length; i ++) {
+		if (uncheckedTiles[i].xPos === coordX 
+				&& uncheckedTiles[i].yPos === coordY) {
+			index = i;
+			break;
+		}
+	}
+
 	if (index > -1) {
 		uncheckedTiles.splice(index, 1);
 	}

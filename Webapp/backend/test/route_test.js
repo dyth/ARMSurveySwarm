@@ -36,9 +36,9 @@ describe('Test move call to route', function() {
 describe('setUp ', function() {
 	it('should work if setup is called multiple times', function() {
 		routing.setUp(10);
-		expect(routing.uncheckedTiles.length).to.equal(100);
+		expect(routing.uncheckedTiles.length).to.equal(99);
 		routing.setUp(10);
-		expect(routing.uncheckedTiles.length).to.equal(100);
+		expect(routing.uncheckedTiles.length).to.equal(99);
 	});
 });
 
@@ -46,7 +46,15 @@ describe('removeTile ', function() {
 	it('should remove tiles', function() {
 		routing.setUp(10);
 		var tileHead = routing.uncheckedTiles[0];
-		routing.removeTile(tileHead.x, tileHead.y);
+		routing.removeTile(tileHead.xPos, tileHead.yPos);
 		expect(routing.uncheckedTiles[0]).to.not.equal(tileHead);
+	});
+
+	it('should work regardless of index chosen', function() {
+		routing.setUp(10);
+		var tileHead = routing.uncheckedTiles[35];
+		routing.removeTile(tileHead.xPos, tileHead.yPos);
+		expect(routing.uncheckedTiles[35]).to.not.equal(tileHead);
+		expect(routing.uncheckedTiles.length).to.equal(98);
 	});
 });
