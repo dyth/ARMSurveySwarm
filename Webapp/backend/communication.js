@@ -292,7 +292,7 @@ var move = function(robotID, degree, distance) {
 	distance = distance * 10; // convert distances to mm
 	degree = degree * 180 / Math.PI; // convert angle to degrees
 
-	var speed = 480; // speed fixed at 480mm per second
+	var speed = 48; // speed fixed at 480mm per second
 	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
 
 	var durationRotate;
@@ -317,7 +317,7 @@ var move = function(robotID, degree, distance) {
 
 	//convert durations to have leading 0s and be 4 digits long
 	durationStraight = addPadding(durationStraight, 4);
-  console.log('id ' + robotID.toString() + ' Direction:' + direction
+  console.log('id ' + robotID.toString() + ' Direction: forward'
     + ' DurationStraight: ' + durationStraight);
 
 	// speed is set to 5000 to be half the power
@@ -333,7 +333,7 @@ var move = function(robotID, degree, distance) {
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
-			socket.write('direction = ' + direction +
+			socket.write('direction = forward' +
 				', speed = 5000, duration = ' + durationStraight);
 		}
 	} else {
@@ -343,8 +343,8 @@ var move = function(robotID, degree, distance) {
 		// there is no next move.
 		robots[robotIndex].nextMove = null;
 	}
-    console.log(getRobotByID(robotID));
 
+  console.log(getRobotByID(robotID));
 };
 
 exports.resume = resume;
