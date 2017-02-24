@@ -9,7 +9,7 @@ describe('should be in test mode', function() {
 describe('robot list management', function() {
 	it('should add connections ok', function() {
 		coms.addRobotByID(0, {destroyed: false, write: function() {}});
-		coms.addRobotByID(5, {destroyed: false, write: function() {}});
+		coms.addRobotByID(4, {destroyed: false, write: function() {}});
 
 		expect(coms.robots.length).to.equal(3); // NOTE added another in move test
 		expect(coms.robots[1].socket.destroyed).to.equal(false);
@@ -146,40 +146,88 @@ describe('Add padding', function() {
 });
 
 describe('Move function sending instructions to robot', function() {
-	// TODO -- get Kamile to write tests for this one
-	coms.addRobotByID(6, {destroyed: true, write: function() {}});
-	var robot = coms.getRobotByID(6);
+
+	coms.addRobotByID(3, {destroyed: false, write: function() {}});
+	var directions = ['forward', 'backward','left', 'right'];
+	var secondaryDirections = ['forward', 'forward'];
+
+	var durations = ['10420', '7292', '0375', '1088'];
+	var secondaryDurations = ['2500', '7500'];
+
+
+	var robot = coms.getRobotByID(3);
 	console.log(robot);
 
 	it('Robot set to move for 50cm with degree 0 should' +
 		' just send one move forward message for 10.42s', function(){
-			coms.move(6, 0, 50);
-			expect(robot.nextMove).to.be.null;
+		coms.move(3, 0, 50);
+		expect(robot.nextMove).to.be.null;
 
+	});
+
+	it('Robot should have received instructions to move', function(done) {
+		var instructionsSent = false;
+		var doneCalled = false;
+		var n = 0;
+		var m = 0;
+
+		coms.receiveData("HELLO: 3",
+			{destroyed: false, write: function(message) {
+				instructionsSent = true;
+
+				if (message !== "STOP\n" && message !== "RESUME\n" && !doneCalled) {
+					var contents = message.split(', ');
+					//e.g. ['direction = backward', ' speed = 5000', ' duration = 7292']
+					expect(contents[0]).to.equal('direction = ' + directions[n]);
+					expect(contents[1]).to.equal('speed = 5000');
+					expect(contents[2]).to.equal('duration = ' + durations[n]);
+					console.log(contents);
+				}
+
+				if (!doneCalled) {
+					doneCalled = true;
+					done();
+				}
+			}
+		});
+		n += 1;
+
+		coms.receiveData("DONE: 3",
+			{destroyed: false, write: function(message) {
+				instructionsSent = true;
+
+				if (message !== 'STOP\n' && message !=='RESUME\n'){
+					var contents = message.split(', ');
+					expect(contents[0]).to.equal('direction = ' + directions[m]);
+					expect(contents[1]).to.equal('speed = 5000');
+					expect(contents[2]).to.equal('duration = ' + durations[m]);
+				}
+			}
+		});
+		m += 1;
+		coms.robots = [];
+
+		setTimeout(function() {
+			expect(instructionsSent,
+				' robot failed to receive instructions').to.be.true;
+		}, 100);
 	});
 
 	it('Robot set to move for 35cm with degree 180 should' +
 		' just send one move backwards message for 7.29s', function(){
-			coms.move(6, Math.PI, 35);
-			expect(robot.nextMove).to.be.null;
-
+		coms.move(3, Math.PI, 35);
+		expect(robot.nextMove).to.be.null;
 	});
 
 	it('Robot set to move for 12cm with degree 30 should' +
 		' rotate left 0.375s then move forward 2.5s', function(){
-			coms.move(6, Math.PI/6, 12);
-			expect(robot.nextMove).to.equal(function() {
-				socket.write('direction = forward, speed = 5000, duration = 2500');
-			});
-
+		coms.move(3, Math.PI/6, 12);
+		expect(robot.nextMove).to.be.not.null;
 	});
 
 	it('Robot set to move for 36cm with degree 273 should' +
 		' rotate right 1.088s then move forward 7.5s', function(){
-			coms.move(6, 91*Math.PI/60, 36);
-			expect(robot.nextMove).to.equal(function() {
-				socket.write('direction = forward, speed = 5000, duration = 7500');
-			});
-
+		coms.move(3, 91*Math.PI/60, 36);
+		expect(robot.nextMove).to.be.not.null;
 	});
 });

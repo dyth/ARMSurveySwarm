@@ -56,10 +56,9 @@ describe('Set Tile with light intensity given x and y positions', function() {
 	});
 });
 
-describe('Set orientation', function() {
+describe('rotate Clockwise', function() {
 	it('Given orientation to turn clockwise, next orientation is calculated' +
 	' as being between 0 and 2PI', function() {
-	console.log(processor.robots[0].orientation);
 	processor.rotateClockwise(0, 3*Math.PI);
 	expect(processor.robots[0].orientation).at.most(2*Math.PI);
 	});
@@ -77,8 +76,6 @@ describe('Vector Length', function() {
 describe('Route robot', function() {
 	it('Check that route does not set robots to recheck current tile', function() {
 		processor.routeRobot(0);
-		//TODO: can have xs, ys the same as long as they are not BOTH the same
-
 		if (processor.robots[0].xPrev == processor.robots[0].xAfter) {
 			expect(processor.robots[0].yPrev).to.not.equal(processor.robots[0].yAfter);
 		} else if (processor.robots[0].yPrev == processor.robots[0].yAfter) {
