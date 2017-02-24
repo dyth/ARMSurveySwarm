@@ -67,7 +67,6 @@ describe('receiveData', function() {
 				}
 			});
 			coms.receiveData("DONE: 2");
-			coms.robots = [];
 
 			setTimeout(function() {
 				expect(instructionsSent,
@@ -209,7 +208,6 @@ describe('Move function sending instructions to robot', function() {
 			}
 		});
 		m += 1;
-		coms.robots = [];
 
 		setTimeout(function() {
 			expect(instructionsSent,
