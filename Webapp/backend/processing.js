@@ -190,7 +190,7 @@ var twoColoursAgree = function(coordX, coordY){
 		processingTiles[coordX][coordY][5] = 0;
 		server.updateTile(coordX, coordY, 0);
 		route.removeTile(coordX, coordY);
-		tileCovered += 1;
+		tilesCovered += 1;
 	}
 }
 
