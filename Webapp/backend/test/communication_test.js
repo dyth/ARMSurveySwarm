@@ -11,7 +11,7 @@ describe('robot list management', function() {
 		coms.addRobotByID(0, {destroyed: false, write: function() {}});
 		coms.addRobotByID(5, {destroyed: false, write: function() {}});
 
-		expect(coms.robots.length).to.equal(2);
+		expect(coms.robots.length).to.equal(3); // NOTE added another in move test
 		expect(coms.robots[1].socket.destroyed).to.equal(false);
 	});
 
@@ -147,4 +147,39 @@ describe('Add padding', function() {
 
 describe('Move function sending instructions to robot', function() {
 	// TODO -- get Kamile to write tests for this one
+	coms.addRobotByID(6, {destroyed: true, write: function() {}});
+	var robot = coms.getRobotByID(6);
+	console.log(robot);
+
+	it('Robot set to move for 50cm with degree 0 should' +
+		' just send one move forward message for 10.42s', function(){
+			coms.move(6, 0, 50);
+			expect(robot.nextMove).to.be.null;
+
+	});
+
+	it('Robot set to move for 35cm with degree 180 should' +
+		' just send one move backwards message for 7.29s', function(){
+			coms.move(6, Math.PI, 35);
+			expect(robot.nextMove).to.be.null;
+
+	});
+
+	it('Robot set to move for 12cm with degree 30 should' +
+		' rotate left 0.375s then move forward 2.5s', function(){
+			coms.move(6, Math.PI/6, 12);
+			expect(robot.nextMove).to.equal(function() {
+				socket.write('direction = forward, speed = 5000, duration = 2500');
+			});
+
+	});
+
+	it('Robot set to move for 36cm with degree 273 should' +
+		' rotate right 1.088s then move forward 7.5s', function(){
+			coms.move(6, 91*Math.PI/60, 36);
+			expect(robot.nextMove).to.equal(function() {
+				socket.write('direction = forward, speed = 5000, duration = 7500');
+			});
+
+	});
 });

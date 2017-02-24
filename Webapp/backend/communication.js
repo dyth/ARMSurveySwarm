@@ -11,9 +11,17 @@
  * light intensity
  */
 
+/*
+* List of robot dictionaries containing following attributes:
+* robotID
+* socket
+* nextMove
+*/
 // NOTE -- Unlike the rest of the application,
 // this array is not indexed by ID.
 var robots = [];
+
+
 var TEST = true;
 
 net = require('net');
@@ -146,9 +154,9 @@ var stringToNumber = function(string) {
 }
 
 
-
 var addRobotByID = function(robotID, socket) {
-	// /console.log(socket);
+
+	console.log('robotID ' + robotID + ' socket ' + socket);
 	// Check if the robot is in the robots list.
 	// If not then add it. Otherwise, update the socket.
 	for (var i = 0; i < robots.length; i++) {
@@ -159,7 +167,7 @@ var addRobotByID = function(robotID, socket) {
 		}
 	}
 	// Otherwise add a new entry into the list.
-	robots.push({id: robotID, socket: socket});
+	robots.push({id: robotID, socket: socket, nextMove: null});
 };
 
 var getRobotIndex = function(robotID) {
@@ -168,7 +176,6 @@ var getRobotIndex = function(robotID) {
 			return i;
 		}
 	}
-
 	return null;
 };
 
@@ -268,30 +275,40 @@ var addPadding = function(number, length) {
 	return formatted;
 }
 
-
+/*
+* Function sending instructions for movement to robots and
+* receiving acknowledgements.
+* - robotID is integer ID to send message to
+* - degree in RADIANS as input where conversion rate is
+*   at 0.5 speed, 5.5 seconds for 360 degrees.
+* - distance is distance in cm to destination tile
+*
+* At speed 0.5, robot covers 46-48mm per second
+* Directions forward, back, left, right
+*/
 var move = function(robotID, degree, distance) {
-	// turn robot degree radians clockwise
-	// degree in RADIANS
-
-	// console.log("DEGREE: " + degree);
 	var socket = getSocketByID(robotID);
-	// At speed 0.5, it does 46 - 48 cm per second
-	// Degrees conversion rate is at 0.5 speed, 5.5 seconds for 360 degrees.
-	distance = distance * 10; // convert distances to mm
-	degree = degree * 180 / Math.PI;
 
-	var speed = 470; // fixed at 470mm per second
+	distance = distance * 10; // convert distances to mm
+	degree = degree * 180 / Math.PI; // convert angle to degrees
+
+	var speed = 480; // speed fixed at 480mm per second
 	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
+
 	var durationRotate;
-	var direction; // directions forward, back, left, right.
+	var direction;
+
 	if (degree == 0) {
 		direction = "forward";
+
 	} else if (degree == 180) {
 		direction = "backward";
+
 	} else if (degree < 180) { // turn left
 		direction = 'left';
 		// 2.25 seconds for 180 degrees of rotation
-		durationRotate = degree/180 * 2250; 
+		durationRotate = degree/180 * 2250;
+
 	} else { // turn right
 		direction = 'right'
 		degree = 360 - degree;
@@ -300,6 +317,8 @@ var move = function(robotID, degree, distance) {
 
 	//convert durations to have leading 0s and be 4 digits long
 	durationStraight = addPadding(durationStraight, 4);
+  console.log('id ' + robotID.toString() + ' Direction:' + direction
+    + ' DurationStraight: ' + durationStraight);
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
@@ -324,6 +343,8 @@ var move = function(robotID, degree, distance) {
 		// there is no next move.
 		robots[robotIndex].nextMove = null;
 	}
+    console.log(getRobotByID(robotID));
+
 };
 
 exports.resume = resume;
@@ -340,4 +361,7 @@ if (TEST) {
 	exports.robots = robots;
 	exports.receiveData = receiveData;
 	exports.addPadding = addPadding;
+  exports.getRobotIndex = getRobotIndex;
+  exports.getRobotByID = getRobotByID;
+
 }
