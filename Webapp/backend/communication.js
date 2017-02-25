@@ -31,9 +31,15 @@ var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
 	socket.on('data', function(data) {
+		console.log(data.toString());
 		// TODO -- Go till the end of message signal
 		// and pass that. Then save the rest for later.
 		receiveData(data.toString(), socket);
+	});
+
+	socket.on('error', function(error) {
+		console.log('Connection abruptly terminated');
+		console.log(error);
 	});
 });
 
@@ -107,8 +113,8 @@ var receiveData = function(data, socket) {
 				return;
 			}
 
-			var x = stringToNumber(values[0]);
-			var y = stringToNumber(values[1]);
+			var x = stringToFloat(values[0]);
+			var y = stringToFloat(values[1]);
 			var intensity = stringToNumber(values[2]);
 
 			if (x === null || y === null || intensity === null) {
@@ -125,7 +131,15 @@ var receiveData = function(data, socket) {
 	}
 };
 
-var stringToNumber = function(string) {
+var stringToFloat = function(string) {
+	return stringToNumber(string, true);
+}
+
+var stringToNumber = function(string, isFloat) {
+	if (isFloat === undefined) {
+		isFloat = false;
+	}
+
 	if (isNaN(string)) {
 		// ID isn't a number. Print an error and return
 		console.log("NON-FATAL ERROR ------------------------------");
@@ -142,7 +156,7 @@ var stringToNumber = function(string) {
 		return null;
 	}
 
-	if (idNumber % 1 !== 0) {
+	if (!isFloat && idNumber % 1 !== 0) {
 		// This is a floating point number
 		console.log("NON-FATAL ERROR ------------------------------");
 		console.log("Number " + idNumber + " should not be floating point");
@@ -194,7 +208,7 @@ var getSocketByID = function(robotID) {
 	if (robot !== null) {
 		return robot.socket;
 	} else {
-		return null
+		return null;
 	}
 };
 
@@ -320,7 +334,7 @@ var move = function(robotID, degree, distance) {
 		durationRotate = addPadding(durationRotate, 4);
 		// Send the current message to the robot.
 		socket.write('direction = ' + direction +
-			', speed = 5000, duration = ' + durationRotate);
+			', speed = 5000, duration = ' + durationRotate + '\n');
 
 		// console.log('id ' + robotID.toString() + ' Direction:' + direction
 		// 	+ ' Duration: ' + durationRotate
@@ -329,17 +343,15 @@ var move = function(robotID, degree, distance) {
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
 			socket.write('direction = forward' +
-				', speed = 5000, duration = ' + durationStraight);
+				', speed = 5000, duration = ' + durationStraight + '\n');
 		}
 	} else {
 		socket.write('direction = ' + direction +
-			', speed = 5000, duration = ' + durationStraight);
+			', speed = 5000, duration = ' + durationStraight + '\n');
 		// This is just a straight movement so just
 		// there is no next move.
 		robots[robotIndex].nextMove = null;
 	}
-
-	console.log(getRobotByID(robotID));
 };
 
 exports.resume = resume;
