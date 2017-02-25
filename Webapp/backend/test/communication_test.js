@@ -18,7 +18,7 @@ describe('start robots', function() {
 			coms.enqueueRobot(2);
 			coms.enqueueRobot(4);
 
-			expect(coms.startRobot_waitingRobots).to.have.length(3);
+			expect(coms.startRobot_waitingRobots.length).to.equal(3);
 	});
 
 	it('should send START messages sequentially', function() {
@@ -79,7 +79,7 @@ describe('robot list management', function() {
 		coms.addRobotByID(0, {destroyed: false, write: function() {}});
 		coms.addRobotByID(4, {destroyed: false, write: function() {}});
 
-		expect(coms.robots.length).to.equal(3); // NOTE added another in move test
+		expect(coms.robots.length).to.equal(5); // NOTE added another in move test
 		expect(coms.robots[1].socket.destroyed).to.equal(false);
 	});
 
