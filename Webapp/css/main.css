@@ -34,3 +34,7 @@ span.name{
 #error-message{
     display: none;
 }
+
+#robot-list{
+    overflow-y: scroll;
+}

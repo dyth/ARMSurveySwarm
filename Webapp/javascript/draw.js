@@ -20,11 +20,11 @@ function setupDraw () {
     stage = new createjs.Stage("canvas");
 
     // Resize the canvas to fill the entire width
-    resizeCanvas();
+    resizeElements();
 
     // Automatically resize canvas
     $(window).resize(function () {
-        resizeCanvas();
+        resizeElements();
     });
 
     // Create a new graph shape
@@ -74,15 +74,18 @@ function addRobotHTML(robotID) {
 /*
 *
 * Resizes the canvas to fill the width of its container and ensures the canvas is square.
+* Also resizes the robot list.
 * Should be called whenever the tiles data changes or the size of tiles changes.
 *
  */
-function resizeCanvas(){
+function resizeElements(){
 
     var size = canvas.parent().width();
 
     canvas.attr("width", size);
     canvas.attr("height", size);
+
+    $("#robot-list").css("height", size);
 
 }
 
