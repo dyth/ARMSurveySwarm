@@ -73,7 +73,19 @@ class Robot {
 		String current = commands.substring(0, delim);
 		String rest = commands.substring(delim + 1, commands.length());
 
-		if (current.equals("STOP")) {
+		if (current.equals("START")) {
+			// There is no loading ramp in this example
+			send("DONE\n");
+		} else if (current.startsWith("WAIT:")) {
+			current = current.substring("WAIT:".length()).trim();
+			long waitTime = Long.parseLong(current.substring(0, 5));
+
+			try {
+				Thread.sleep(waitTime);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}else if (current.equals("STOP")) {
 			// stop
 		} else if (current.equals("RESUME")) {
 			// resume
