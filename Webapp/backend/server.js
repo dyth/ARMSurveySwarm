@@ -99,7 +99,7 @@ io.sockets.on('connection', function(socket) {
 		// READY?
 		processor.setGridDimensions({x: numTiles, y: numTiles});
 		// SET?
-		processor.createTilesList();
+		//processor.createTilesList();
 		// GO!!
 		processor.startProcessing();
 	});

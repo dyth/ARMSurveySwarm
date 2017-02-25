@@ -43,6 +43,7 @@ var startedProcessing = false;
  */
 var createTilesList = function() {
 	totalTiles = width * length;
+	console.log('width: ' + width + ' length: ' + length);
 	// Increases the number of tiles up to the
 	// width and length.
 	for(var i = processingTiles.length; i < width; i++){
@@ -140,10 +141,10 @@ var routeRobot = function(robotID) {
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
 
-	// check for collisions with 4 other robots
-	if (willCollide(robotID) || willCollideEdge(robotID)) { // robot moves 3 tiles in opposite direction
-		communication.move(robotID, Math.PI, 3*tileSize);
-	}
+	// // check for collisions with 4 other robots
+	// if (willCollide(robotID) || willCollideEdge(robotID)) { // robot moves 3 tiles in opposite direction
+	// 	communication.move(robotID, Math.PI, 3*tileSize);
+	// }
 
 	// convert next location to angle + distance and call communication.move in
 	// checkTile
@@ -353,7 +354,6 @@ var getTileSize = function() {
 var setGridDimensions = function(sizes) {
 	width = sizes.x;
 	length = sizes.y;
-
 	createTilesList();
 }
 
@@ -409,4 +409,9 @@ if (TEST) {
 	exports.roundPosition = roundPosition;
 	exports.rotateClockwise = rotateClockwise;
 	exports.vectorLength = vectorLength;
+
+	var setCoveredToTotalTiles = function() {
+		tilesCovered = totalTiles;
+	}
+	exports.setCoveredToTotalTiles = setCoveredToTotalTiles;
 }

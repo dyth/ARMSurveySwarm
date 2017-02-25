@@ -10,20 +10,20 @@ var TEST = true;
 uncheckedTiles = [];
 
 var setUp = function(length) {
-	uncheckedTiles.length = 0;
+  uncheckedTiles.length = 0
 	for(var i = 0; i < length; i++){
 		for(var j = 0; j < length; j++) {
 			uncheckedTiles.push({xPos: i, yPos: j});
 		}
 	}
-	removeTile(0,0); //remove starter Tile - all robots will scan at start
+	removeTile(0,0); // remove starter Tile - all robots will scan at start
 }
 
 var removeTile = function(coordX, coordY) {
 	var index = -1;
 
 	for (var i = 0; i < uncheckedTiles.length; i ++) {
-		if (uncheckedTiles[i].xPos === coordX 
+		if (uncheckedTiles[i].xPos === coordX
 				&& uncheckedTiles[i].yPos === coordY) {
 			index = i;
 			break;
