@@ -42,6 +42,13 @@
                                onchange="try{setCustomValidity('')}catch(e){}">
                     </div>
 
+                    <div class="form-group">
+                        <label for="inputTileSize">Number of Robots</label>
+                        <input type="text" class="form-control" id="inputRobots" pattern="^[1-9]\d*$"
+                               oninvalid="setCustomValidity('Enter a positive number')"
+                               onchange="try{setCustomValidity('')}catch(e){}">
+                    </div>
+
                     <button type="submit" class="btn btn-default">Start</button>
 
                 </form>
