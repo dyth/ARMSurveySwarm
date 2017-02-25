@@ -67,14 +67,19 @@ int main() {
             left = MAX;
         }
         
-        if (count > 10 && left < 0.05 && right == MAX) {
+        if (count > 20 && (right == MIN || left == MIN)) {
             break;
         }
         
         // set speed 
-        m3pi.left_motor(left);
-        m3pi.right_motor(right);
+        m3pi.left_motor(left / 2);
+        m3pi.right_motor(right / 2);
  
     }
     m3pi.stop();
+    m3pi.cls();
+    m3pi.locate(0,0);
+    m3pi.printf("%f", left);
+    m3pi.locate(0,1);
+    m3pi.printf("%f", right);
 }
