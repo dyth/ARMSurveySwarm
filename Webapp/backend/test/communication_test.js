@@ -289,4 +289,53 @@ describe('Move function sending instructions to robot', function() {
 		expect(robot.nextMove).to.be.not.null;
 
 	});
+
+	// it('Robot should have received instructions to move', function(done) {
+	// 	var instructionsSent = false;
+	// 	var doneCalled = false;
+	// 	var n = 0;
+	// 	var m = 0;
+	//
+	// 	coms.receiveData("HELLO: 3",
+	// 		{destroyed: false, write: function(message) {
+	//
+	// 			instructionsSent = true;
+	//
+	// 			if (message !== "STOP\n" && message !== "RESUME\n" && !doneCalled) {
+	// 				var contents = message.split(', ');
+	// 				//e.g. ['direction = backward', ' speed = 5000', ' duration = 7292']
+	// 				expect(contents[0]).to.equal('direction = ' + directions[n]);
+	// 				expect(contents[1]).to.equal('speed = 5000');
+	// 				expect(contents[2]).to.equal('duration = ' + durations[n]);
+	// 				console.log(contents);
+	// 			}
+	// 			if (!doneCalled) {
+	// 				doneCalled = true;
+	// 				done();
+	// 			}
+	// 		}
+	// 	});
+	// 	n += 1;
+	//
+	// 	coms.receiveData('DONE: 3');
+	//
+	// 	// coms.receiveData("DONE: 3",
+	// 	// 	{destroyed: false, write: function(message) {
+	// 	// 		instructionsSent = true;
+	// 	//
+	// 	// 		if (message !== 'STOP\n' && message !=='RESUME\n'){
+	// 	// 			var contents = message.split(', ');
+	// 	// 			expect(contents[0]).to.equal('direction = ' + directions[m]);
+	// 	// 			expect(contents[1]).to.equal('speed = 5000');
+	// 	// 			expect(contents[2]).to.equal('duration = ' + durations[m]);
+	// 	// 		}
+	// 	// 	}
+	// 	// });
+	// 	// m += 1;
+	//
+	// 	setTimeout(function() {
+	// 		expect(instructionsSent,
+	// 			'Robot failed to receive instructions').to.be.true;
+	// 	}, 100);
+	// });
 });

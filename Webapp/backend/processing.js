@@ -43,7 +43,6 @@ var startedProcessing = false;
  */
 var createTilesList = function() {
 	totalTiles = width * length;
-	console.log('width: ' + width + ' length: ' + length);
 	// Increases the number of tiles up to the
 	// width and length.
 	for(var i = processingTiles.length; i < width; i++){
@@ -120,7 +119,6 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
-	console.log(robots.length + ' ' + robotID)
 	if (robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
@@ -364,17 +362,14 @@ var getGridDimensions = function() {
 var startProcessing = function() {
 	startedProcessing = true;
 
-	// Now do the routing for each of the robots to start
-	// them off:
+	// Now do the routing for each of the robots to start them off:
 	var connectedRobots = communication.getConnectedRobots();
-	// console.log('starting');
 
 	route.setUp(width); // set up uncheckedTiles lists
 
 	for (var i = 0; i < connectedRobots.length; i ++) {
 		// connectedRobots[i] is an ID.
 		routeRobot(connectedRobots[i]);
-		// console.log('sent out start message');
 	}
 
 }
