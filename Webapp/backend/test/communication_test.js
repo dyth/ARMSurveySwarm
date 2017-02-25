@@ -257,6 +257,9 @@ describe('Move function sending instructions to robot', function() {
 		var n = 0;
 		var m = 0;
 
+		processor.setGridDimensions({x:10, y:10});
+		processor.startProcessing();
+
 		coms.receiveData("HELLO: 3\n",
 			{destroyed: false, write: function(message) {
 				instructionsSent = true;

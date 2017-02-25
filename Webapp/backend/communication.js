@@ -92,7 +92,8 @@ var receiveData = function(data, socket) {
 		if (robot.nextMove) {
 			var robotMove = robot.nextMove;
 			robot.nextMove = null;
-			robotMove();
+			console.log("UNDEFIND" + idNumber);
+			robotMove(idNumber);
 		} else {
 			// No queued moves, ask for new moves from the server
 			processor.routeRobot(idNumber);
@@ -221,12 +222,18 @@ var startRobots = function() {
 	// Now, send that robot the message.
 	thisRobot.write("START\n");
 	// set the callback as appropriate:
-	startRobot_movementDone = function() {
+	startRobot_movementDone = function(thisRobotID) {
 		// remove from the head of the list
 		startRobot_waitingRobots.shift();
 
 		startRobot_running = false;
 		startRobots();
+
+		// need to send directions to this robot now that
+		// it is off the ramp and the next robot has started
+		// moving
+		console.log("UNDEFINED2: " + thisRobotID);
+		processor.routeRobot(thisRobotID);
 	}
 }
 
@@ -422,7 +429,7 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 			// the next one off the ramp. This triggers a 
 			// callback that deals with that.
 			if (startRobot_movementDone) {
-				startRobot_movementDone();
+				startRobot_movementDone(robotID);
 			}
 		}
 	} else {

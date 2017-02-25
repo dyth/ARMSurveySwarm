@@ -105,6 +105,7 @@ var willCollide = function(robotID, nextX, nextY) {
   var robots = processing.getRobots().slice();
 
   // get proposed path line
+  console.log(robotID);
   var currentStartPoint = [robots[robotID].xPrev, robots[robotID].yPrev];
   var currentEndPoint = [nextX, nextY];
 

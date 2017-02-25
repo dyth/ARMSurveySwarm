@@ -119,7 +119,8 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
-	if (robotID >= robots.length) {
+	console.log("ROUTE ROBOT CALLED");
+	if ( robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
 	}
@@ -131,9 +132,11 @@ var routeRobot = function(robotID) {
 	var destination = route.move(robotID);
 	if (destination.stopAll) {
 		stopAll();
+		console.log('stop all called');
 		return;
 	} else if (destination.wait) {
 		communication.wait();
+		console.log('robot ' + robotID + ' waiting');
 		return;
 	}
 
@@ -145,6 +148,7 @@ var routeRobot = function(robotID) {
 
 	// convert next location to angle + distance and call communication.move in
 	// checkTile
+	console.log("CHECKING TILE");
 	checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
@@ -200,6 +204,7 @@ var vectorLength = function(vector) {
  * Set orientation of given robot in direction of tile.
  */
 var checkTile = function(robotID, tileX, tileY){
+	console.log("CHECK TILE CALLED");
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
