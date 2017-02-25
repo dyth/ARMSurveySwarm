@@ -79,7 +79,7 @@ void tcp_control(){
     }
 }
 
-float TurnCounterClockwise(int degree) {
+float turnCounterClockwise(int degree) {
     // Turn left at half speed
     m3pi.left(0.5);
     wait (degree * 0.5538461538461539 / 360.0);
@@ -87,7 +87,7 @@ float TurnCounterClockwise(int degree) {
     return m3pi.line_position();
 }
     
-float TurnClockwise(int degree) {
+float turnClockwise(int degree) {
     // Turn right at half speed
     m3pi.right(0.5);
     wait (degree * 0.5538461538461539 / 360.0);
