@@ -7,6 +7,10 @@ Setup:
 	To run tests, do (again from the parent directory):
 
 		npm test
+
+	To see the test coverage, run
+
+		npm run coverage
 	
 	(You may need to do `sudo npm test`)
 
