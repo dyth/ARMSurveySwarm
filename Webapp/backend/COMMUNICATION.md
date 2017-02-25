@@ -20,7 +20,8 @@ Server can send a "resume" message, format:
 Server can send a "wait" message, format:
   "WAIT:0000\n"
 Where 0000 is any 4 digit number, representing the number
-of milliseconds
+of milliseconds. After waiting for the amount of time specified,
+the robot should respond with a "DONE" message.
 
 Server can send a movement command, format:
   "x = X, y = Y, direction = forward, backward, left, right, 0001 <= speed <= 9999, 00001 <= duration <= 99999\n"
