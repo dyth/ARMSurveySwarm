@@ -1,9 +1,26 @@
 var expect = require('chai').expect;
 var coms = require('../communication.js');
 var processor = require('../processing.js');
+var net = require('net');
 
 describe('should be in test mode', function() {
 	expect(coms.TEST).to.equal(true);
+});
+
+describe('Test tcp server', function() {
+	var client;
+
+	it('should accept a connection', function(done) {
+		client = net.connect({port: 8000}, function() {
+			expect(true, 'client did not connect').to.be.true;
+
+			// send some data to the server. We expect it to only parse
+			// the data upon receipt of the \n
+			client.write('some data');
+			client.write('\n');
+			done();
+		});
+	});
 });
 
 describe('robot list management', function() {
@@ -39,6 +56,18 @@ describe('receiveData', function() {
 			var socket = coms.getSocketByID(1);
 
 			expect(socket.test).to.equal(100);
+	});
+
+	it('should work when DONE messages are sent', function() {
+		coms.receiveData("DONE:2");
+		coms.receiveData("DONE:");
+		coms.receiveData("DONE:10000");
+	});
+
+	it('INTENSITY messages ', function() {
+		coms.receiveData("INTENSITY:2;(12, 3, 9); (12, 4)");
+		coms.receiveData("INTENSITY:3;(N,N,N)");
+		coms.receiveData("INTENSITY:();(; ;)");
 	});
 
 	it('should send a message to the robot',
