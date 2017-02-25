@@ -1,5 +1,6 @@
 {
 	"scripts": {
-		"test": "sudo ./node_modules/mocha/bin/mocha Webapp/backend/test"
+		"test": "sudo ./node_modules/mocha/bin/mocha Webapp/backend/test",
+		"coveralls": "npm run cover -- --report lcovonly && cat .coverage/lcov.info | coveralls"
 	}
 }
