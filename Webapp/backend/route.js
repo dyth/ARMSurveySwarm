@@ -10,10 +10,16 @@ var math = require('mathjs');
 var TEST = true;
 
 // Each element is dictionary of x, y positions for unchecked tiles
-uncheckedTiles = [];
+var uncheckedTiles = [];
+var firstMove = [];
 
 var setUp = function(length) {
-  uncheckedTiles.length = 0
+  uncheckedTiles.length = 0;
+  firstMove.length = 0;
+
+  for(var i = 0; i < processing.getRobots().length; i++){
+    firstMove.push(true);
+  }
 	for(var i = 0; i < length; i++){
 		for(var j = 0; j < length; j++) {
 			uncheckedTiles.push({xPos: i, yPos: j});
@@ -51,19 +57,43 @@ var getRandomInt = function(min, max){
 var move = function(robotID) {
 	if (uncheckedTiles.length == 0) {
 		// Covered all tiles?
-		return {xAfter: -1, yAfter: -1, stopAll: true}
+		return {xAfter: -1, yAfter: -1, stopAll: true, wait: false};
 	} else {
+
+    var tilesLeftToTry = uncheckedTiles.slice();
 
 		var tileIndex = getRandomInt(0, uncheckedTiles.length);
 		var nextX = uncheckedTiles[tileIndex].xPos;
 		var nextY = uncheckedTiles[tileIndex].yPos;
 
-    while (willCollide(robotID, nextX, nextY)){
+    while (willCollide(robotID, nextX, nextY) && !firstMove[robotID]){
+
+      if (tilesLeftToTry.length == 0) {
+        console.log('No tiles left to try. ');
+        return {xAfter: -1, yAfter: -1, stopAll: false, wait: true};
+      }
+
+      // remove potential tile from tiles left to try for this robot.
+      var index = -1;
+
+    	for (var i = 0; i < tilesLeftToTry.length; i ++) {
+    		if (tilesLeftToTry[i].xPos === nextX
+    				&& tilesLeftToTry[i].yPos === nextY) {
+    			index = i;
+    			break;
+    		}
+    	}
+
+    	if (index > -1) {
+    		tilesLeftToTry.splice(index, 1);
+    	}
+
       tileIndex = getRandomInt(0, uncheckedTiles.length);
       nextX = uncheckedTiles[tileIndex].xPos;
       nextY = uncheckedTiles[tileIndex].yPos;
     }
-		return {xAfter: nextX, yAfter: nextY, stopAll: false};
+    firstMove[robotID] = false;
+		return {xAfter: nextX, yAfter: nextY, stopAll: false, wait: false};
 	}
 }
 
@@ -78,8 +108,11 @@ var willCollide = function(robotID, nextX, nextY) {
   var currentStartPoint = [robots[robotID].xPrev, robots[robotID].yPrev];
   var currentEndPoint = [nextX, nextY];
 
-  console.log('currentStartPoint: ' + currentStartPoint
- + ' currentEndPoint: ' + currentEndPoint);
+  // don't route to same tile
+  if (currentStartPoint[0] === currentEndPoint[0] &&
+    currentStartPoint[1] == currentEndPoint[1]) {
+    return true;
+  }
 
   // remove this robot
   robots.splice(robotID, 1);
@@ -91,6 +124,12 @@ var willCollide = function(robotID, nextX, nextY) {
   for (var i = 0; i < robots.length; i++) {
     startPoint = [robots[i].xPrev, robots[i].yPrev];
     endPoint = [robots[i].xAfter, robots[i].yAfter];
+
+    // console.log('robotID: ' + robotID
+    //  + ' currentStartPoint: ' + currentStartPoint
+    //  + ' currentEndPoint: ' + currentEndPoint
+    //  + ' startPoint: ' + startPoint
+    //  + ' endPoint: ' + endPoint);
 
     if (math.intersect(currentStartPoint, currentEndPoint, startPoint, endPoint)){
       return true;

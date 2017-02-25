@@ -123,8 +123,6 @@ var routeRobot = function(robotID) {
 		console.log("unexpected robot " + robotID);
 		return;
 	}
-	robots[robotID].xPrev = robots[robotID].xAfter;
-	robots[robotID].yPrev = robots[robotID].yAfter;
 
 	// set robots to move to random point in another module
 	// send robotID, last x position, last y position
@@ -134,14 +132,16 @@ var routeRobot = function(robotID) {
 	if (destination.stopAll) {
 		stopAll();
 		return;
+	} else if (destination.wait) {
+		communication.wait();
+		return;
 	}
+
+	robots[robotID].xPrev = robots[robotID].xAfter;
+	robots[robotID].yPrev = robots[robotID].yAfter;
+
 	robots[robotID].xAfter = destination.xAfter;
 	robots[robotID].yAfter = destination.yAfter;
-
-	// // check for collisions with 4 other robots
-	// if (willCollide(robotID) || willCollideEdge(robotID)) { // robot moves 3 tiles in opposite direction
-	// 	communication.move(robotID, Math.PI, 3*tileSize);
-	// }
 
 	// convert next location to angle + distance and call communication.move in
 	// checkTile

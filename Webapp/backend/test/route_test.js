@@ -5,8 +5,8 @@ var processing = require('../processing.js');
 describe('Test move call to route', function() {
 	it('should return new x/y co-ordinates in a dictionary ' +
 			' with keys xAfter, yAfter', function() {
-		var results = routing.move(0, 10, 10);
-		if (results.stopAll === false) {
+		var results = routing.move(0);
+		if (results.stopAll === false && results.wait === false) {
 			expect(results.xAfter).to.be.at.least(0);
 			expect(results.yAfter).to.be.at.least(0);
 		} else {
@@ -18,7 +18,7 @@ describe('Test move call to route', function() {
 	it('should respond with actual results once the processing has started',
 		function() {
 			routing.setUp(10);
-			var results = routing.move(0, 1, 1);
+			var results = routing.move(0);
 			expect(results.stopAll).to.be.false;
 			expect(results.xAfter).to.be.at.least(0);
 			expect(results.yAfter).to.be.at.least(0);
@@ -60,7 +60,7 @@ describe('removeTile ', function() {
 
 describe('willCollide', function() {
 		it('Return true when attempting to cross another robot\'s path', function() {
-			console.log(processing.getRobots());
+			routing.setUp(10);
 			routing.willCollide(1, 2, 3);
 			expect(true).to.be.true; //TODO: do actual test
 		});
