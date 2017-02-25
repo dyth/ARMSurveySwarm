@@ -3,7 +3,7 @@ Dependencies:
 
 	Then do:
 
-	sudo npm install connect serve-static socket.io socket.io-client html express path mocha
+	sudo npm install connect serve-static socket.io socket.io-client html express path mocha istanbul
 
 	In the backend directory
 
