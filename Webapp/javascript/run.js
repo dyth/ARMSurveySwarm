@@ -1,12 +1,16 @@
-/**
- * Created by Jamie on 09/02/2017.
+/*
+*
+* run.js
+* Performs setup for the run page.
+* Handles input from run.html
+*
  */
 
 
 $(function () {
 
     // Get number of robots
-    numRobots = sessionStorage.getItem("numRobots");
+    numRobots = sessionStorage.getItem(KEY_NUM_ROBOTS);
 
     // Perform all module setup
     setupState();
@@ -21,7 +25,7 @@ $(function () {
     $(".info-btn").click(function () {
 
         // Extract the robot ID from the DOM
-        var robotId = $(this).closest(".robot-row").data("robot-id");
+        var robotId = $(this).closest(".robot-row").data(KEY_ROBOT_ROW_DATA);
         displayRobotInfo(robotId);
 
     });

@@ -1,5 +1,7 @@
-/**
- * Created by Jamie on 07/02/2017.
+/*
+ * state.js
+ * Stores state for the run page which needs to be accessed across multiple javascript files.
+ *
  */
 
 var DEFAULT_TILE_CONTENTS = 0;

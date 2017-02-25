@@ -1,4 +1,11 @@
-// Need to have the socket.io 
+/*
+*
+* connection.js
+* Handles communication with the server.
+*
+ */
+
+// Need to have the socket.io
 // file loaded.
 
 // moved this outside the socket call for testing

@@ -1,3 +1,10 @@
+/*
+*
+* index.js
+* Handles input for the index.html page.
+*
+ */
+
 var socket = io('localhost');
 
 var startRobots = function(tileSize, gridSize, numRobots) {
@@ -48,7 +55,7 @@ $(function () {
 		startRobots(tileSize, gridSize, numRobots);
 
 		// Set the number of robots in session storage
-		sessionStorage.setItem("numRobots", numRobots);
+		sessionStorage.setItem(KEY_NUM_ROBOTS, numRobots);
 
 	});
 

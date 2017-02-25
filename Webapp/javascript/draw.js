@@ -1,5 +1,8 @@
-/**
- * Created by Jamie on 06/02/2017.
+/*
+*
+* draw.js
+* Handles drawing to the UI
+*
  */
 
 var canvas;
@@ -32,14 +35,22 @@ function setupDraw () {
 
     // Create the robot sprites and add robot HTML
     for(var i = 0; i < robots.length; i++){
-        var shape = new createjs.Shape();
-        shape.graphics.beginFill(robots[i].colour).drawCircle(0, 0, 10);
-        robotSprites.push(shape);
-        stage.addChild(shape);
-
+        addRobotSprite(i);
         addRobotHTML(i);
     }
 
+}
+
+/*
+*
+* Adds a robot sprite of the correct colour to the sprites array and adds it to the graph.
+*
+ */
+function addRobotSprite(robotID) {
+    var shape = new createjs.Shape();
+    shape.graphics.beginFill(robots[robotID].colour).drawCircle(0, 0, 10);
+    robotSprites.push(shape);
+    stage.addChild(shape);
 }
 
 /*
@@ -51,7 +62,7 @@ function addRobotHTML(robotID) {
 
     var newRow = $('<div class="row robot-row"></div>');
     newRow.prepend('<div class="col-xs-12"><span class="name">Robot '+(robotID + 1)+'</span> <span class="label label-warning">Calibrating</span> <a href="#info-section" class="btn btn-xs btn-default info-btn">i</a></div>');
-    newRow.data("robot-id", robotID);
+    newRow.data(KEY_ROBOT_ROW_DATA, robotID);
     $("#robot-list").append(newRow);
 
     // Colour code the name
@@ -85,6 +96,16 @@ function updateCanvas() {
 
     //console.log("Updating Canvas");
 
+    /*
+     *   Graph Representation
+     *
+     *   [3,0] [3,1] [3,2] [3,3]
+     *   [2,0] [2,1] [2,2] [2,3]
+     *   [1,0] [1,1] [1,2] [1,3]
+     *   [0,0] [0,1] [0,2] [0,3]
+     *
+     */
+
     graph.graphics.clear();
 
     // Calculate square size
@@ -96,12 +117,16 @@ function updateCanvas() {
 
         for(var j = 0; j<tiles.length; j++){
 
+            var graphics;
+
             if(tiles[i][j] == 1)
-                graph.graphics.beginFill("#000").drawRect(j*size, i*size, size, size);
+                graphics = graph.graphics.beginFill("#000");
             else if(tiles[i][j] == 0)
-                graph.graphics.beginFill("#fff").drawRect(j*size, i*size, size, size);
+                graphics = graph.graphics.beginFill("#fff");
             else
-                graph.graphics.beginFill("#ccc").drawRect(j * size, i * size, size, size);
+                graphics = graph.graphics.beginFill("#ccc");
+
+            graphics.drawRect(j*size, ( tiles.length - i - 1 ) * size, size, size);
 
         }
 
@@ -146,7 +171,7 @@ function updateRobotPosition(robotID) {
 
     // Position the robot sprites at the center of the correct square
     robotSprite.x = (robot.x + 0.5) * size;
-    robotSprite.y = (robot.y + 0.5) * size;
+    robotSprite.y = (tiles.length - robot.y - 0.5) * size;
 
     updateCanvas();
 
