@@ -3,6 +3,14 @@ This document describes the protocol with which the robots communicate.
 On connection to the server (which will be on a static IP address):
   Send a Hello message that contains some RobotID. Of the format: "HELLO: ID\n"
 
+  The server will reply with a "start" message, indicating that the robot
+  should proceed down the starting ramp. This message will be of the format:
+
+  "START\n"
+
+Once the roboot is done with this command, it sends a "DONE" message back
+;o the server. (See the done message section).
+
 Server can send a "stop" message, format:
   "STOP\n"
 
