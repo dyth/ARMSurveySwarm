@@ -85,7 +85,8 @@ class Robot {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-		}else if (current.equals("STOP")) {
+			send("DONE\n");
+		} else if (current.equals("STOP")) {
 			// stop
 		} else if (current.equals("RESUME")) {
 			// resume
