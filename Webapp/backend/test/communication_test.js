@@ -9,18 +9,18 @@ describe('should be in test mode', function() {
 
 describe('getRobotByID', function() {
 	it('should get a robot by Id if one has been added', function() {
-
+		// TODO
 	});
 
 	it('should return null otherwise', function() {
-
+		// TODO
 	});
 });
 
 describe('Test tcp server', function() {
 	var client;
 
-	it('should accept a connection', function(done) {
+	/* it('should accept a connection', function(done) {
 		client = net.connect({port: 8000}, function() {
 			expect(true, 'client did not connect').to.be.true;
 
@@ -33,20 +33,20 @@ describe('Test tcp server', function() {
 	});
 
 	it('should accept a fragmented message', function(done) {
-		client.write('HELLO:1\n');
-		client.write('DONE:1\n');
-
-		client.on('data', function() {
-			console.log(coms.robots);
-			expect(coms.getRobotByID(1).socket.destoryed).to.equal(false);
+		client.on('data', function(data) {
+			console.log(coms.getRobotByID(1));
+			expect(coms.getRobotByID(1).destoryed).to.equal(false);
 			done();
 		});
+
+		client.write('HELLO:1\n');
+		client.write('DONE:1\n');
 	});
 
 	it('should accept two messages at once', function(done) {
 		client.write('HELLO:2\nDONE:2\n');
 		done();
-	});
+	}); */
 });
 
 describe('robot list management', function() {
