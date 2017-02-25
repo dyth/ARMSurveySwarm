@@ -1,7 +1,7 @@
 var socket = io('localhost');
 
-var startRobots = function(tileSize, gridSize) {
-	socket.emit('startRobots', {tileSize: tileSize, gridSize:gridSize});
+var startRobots = function(tileSize, gridSize, numRobots) {
+	socket.emit('startRobots', {tileSize: tileSize, gridSize: gridSize, numRobots: numRobots});
 }
 
 function displayError(msg) {
@@ -17,9 +17,22 @@ $(function () {
 
 		var tileSize = $("#inputTileSize").val();
 		var gridSize = $("#inputGridSize").val();
+		var numRobots = $("#inputRobots").val();
 
-		if(tileSize == "" || gridSize == "") {
-			displayError("Tile Size & Grid Size can not be left empty!");
+		if(tileSize == "") {
+			displayError("Tile Size can not be left empty!");
+			event.preventDefault();
+			return false;
+		}
+
+		if(gridSize == "") {
+			displayError("Grid Size can not be left empty!");
+			event.preventDefault();
+			return false;
+		}
+
+		if(numRobots == ""){
+			displayError("Number of Robots can not be left empty!");
 			event.preventDefault();
 			return false;
 		}
@@ -32,7 +45,7 @@ $(function () {
 
 		console.log("Starting");
 
-		startRobots(tileSize, gridSize);
+		startRobots(tileSize, gridSize, numRobots);
 
 	});
 

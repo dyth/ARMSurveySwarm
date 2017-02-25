@@ -92,6 +92,7 @@ io.sockets.on('connection', function(socket) {
 		var numTiles = input.gridSize / input.tileSize;
 
 		// console.log("num tiles " + numTiles);
+		console.log("Robots: " + input.numRobots);
 
 		// ready?
 		processor.setTileSize(input.tileSize);
