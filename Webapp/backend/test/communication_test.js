@@ -8,7 +8,7 @@ describe('should be in test mode', function() {
 });
 
 describe('start robots', function() {
-	it('add new robots to the queue if processing has not started', 
+	it('add new robots to the queue if processing has not started',
 		function() {
 			coms.addRobotByID(1, {destroyed:false, write: function(){}});
 			coms.addRobotByID(3, {destroyed:false, write: function(){}});
@@ -236,10 +236,9 @@ describe('Move function sending instructions to robot', function() {
 
 	var durations = ['08750', '07292', '00375', '01088'];
 	var secondaryDurations = ['02500', '07500'];
-
-	var xPos = [0, 0, 0, 0];
-	var yPos = [0, 0, 0, 0];
-
+	
+	// var xPos = [0, 0, 0, 0];
+	// var yPos = [0, 0, 0, 0];
 
 	var robot = coms.getRobotByID(3);
 	console.log(robot);
@@ -267,8 +266,8 @@ describe('Move function sending instructions to robot', function() {
 				if (message !== "STOP\n" && message !== "RESUME\n" && !doneCalled) {
 					var contents = message.split(', ');
 					//e.g. ['direction = backward', ' speed = 5000', ' duration = 7292']
-					expect(contents[0]).to.equal('x = ' + xPos[n]);
-					expect(contents[1]).to.equal('y = ' + yPos[n]);
+					// expect(contents[0]).to.equal('x = ' + xPos[n]);
+					// expect(contents[1]).to.equal('y = ' + yPos[n]);
 					expect(contents[2]).to.equal('direction = ' + directions[n]);
 					expect(contents[3]).to.equal('speed = 5000');
 					expect(contents[4]).to.equal('duration = ' + durations[n] + '\n');
@@ -288,8 +287,8 @@ describe('Move function sending instructions to robot', function() {
 
 				if (message !== 'STOP\n' && message !=='RESUME\n'){
 					var contents = message.split(', ');
-					expect(contents[0]).to.equal('x = ' + xPos[m]);
-					expect(contents[1]).to.equal('y = ' + yPos[m]);
+					// expect(contents[0]).to.equal('x = ' + xPos[m]);
+					// expect(contents[1]).to.equal('y = ' + yPos[m]);
 					expect(contents[2]).to.equal('direction = ' + directions[m]);
 					expect(contents[3]).to.equal('speed = 5000');
 					expect(contents[4]).to.equal('duration = ' + durations[m] + '\n');
@@ -325,52 +324,4 @@ describe('Move function sending instructions to robot', function() {
 
 	});
 
-	// it('Robot should have received instructions to move', function(done) {
-	// 	var instructionsSent = false;
-	// 	var doneCalled = false;
-	// 	var n = 0;
-	// 	var m = 0;
-	//
-	// 	coms.receiveData("HELLO: 3",
-	// 		{destroyed: false, write: function(message) {
-	//
-	// 			instructionsSent = true;
-	//
-	// 			if (message !== "STOP\n" && message !== "RESUME\n" && !doneCalled) {
-	// 				var contents = message.split(', ');
-	// 				//e.g. ['direction = backward', ' speed = 5000', ' duration = 7292']
-	// 				expect(contents[0]).to.equal('direction = ' + directions[n]);
-	// 				expect(contents[1]).to.equal('speed = 5000');
-	// 				expect(contents[2]).to.equal('duration = ' + durations[n]);
-	// 				console.log(contents);
-	// 			}
-	// 			if (!doneCalled) {
-	// 				doneCalled = true;
-	// 				done();
-	// 			}
-	// 		}
-	// 	});
-	// 	n += 1;
-	//
-	// 	coms.receiveData('DONE: 3');
-	//
-	// 	// coms.receiveData("DONE: 3",
-	// 	// 	{destroyed: false, write: function(message) {
-	// 	// 		instructionsSent = true;
-	// 	//
-	// 	// 		if (message !== 'STOP\n' && message !=='RESUME\n'){
-	// 	// 			var contents = message.split(', ');
-	// 	// 			expect(contents[0]).to.equal('direction = ' + directions[m]);
-	// 	// 			expect(contents[1]).to.equal('speed = 5000');
-	// 	// 			expect(contents[2]).to.equal('duration = ' + durations[m]);
-	// 	// 		}
-	// 	// 	}
-	// 	// });
-	// 	// m += 1;
-	//
-	// 	setTimeout(function() {
-	// 		expect(instructionsSent,
-	// 			'Robot failed to receive instructions').to.be.true;
-	// 	}, 100);
-	// });
 });
