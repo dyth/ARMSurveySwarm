@@ -229,7 +229,8 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	// Turn by angle clockwise
-	communication.move(robotID, angle, vectorLength(A)*tileSize);
+	communication.move(robotID, coordX, coordY, angle, 
+		vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
 	rotateClockwise(robotID, angle);
@@ -311,16 +312,11 @@ var getGridDimensions = function() {
 var startProcessing = function() {
 	startedProcessing = true;
 
-	// Now do the routing for each of the robots to start them off:
-	var connectedRobots = communication.getConnectedRobots();
-
 	route.setUp(width); // set up uncheckedTiles lists
 
-	for (var i = 0; i < connectedRobots.length; i ++) {
-		// connectedRobots[i] is an ID.
-		routeRobot(connectedRobots[i]);
-	}
-
+	// starts all the connected robots waiting on the 
+	// starting ramp.
+	communication.startRobots();
 }
 
 var getRobots = function() {
