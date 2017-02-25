@@ -13,7 +13,7 @@ var options = {
 
 describe('calling updateTile', function() {
 	it('should trigger an update for the sendTileData function ' +
-		'without reordeirng data', function(done) {
+		'without reordering data', function(done) {
 		var client = io.connect(socketURL, options);
 		var tileData = [];
 
@@ -60,7 +60,7 @@ describe('Calling updateStatus', function() {
 					receivedData2.push(data);
 				}
 
-				if (receivedData1.length === NUM 
+				if (receivedData1.length === NUM
 					&& receivedData2.length === NUM) {
 					done();
 				}
@@ -82,11 +82,11 @@ describe('Calling updateStatus', function() {
 		}
 
 		setTimeout(function() {
-			expect(receivedData1.length, "not all clients received" + 
-			" message 1: " + receivedData2.length.toString ()+ "/" 
+			expect(receivedData1.length, "not all clients received" +
+			" message 1: " + receivedData2.length.toString ()+ "/"
 				+ NUM.toString() + "\n").to.equal(NUM);
-			expect(receivedData2.length, "not all clients received" + 
-			" message 2: " + receivedData2.length.toString() + "/" + 
+			expect(receivedData2.length, "not all clients received" +
+			" message 2: " + receivedData2.length.toString() + "/" +
 				NUM.toString() + "\n").to.equal(NUM);
 
 			for (var i = 0; i < receivedData1.length; i ++) {
@@ -175,11 +175,11 @@ describe('Stop Function Test', function() {
 		setTimeout(function() {
 			expect(connected,
 				'client did not connect').to.equal(true);
-			expect(stop, 
+			expect(stop,
 				'"stop" call did not return a callback').to.equal(true);
-			expect(resume, 
+			expect(resume,
 				'"resume" call did not return a callback').to.equal(true);
-			expect(stopAll, 
+			expect(stopAll,
 				'"stopAll" call did not return a callback').to.equal(true);
 			client.disconnect();
 		}, 1000);

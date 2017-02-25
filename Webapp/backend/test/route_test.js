@@ -1,5 +1,6 @@
 var expect = require('chai').expect;
 var routing = require('../route.js');
+var processing = require('../processing.js');
 
 describe('Test move call to route', function() {
 	it('should return new x/y co-ordinates in a dictionary ' +
@@ -55,4 +56,12 @@ describe('removeTile ', function() {
 		expect(routing.uncheckedTiles[35]).to.not.equal(tileHead);
 		expect(routing.uncheckedTiles.length).to.equal(98);
 	});
+});
+
+describe('willCollide', function() {
+		it('Return true when attempting to cross another robot\'s path', function() {
+			console.log(processing.getRobots());
+			routing.willCollide(1, 2, 3);
+			expect(true).to.be.true; //TODO: do actual test
+		});
 });
