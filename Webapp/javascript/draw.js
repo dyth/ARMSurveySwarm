@@ -1,5 +1,8 @@
-/**
- * Created by Jamie on 06/02/2017.
+/*
+*
+* draw.js
+* Handles drawing to the UI
+*
  */
 
 var canvas;
@@ -8,7 +11,9 @@ var graph;
 
 var robotSprites = [];
 
-$(function () {
+function setupDraw () {
+
+    console.log("Setup Draw");
 
     // Get references to the canvas and a new stage
     canvas = $("#canvas");
@@ -28,29 +33,41 @@ $(function () {
     // Add the graph to the stage
     stage.addChild(graph);
 
-    // Create the robot sprites
+    // Create the robot sprites and add robot HTML
     for(var i = 0; i < robots.length; i++){
-        var shape = new createjs.Shape();
-        shape.graphics.beginFill(robots[i].colour).drawCircle(0, 0, 10);
-        robotSprites.push(shape);
-        stage.addChild(shape);
-        colourCodeName(i);
+        addRobotSprite(i);
+        addRobotHTML(i);
     }
 
-});
+}
 
 /*
 *
-* Colour codes the robot name to match that of the robot.
-* This way you can see the which robot marker on the graph corresponds to each robot.
+* Adds a robot sprite of the correct colour to the sprites array and adds it to the graph.
 *
  */
-function colourCodeName(robotId){
+function addRobotSprite(robotID) {
+    var shape = new createjs.Shape();
+    shape.graphics.beginFill(robots[robotID].colour).drawCircle(0, 0, 10);
+    robotSprites.push(shape);
+    stage.addChild(shape);
+}
 
-    var robotSection = $(".robot-row")[robotId];
-    var name = $(robotSection).find("span.name");
+/*
+*
+* Adds robot to HTML and colour codes the names
+* 
+ */
+function addRobotHTML(robotID) {
 
-    name.css("color", robots[robotId].colour);
+    var newRow = $('<div class="row robot-row"></div>');
+    newRow.prepend('<div class="col-xs-12"><span class="name">Robot '+(robotID + 1)+'</span> <span class="label label-warning">Calibrating</span> <a href="#info-section" class="btn btn-xs btn-default info-btn">i</a></div>');
+    newRow.data(KEY_ROBOT_ROW_DATA, robotID);
+    $("#robot-list").append(newRow);
+
+    // Colour code the name
+    var name = newRow.find("span.name");
+    name.css("color", robots[robotID].colour);
 
 }
 
@@ -77,25 +94,39 @@ function resizeCanvas(){
  */
 function updateCanvas() {
 
-    console.log("Updating Canvas");
+    //console.log("Updating Canvas");
+
+    /*
+     *   Graph Representation
+     *
+     *   [3,0] [3,1] [3,2] [3,3]
+     *   [2,0] [2,1] [2,2] [2,3]
+     *   [1,0] [1,1] [1,2] [1,3]
+     *   [0,0] [0,1] [0,2] [0,3]
+     *
+     */
 
     graph.graphics.clear();
 
     // Calculate square size
     var size = canvas.width() / tiles.length;
-    console.log("Size: " + size);
+    //console.log("Size: " + size);
 
     // Draw squares
     for(var i = 0; i<tiles.length; i++){
 
         for(var j = 0; j<tiles.length; j++){
 
+            var graphics;
+
             if(tiles[i][j] == 1)
-                graph.graphics.beginFill("#000").drawRect(j*size, i*size, size, size);
+                graphics = graph.graphics.beginFill("#000");
             else if(tiles[i][j] == 0)
-                graph.graphics.beginFill("#fff").drawRect(j*size, i*size, size, size);
+                graphics = graph.graphics.beginFill("#fff");
             else
-                graph.graphics.beginFill("#ccc").drawRect(j * size, i * size, size, size);
+                graphics = graph.graphics.beginFill("#ccc");
+
+            graphics.drawRect(j*size, ( tiles.length - i - 1 ) * size, size, size);
 
         }
 
@@ -140,7 +171,7 @@ function updateRobotPosition(robotID) {
 
     // Position the robot sprites at the center of the correct square
     robotSprite.x = (robot.x + 0.5) * size;
-    robotSprite.y = (robot.y + 0.5) * size;
+    robotSprite.y = (tiles.length - robot.y - 0.5) * size;
 
     updateCanvas();
 
@@ -195,4 +226,18 @@ function updateRobotInfo() {
     if(currentlySelectedRobot != null)
         displayRobotInfo(currentlySelectedRobot);
 
+}
+
+/*
+*
+* Returns a random colour for colour coding robots.
+*
+ */
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }

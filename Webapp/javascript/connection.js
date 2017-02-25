@@ -1,4 +1,11 @@
-// Need to have the socket.io 
+/*
+*
+* connection.js
+* Handles communication with the server.
+*
+ */
+
+// Need to have the socket.io
 // file loaded.
 
 // moved this outside the socket call for testing
@@ -62,7 +69,7 @@ var socketReceiveStatus = function(data) {
 
 var socketTileUpdate = function(data) {
 	// Here, update the tiles list.
-    console.log("New Tile Data " + data.x + " " + data.y + " " + data.value);
+    //console.log("New Tile Data " + data.x + " " + data.y + " " + data.value);
 
 	if (data.x >= tiles.length || data.y >= tiles.length) {
 		socketUpdateArea({xDim: data.x + 1, yDim: data.y + 1});

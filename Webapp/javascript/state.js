@@ -1,8 +1,13 @@
-/**
- * Created by Jamie on 07/02/2017.
+/*
+ * state.js
+ * Stores state for the run page which needs to be accessed across multiple javascript files.
+ *
  */
 
 var DEFAULT_TILE_CONTENTS = 0;
+
+// The number of robots being used
+var numRobots;
 
 // This is the ID of the currently selected robot on the UI
 var currentlySelectedRobot;
@@ -15,14 +20,26 @@ var states = [["Calibrating", "label label-warning"], ["Scanning", "label label-
 // Fill the robots array with some default values before
 // anything is received. Could alternatively talk to
 // server on connect to get this information.
-var robots =(function() {
-    var size = 5;
-    var robots = [];
-    var colours = ["#f44edc", "#0de181", "#5dc1de", "#7e40f8", "#b72d49"];
+var robots;
 
-    for (var i = 0; i < size; i ++) {
-        robots.push({id: i, x: 0, y: 0, status: 0, colour: colours[i]});
-    }
+/*
+*
+* Setup the state
+* Called in onCreate in run.js
+*
+ */
+function setupState() {
 
-    return robots;
-})();
+    console.log("Setup State");
+
+    robots = (function() {
+        var robots = [];
+
+        for (var i = 0; i < numRobots; i ++) {
+            robots.push({id: i, x: 0, y: 0, status: 0, colour: getRandomColor()});
+        }
+
+        return robots;
+    })();
+
+}
