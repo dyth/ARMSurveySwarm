@@ -130,8 +130,7 @@ var routeRobot = function(robotID) {
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
 	// xA and yA to xB and yB and set Afters with data received from route.
-	var destination =
-		route.move(robotID, robots[robotID].xPrev, robots[robotID].yPrev);
+	var destination = route.move(robotID);
 	if (destination.stopAll) {
 		stopAll();
 		return;
@@ -242,56 +241,6 @@ var rotateClockwise = function(robotID, radians) {
 }
 
 /*
- * 2D collision between two robots
- * Assume robot takes up one tile.
- * Take axis-aligned bounding box as 3 x 3 tiles.
-  ------t-------
-		 |    |
-  --------------
-l    | XX |     r
-  --------------
-		 |    |
-  ------b-------
-  */
-var willCollide = function(robotID) {
-	var l1 = robots[robotID].xPrev - tileSize;
-	var r1 = robots[robotID].xPrev + tileSize;
-	var b1 = robots[robotID].yPrev - tileSize;
-	var t1 = robots[robotID].yPrev + tileSize;
-	var l2, r2, b2, t2;
-
-	var potentials = robots.slice(0, robotID).concat(robots.slice(robotID+1, 6));
-
-	for (var i = 0; i < potentials.length; i ++) {
-		l2 = potentials[i].xPrev - tileSize;
-		r2 = potentials[i].xPrev + tileSize;
-		b2 = potentials[i].xPrev - tileSize;
-		t2 = potentials[i].yPrev + tileSize;
-		if (l1 < r2 && r1 > l2 && b1 < t2 && t1 > b2) {
-			return true;
-		}
-	}
-	return false;
-}
-
-/*
- * Check that robots do not go out of bounds of the floor pattern
- * If robot near bounding edges of the floor pattern,
- * turn in the opposite direction.
- */
-var willCollideEdge = function(robotID) {
-	var coordX = robots[robotID].xPrev;
-	var coordY = robots[robotID].yPrev;
-	if (coordX <= 0 || coordX >= width) {
-		return true;
-	}
-	if (coordY <= 0 || coordY >= length) {
-		return true;
-	}
-	return false;
-}
-
-/*
  * This tells callers whether the processor
  * has started mapping or not yet
  */
@@ -374,18 +323,22 @@ var startProcessing = function() {
 
 }
 
+var getRobots = function() {
+	return robots;
+}
+
 exports.hasStartedProcessing = hasStartedProcessing;
 exports.setTileSize = setTileSize;
 exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
-exports.willCollide = willCollide;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.setTiles = setTiles;
 exports.startProcessing = startProcessing;
 exports.routeRobot = routeRobot;
+exports.getRobots = getRobots;
 
 /*
  * Unit testing
