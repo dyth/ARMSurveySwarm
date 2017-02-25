@@ -30,11 +30,24 @@ processor = require('./processing');
 var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
+	var accumulatedData;
+
 	socket.on('data', function(data) {
-		console.log(data.toString());
-		// TODO -- Go till the end of message signal
-		// and pass that. Then save the rest for later.
-		receiveData(data.toString(), socket);
+		// Search the incoming data for the end of line
+		// character.
+		accumulatedData += data.toString();
+
+		var messages = accumulatedData.split('\n');
+		if (messages.length === 1) {
+			accumulatedData = messages[0];
+		} else {
+			// There have been messages received!
+			for (var i = 0; i < messages.length - 1; i ++) {
+				receiveData(messages[i], socket);
+			}
+
+			accumulatedData = messages[messages.length - 1];
+		}
 	});
 
 	socket.on('error', function(error) {
@@ -71,6 +84,7 @@ var receiveData = function(data, socket) {
 		if (robot === null) {
 			console.log("NON-FATAL ERROR ------------------------------");
 			console.log("Unknown ID " + idNumber);
+			return;
 		}
 		if (robot.nextMove) {
 			var robotMove = robot.nextMove;
@@ -118,6 +132,8 @@ var receiveData = function(data, socket) {
 			var intensity = stringToNumber(values[2]);
 
 			if (x === null || y === null || intensity === null) {
+				console.log("NON-FATAL ERROR ------------------------------");
+				console.log("Expected 3 integers, got none");
 				return;
 			}
 

@@ -7,6 +7,16 @@ describe('should be in test mode', function() {
 	expect(coms.TEST).to.equal(true);
 });
 
+describe('getRobotByID', function() {
+	it('should get a robot by Id if one has been added', function() {
+
+	});
+
+	it('should return null otherwise', function() {
+
+	});
+});
+
 describe('Test tcp server', function() {
 	var client;
 
@@ -20,6 +30,22 @@ describe('Test tcp server', function() {
 			client.write('\n');
 			done();
 		});
+	});
+
+	it('should accept a fragmented message', function(done) {
+		client.write('HELLO:1\n');
+		client.write('DONE:1\n');
+
+		client.on('data', function() {
+			console.log(coms.robots);
+			expect(coms.getRobotByID(1).socket.destoryed).to.equal(false);
+			done();
+		});
+	});
+
+	it('should accept two messages at once', function(done) {
+		client.write('HELLO:2\nDONE:2\n');
+		done();
 	});
 });
 
@@ -59,15 +85,15 @@ describe('receiveData', function() {
 	});
 
 	it('should work when DONE messages are sent', function() {
-		coms.receiveData("DONE:2");
-		coms.receiveData("DONE:");
+		coms.receiveData("DONE:2\n");
+		coms.receiveData("DONE:\n");
 		coms.receiveData("DONE:10000");
 	});
 
 	it('INTENSITY messages ', function() {
-		coms.receiveData("INTENSITY:2;(12, 3, 9); (12, 4)");
-		coms.receiveData("INTENSITY:3;(N,N,N)");
-		coms.receiveData("INTENSITY:();(; ;)");
+		coms.receiveData("INTENSITY:2;(12, 3, 9); (12, 4)\n");
+		coms.receiveData("INTENSITY:3;(N,N,N)\n");
+		coms.receiveData("INTENSITY:();(; ;)\n");
 	});
 
 	it('should send a message to the robot',
@@ -78,7 +104,7 @@ describe('receiveData', function() {
 			// This is done because this can be triggered at a later
 			// date by another test.
 			var doneCalled = false;
-			coms.receiveData("HELLO: 2",
+			coms.receiveData("HELLO: 2\n",
 				{destroyed: false, write: function(message) {
 					instructionsSent = true;
 
@@ -95,7 +121,7 @@ describe('receiveData', function() {
 					}
 				}
 			});
-			coms.receiveData("DONE: 2");
+			coms.receiveData("DONE: 2\n");
 
 			setTimeout(function() {
 				expect(instructionsSent,
@@ -104,22 +130,22 @@ describe('receiveData', function() {
 	});
 
 	it('should not crash easily', function() {
-		coms.receiveData("INTENSITY:()");
-		coms.receiveData("INTENSITY:;101JIAADFlfkdsjfalskdjffa");
-		coms.receiveData("INTENSITY:(-100, -100, 10000000)");
-		coms.receiveData("INTENSITY:(1, 10)");
-		coms.receiveData("INTENSITY:((()))))");
-		coms.receiveData("HELLO:DATA");
-		coms.receiveData("HELLO:9999999999999999999999999999999999999999999999")
-		coms.receiveData("HELLO:-10101");
-		coms.receiveData("HELLO:-");
-		coms.receiveData("HELLO:1e400000");
-		coms.receiveData("HELLO:1.01");
-		coms.receiveData("BYEBYE:");
-		coms.receiveData("INTENSITY:");
-		coms.receiveData("yyyyyyyyyyyyyyhhhh");
-		coms.receiveData("HELLO: 1 1 1 2 3 3 3");
-		coms.receiveData("");
+		coms.receiveData("INTENSITY:()\n");
+		coms.receiveData("INTENSITY:;101JIAADFlfkdsjfalskdjffa\n");
+		coms.receiveData("INTENSITY:(-100, -100, 10000000)\n");
+		coms.receiveData("INTENSITY:(1, 10)\n");
+		coms.receiveData("INTENSITY:((()))))\n");
+		coms.receiveData("HELLO:DATA\n");
+		coms.receiveData("HELLO:9999999999999999999999999999999999999999999999\n\n")
+		coms.receiveData("HELLO:-10101\n");
+		coms.receiveData("HELLO:-\n");
+		coms.receiveData("HELLO:1e400000\n");
+		coms.receiveData("HELLO:1.01\n");
+		coms.receiveData("BYEBYE:\n");
+		coms.receiveData("INTENSITY:\n");
+		coms.receiveData("yyyyyyyyyyyyyyhhhh\n");
+		coms.receiveData("HELLO: 1 1 1 2 3 3 3\n");
+		coms.receiveData("\n");
 
 		expect(true, 'server did not crash').to.be.true;
 	});
@@ -130,11 +156,11 @@ describe('stop, resume and stopAll', function() {
 	var dataReceived2;
 	it('should add a robot with a callback', function() {
 		// Add a couple of robots
-		coms.receiveData("HELLO:1", {destroyed: false, write:
+		coms.receiveData("HELLO:1\n", {destroyed: false, write:
 			function(data) {
 				dataReceived = data;
 			}});
-		coms.receiveData("HELLO:2", {destroyed: false, write:
+		coms.receiveData("HELLO:2\n", {destroyed: false, write:
 			function(data) {
 				dataReceived2 = data;
 			}});
@@ -203,7 +229,7 @@ describe('Move function sending instructions to robot', function() {
 		var n = 0;
 		var m = 0;
 
-		coms.receiveData("HELLO: 3",
+		coms.receiveData("HELLO: 3\n",
 			{destroyed: false, write: function(message) {
 				instructionsSent = true;
 
@@ -223,7 +249,7 @@ describe('Move function sending instructions to robot', function() {
 		});
 		n += 1;
 
-		coms.receiveData("DONE: 3",
+		coms.receiveData("DONE: 3\n",
 			{destroyed: false, write: function(message) {
 				instructionsSent = true;
 
@@ -263,6 +289,4 @@ describe('Move function sending instructions to robot', function() {
 		expect(robot.nextMove).to.be.not.null;
 
 	});
-
-
 });
