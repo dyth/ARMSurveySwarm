@@ -57,6 +57,7 @@ var server = net.createServer(function(socket) {
 });
 
 var receiveData = function(data, socket) {
+	console.log(data);
 	if (data.substring(0, "HELLO:".length) === ("HELLO:")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = stringToNumber(id);
@@ -72,7 +73,9 @@ var receiveData = function(data, socket) {
 		// to move down the ramp.
 		// Otherwise it will be started when the server starts.
 		if (processor.hasStartedProcessing()) {
-			socket.write("START\n");
+			// enqueue the robot and start it if needed
+			enqueueRobot(idNumber);
+			startRobots();
 		}
 	} else if (data.substring(0, "DONE:".length) === "DONE:") {
 		var id = data.substring("DONE:".length).trim();
@@ -183,6 +186,50 @@ var stringToNumber = function(string, isFloat) {
 	return idNumber;
 }
 
+/*
+ * This keeps a list of robots to be started.
+ * Upon addition of a robot, if the list is 
+ * empty, it starts it immediately.
+ *
+ * Once the robot is clear of the 
+ * ramp it starts routing.
+ */
+var startRobot_waitingRobots = []
+var startRobot_running = false;
+var startRobot_movementDone = null;
+var enqueueRobot = function(robotID) {
+	startRobot_waitingRobots.push(robotID);
+}
+
+/*
+ * This starts all enqueued robots in the stack.
+ */
+var startRobots = function() {
+	if (startRobot_running) {
+		return;
+	}
+
+	if (startRobot_waitingRobots.length === 0) {
+		startRobot_running = false;
+		startRobot_movementDone = null;
+		return;
+	}
+
+	startRobot_running = true;
+
+	var thisRobot = getSocketByID(startRobot_waitingRobots[0]);
+
+	// Now, send that robot the message.
+	thisRobot.write("START\n");
+	// set the callback as appropriate:
+	startRobot_movementDone = function() {
+		// remove from the head of the list
+		startRobot_waitingRobots.shift();
+
+		startRobot_running = false;
+		startRobots();
+	}
+}
 
 var addRobotByID = function(robotID, socket) {
 	// Check if the robot is in the robots list.
@@ -313,7 +360,7 @@ var addPadding = function(number, length) {
 * At speed 0.5, robot covers 46-48mm per second
 * Directions forward, back, left, right
 */
-var move = function(robotID, degree, distance) {
+var move = function(robotID, xPos, yPos, degree, distance) {
 	var socket = getSocketByID(robotID);
 
 	distance = distance * 10; // convert distances to mm
@@ -342,15 +389,16 @@ var move = function(robotID, degree, distance) {
 		durationRotate = degree/180 * 2250 ;
 	}
 
-	//convert durations to have leading 0s and be 4 digits long
-	durationStraight = addPadding(durationStraight, 4);
+	//convert durations to have leading 0s and be 5 digits long
+	durationStraight = addPadding(durationStraight, 5);
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
-		durationRotate = addPadding(durationRotate, 4);
+		durationRotate = addPadding(durationRotate, 5);
 		// Send the current message to the robot.
-		socket.write('direction = ' + direction +
+		socket.write('x = ' + xPos + ', y = ' 
+			+ yPos + ', direction = ' + direction +
 			', speed = 5000, duration = ' + durationRotate + '\n');
 
 		// console.log('id ' + robotID.toString() + ' Direction:' + direction
@@ -359,15 +407,30 @@ var move = function(robotID, degree, distance) {
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
-			socket.write('direction = forward' +
+			socket.write('x = ' + xPos + ', y = ' + yPos +
+				', direction = forward' +
 				', speed = 5000, duration = ' + durationStraight + '\n');
+			
+			// If the robots are being started, then after the
+			// linear morement is complete we have to send
+			// the next one off the ramp. This triggers a 
+			// callback that deals with that.
+			if (startRobot_movementDone) {
+				startRobot_movementDone();
+			}
 		}
 	} else {
-		socket.write('direction = ' + direction +
+		socket.write('x = ' + xPos + ', y = ' + yPos +
+			', direction = ' + direction +
 			', speed = 5000, duration = ' + durationStraight + '\n');
 		// This is just a straight movement so just
 		// there is no next move.
-		robots[robotIndex].nextMove = null;
+
+		// If the robots are being started, then after the
+		// linear morement is complete we have to send
+		// the next one off the ramp. This triggers a 
+		// callback that deals with that.
+		robots[robotIndex].nextMove = startRobot_movementDone;
 	}
 };
 
@@ -376,6 +439,7 @@ exports.stop = stop;
 exports.stopAll = stopAll;
 exports.move = move;
 exports.getConnectedRobots = getConnectedRobots;
+exports.startRobots = startRobots;
 
 if (TEST) {
 	exports.TEST = TEST;
@@ -387,4 +451,8 @@ if (TEST) {
 	exports.addPadding = addPadding;
 	exports.getRobotIndex = getRobotIndex;
 	exports.getRobotByID = getRobotByID;
+	exports.startRobot_waitingRobots = startRobot_waitingRobots;
+	exports.startRobot_running = startRobot_running;
+	exports.startRobot_movementDone = startRobot_movementDone;
+	exports.enqueueRobot = enqueueRobot;
 }
