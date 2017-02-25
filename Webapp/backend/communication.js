@@ -68,10 +68,11 @@ var receiveData = function(data, socket) {
 		// This is a connection message.
 		// Run the server
 		addRobotByID(idNumber, socket);
-		// If the processing has started, then call route robot
+		// If the processing has started, then tell the robot
+		// to move down the ramp.
 		// Otherwise it will be started when the server starts.
 		if (processor.hasStartedProcessing()) {
-			processor.routeRobot(idNumber);
+			socket.write("START\n");
 		}
 	} else if (data.substring(0, "DONE:".length) === "DONE:") {
 		var id = data.substring("DONE:".length).trim();

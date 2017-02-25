@@ -9,18 +9,20 @@ describe('should be in test mode', function() {
 
 describe('getRobotByID', function() {
 	it('should get a robot by Id if one has been added', function() {
-		// TODO
+		coms.addRobotByID(1, {destroyed: false, write: function() {}});
+
+		expect(coms.getRobotByID(1)).to.not.be.null;
 	});
 
 	it('should return null otherwise', function() {
-		// TODO
+		expect(coms.getRobotByID(-1)).to.be.null;
 	});
 });
 
 describe('Test tcp server', function() {
 	var client;
 
-	/* it('should accept a connection', function(done) {
+	it('should accept a connection', function(done) {
 		client = net.connect({port: 8000}, function() {
 			expect(true, 'client did not connect').to.be.true;
 
@@ -33,10 +35,14 @@ describe('Test tcp server', function() {
 	});
 
 	it('should accept a fragmented message', function(done) {
+		var n = 0;
 		client.on('data', function(data) {
-			console.log(coms.getRobotByID(1));
-			expect(coms.getRobotByID(1).destoryed).to.equal(false);
-			done();
+			expect(coms.getRobotByID(1).socket.destroyed).to.equal(false);
+
+			n ++;
+			if (n === 2) {
+				done();
+			}
 		});
 
 		client.write('HELLO:1\n');
@@ -46,7 +52,7 @@ describe('Test tcp server', function() {
 	it('should accept two messages at once', function(done) {
 		client.write('HELLO:2\nDONE:2\n');
 		done();
-	}); */
+	});
 });
 
 describe('robot list management', function() {
