@@ -105,13 +105,12 @@ var willCollide = function(robotID, nextX, nextY) {
   var robots = processing.getRobots().slice();
 
   // get proposed path line
-  console.log(robotID);
   var currentStartPoint = [robots[robotID].xPrev, robots[robotID].yPrev];
   var currentEndPoint = [nextX, nextY];
 
   // don't route to same tile
   if (currentStartPoint[0] === currentEndPoint[0] &&
-    currentStartPoint[1] == currentEndPoint[1]) {
+    currentStartPoint[1] === currentEndPoint[1]) {
     return true;
   }
 
@@ -125,15 +124,20 @@ var willCollide = function(robotID, nextX, nextY) {
   for (var i = 0; i < robots.length; i++) {
     startPoint = [robots[i].xPrev, robots[i].yPrev];
     endPoint = [robots[i].xAfter, robots[i].yAfter];
-
-    // console.log('robotID: ' + robotID
-    //  + ' currentStartPoint: ' + currentStartPoint
-    //  + ' currentEndPoint: ' + currentEndPoint
-    //  + ' startPoint: ' + startPoint
-    //  + ' endPoint: ' + endPoint);
+    console.log('robotID: ' + robotID
+     + ' currentStartPoint: ' + currentStartPoint
+     + ' currentEndPoint: ' + currentEndPoint
+     + ' startPoint: ' + startPoint
+     + ' endPoint: ' + endPoint);
 
     if (math.intersect(currentStartPoint, currentEndPoint, startPoint, endPoint)){
-      return true;
+      // if same starting tile then don't collide
+      console.log((currentStartPoint[0] === startPoint[0]) &&
+        (currentStartPoint[1] === startPoint[1]));
+      if (!((currentStartPoint[0] === startPoint[0]) &&
+        (currentStartPoint[1] === startPoint[1]))) {
+        return true;
+      }
     }
   }
   return false;

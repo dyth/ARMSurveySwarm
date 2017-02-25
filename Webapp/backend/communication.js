@@ -92,7 +92,6 @@ var receiveData = function(data, socket) {
 		if (robot.nextMove) {
 			var robotMove = robot.nextMove;
 			robot.nextMove = null;
-			console.log("UNDEFIND" + idNumber);
 			robotMove(idNumber);
 		} else {
 			// No queued moves, ask for new moves from the server
@@ -188,10 +187,10 @@ var stringToNumber = function(string, isFloat) {
 
 /*
  * This keeps a list of robots to be started.
- * Upon addition of a robot, if the list is 
+ * Upon addition of a robot, if the list is
  * empty, it starts it immediately.
  *
- * Once the robot is clear of the 
+ * Once the robot is clear of the
  * ramp it starts routing.
  */
 var startRobot_waitingRobots = []
@@ -208,7 +207,7 @@ var startRobots = function() {
 	if (startRobot_running) {
 		return;
 	}
-
+	console.log('start robot waiting ' + startRobot_waitingRobots.length)
 	if (startRobot_waitingRobots.length === 0) {
 		startRobot_running = false;
 		startRobot_movementDone = null;
@@ -232,7 +231,6 @@ var startRobots = function() {
 		// need to send directions to this robot now that
 		// it is off the ramp and the next robot has started
 		// moving
-		console.log("UNDEFINED2: " + thisRobotID);
 		processor.routeRobot(thisRobotID);
 	}
 }
@@ -410,7 +408,7 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 	if (durationRotate != null) {
 		durationRotate = addPadding(durationRotate, 5);
 		// Send the current message to the robot.
-		socket.write('x = ' + xPos + ', y = ' 
+		socket.write('x = ' + xPos + ', y = '
 			+ yPos + ', direction = ' + direction +
 			', speed = 5000, duration = ' + durationRotate + '\n');
 
@@ -423,10 +421,10 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 			socket.write('x = ' + xPos + ', y = ' + yPos +
 				', direction = forward' +
 				', speed = 5000, duration = ' + durationStraight + '\n');
-			
+
 			// If the robots are being started, then after the
 			// linear morement is complete we have to send
-			// the next one off the ramp. This triggers a 
+			// the next one off the ramp. This triggers a
 			// callback that deals with that.
 			if (startRobot_movementDone) {
 				startRobot_movementDone(robotID);
@@ -441,7 +439,7 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 
 		// If the robots are being started, then after the
 		// linear morement is complete we have to send
-		// the next one off the ramp. This triggers a 
+		// the next one off the ramp. This triggers a
 		// callback that deals with that.
 		robots[robotIndex].nextMove = startRobot_movementDone;
 	}

@@ -22,11 +22,11 @@ var initialTileState = [2,2,2,2,2,2];
 // on the frontend.
 // Orientation in Radians
 var robots = [
-	{id: 0, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 1, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 2, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 3, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 4, xPrev: 0,yPrev: 0, xAfter: 1, yAfter: 1, orientation: 0, robotStatus: 2}];
+	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
+	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2}];
 
 var width = 0;
 var length = 0;
@@ -119,7 +119,6 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
-	console.log("ROUTE ROBOT CALLED");
 	if ( robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
@@ -148,7 +147,6 @@ var routeRobot = function(robotID) {
 
 	// convert next location to angle + distance and call communication.move in
 	// checkTile
-	console.log("CHECKING TILE");
 	checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
@@ -204,7 +202,6 @@ var vectorLength = function(vector) {
  * Set orientation of given robot in direction of tile.
  */
 var checkTile = function(robotID, tileX, tileY){
-	console.log("CHECK TILE CALLED");
 	// Currently direct line to tile
 	var coordX = robots[robotID].xPrev;
 	var coordY = robots[robotID].yPrev;
@@ -234,7 +231,7 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	// Turn by angle clockwise
-	communication.move(robotID, coordX, coordY, angle, 
+	communication.move(robotID, coordX, coordY, angle,
 		vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
@@ -319,7 +316,7 @@ var startProcessing = function() {
 
 	route.setUp(width); // set up uncheckedTiles lists
 
-	// starts all the connected robots waiting on the 
+	// starts all the connected robots waiting on the
 	// starting ramp.
 	communication.startRobots();
 }

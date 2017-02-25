@@ -5,6 +5,7 @@ var processing = require('../processing.js');
 describe('Test move call to route', function() {
 	it('should return new x/y co-ordinates in a dictionary ' +
 			' with keys xAfter, yAfter', function() {
+
 		var results = routing.move(0);
 		if (results.stopAll === false && results.wait === false) {
 			expect(results.xAfter).to.be.at.least(0);
@@ -31,6 +32,21 @@ describe('Test move call to route', function() {
 		// Zero
 		expect(routing.getRandomInt(0, 0)).to.be.within(0, 0);
 		expect(routing.getRandomInt(1, 1)).to.be.within(1, 1);
+	});
+
+	it('robots should not route to same tile ', function() {
+		routing.setUp(10);
+		var robots = processing.getRobots().slice();
+		var results = routing.move(1);
+		var sameTile = (robots[1].xPrev === results.xAfter &&
+			robots[1].yPrev === results.yAfter);
+		expect(sameTile).to.be.false;
+
+		//now not first move so can collide
+		results = routing.move(1);
+		sameTile = (robots[1].xPrev === results.xAfter &&
+			robots[1].yPrev === results.yAfter);
+		expect(sameTile).to.be.false;
 	});
 });
 
@@ -61,7 +77,8 @@ describe('removeTile ', function() {
 describe('willCollide', function() {
 		it('Return true when attempting to cross another robot\'s path', function() {
 			routing.setUp(10);
-			routing.willCollide(1, 2, 3);
-			expect(true).to.be.true; //TODO: do actual test
+			// when 2 isn't set it is going one step in x direction
+			expect(routing.willCollide(4, 0, 3)).to.be.true;
 		});
+
 });
