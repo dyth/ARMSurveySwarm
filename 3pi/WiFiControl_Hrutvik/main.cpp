@@ -51,10 +51,28 @@ void updateOrientation(float rotationSpeed, float duration){
 
 /***** MOVEMENT/SAMPLING: moving forward/backward and sending intensity informtion *****/
 void sendXYIs(float* xs, float* ys, float* intensities, int length){
-    char c = '(';
+    char toSend[(length * 20) + 1]; //each entry to send is of format: (x.xxx,y.yyy,i.iii); - 20 chars
+    memset(toSend, '\0', sizeof(toSend));
+    
     for (int i = 0; i < length; i++){
-        
+/*        char c = '(';
         socket.send(&c,              sizeof(char));
+        c = xs[i] > 0.0f ? '1' : '0';
+        socket.send(&c,              sizeof(char));
+        c = ',';
+        socket.send(&c,              sizeof(char));
+        c = ys[i] > 0.0f ? '1' : '0';
+        socket.send(&c,              sizeof(char));
+        c = ',';
+        socket.send(&c,              sizeof(char));
+        c = intensities[i] > 0.0f ? '1' : '0';
+        socket.send(&c,              sizeof(char));
+        c = ')';
+        socket.send(&c,              sizeof(char));
+        c = ';';   
+        socket.send(&c,              sizeof(char));
+*/    
+/*        socket.send(&c,              sizeof(char));
         socket.send(&xs[i],          sizeof(float)); c = ',';
         socket.send(&c,              sizeof(char));
         socket.send(&ys[i],          sizeof(float));
@@ -62,7 +80,42 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
         socket.send(&intensities[i], sizeof(float)); c = ')';
         socket.send(&c,              sizeof(char)); c = ';';
         socket.send(&c,              sizeof(char));
+*/
+        char entry[21]; memset(entry, '\0', sizeof(entry));
+        char x[6]; memset(x, '\0', sizeof(x));
+        char y[6]; memset(y, '\0', sizeof(y));
+        char intensity[6]; memset(intensity, '\0', sizeof(intensity));
+        char temp[4]; memset(temp, '\0', sizeof(temp));
+
+        sprintf(x, "%d", (int) xs[i]);
+        strcat(x, ".");                          //append decimal point
+        int tx = (xs[i] - (int)xs[i]) * 1000; //subtract to get the decimals, and multiply by 1000
+        sprintf(temp, "%d", (int) tx);           //convert to a second string
+        strcat(x, temp);                         //and append to the first
+        
+        sprintf(y, "%d", (int) y[i]);
+        strcat(y, ".");                          //append decimal point
+        int ty = (ys[i] - (int)ys[i]) * 1000; //subtract to get the decimals, and multiply by 1000
+        sprintf(temp, "%d", (int) ty);           //convert to a second string
+        strcat(y, temp);                         //and append to the first
+        
+        sprintf(intensity, "%d", (int) intensities[i]);
+        strcat(intensity, ".");                                      //append decimal point
+        int ti = (intensities[i] - (int)intensities[i]) * 1000; //subtract to get the decimals, and multiply by 1000
+        sprintf(temp, "%d", (int) ti);                               //convert to a second string
+        strcat(intensity, temp);                                     //and append to the first
+        
+        strcat(entry, "(");
+        strcat(entry, x);
+        strcat(entry, ",");
+        strcat(entry, y);
+        strcat(entry, ",");
+        strcat(entry, intensity);
+        strcat(entry, ");");
+        
+        strcat(toSend, entry);
     }
+    socket.send(toSend, sizeof(toSend));
 }
 
 void moveForward(float speed, float duration){
@@ -74,7 +127,7 @@ void moveForward(float speed, float duration){
     m3pi.forward(speed);
     for (int i = 0; i < noSamples; i++){
         wait(timeBetweenSamples);
-        intensities[i] = m3pi.line_position();
+        intensities[i] = m3pi.line_position() + 1.0f; //intensity scaled to within 0.0 - 2.0
         xs[i] = currentX;
         ys[i] = currentY;
         updatePosition(speed, timeBetweenSamples);
@@ -94,7 +147,7 @@ void moveBackward(float speed, float duration){
     m3pi.backward(speed);
     for (int i = 0; i < noSamples; i++){
         wait(timeBetweenSamples);
-        intensities[i] = m3pi.line_position();
+        intensities[i] = m3pi.line_position() + 1.0f; //intensity scaled to within 0.0 - 2.0
         xs[i] = currentX;
         ys[i] = currentY;
         updatePosition(-speed, timeBetweenSamples);
@@ -113,7 +166,9 @@ void tcp_control(){
     char received[256];
     memset(received, '\0', sizeof(received));
     
-    char hello[] = {'H', 'E', 'L', 'L', 'O', ':', ' ', ROBOT_ID, ';'};
+    char id[1];
+    sprintf(id,"%d",ROBOT_ID);
+    char hello[] = {'H', 'E', 'L', 'L', 'O', ':', ' ', id[0], ';'};
     socket.send(hello, sizeof(hello));
     
     while(true) {
@@ -131,16 +186,17 @@ void tcp_control(){
         char instruction[instr_size+1];
         memset(instruction, '\0', sizeof(instruction)); // ensure final character is '\0'
         strncpy(instruction, received, instr_size);
-        
+
         // split instruction up into token separated by ' ' delimiter
-        char *direction;
+        char direction[9];
+        memset(direction, '\0', sizeof(direction));
         const char delim[2] = " "; // instruction delimiter
-        
+                
         // get the first token
         char *token;
         token = strtok(instruction, delim);
         strcpy(direction, token);
-        
+
         if (strcmp(direction, "STOP") == 0){
             // wait for "RESUME\n" command - ASSUMPTION: RESUME is first instruction received after STOP
             char resume[8];
@@ -160,9 +216,10 @@ void tcp_control(){
             float duration;
             // assume that <speed> <duration> follow
             token = strtok(NULL, delim);
-            speed = ((float) atoi(token))/1000.0;
+            speed = ((float) atoi(token))/1000.0;        
             token = strtok(NULL, delim);
             duration = ((float) atoi(token))/1000.0;
+        
             if (strcmp(direction, "forward") == 0){
                 moveForward(speed, duration);
             } else if (strcmp(direction, "backward") == 0){
@@ -184,7 +241,7 @@ void tcp_control(){
             } else {
                 continue; //not expected - would imply malformed instruction
             }
-            char done[] = {'D', 'O', 'N', 'E', ':', ' ', ROBOT_ID, ';'};
+            char done[] = {'D', 'O', 'N', 'E', ':', ' ', id[0], ';'};
             socket.send(done, sizeof(done));    
         }   
     }
