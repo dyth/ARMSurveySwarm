@@ -45,7 +45,6 @@ var server = net.createServer(function(socket) {
 			for (var i = 0; i < messages.length - 1; i ++) {
 				receiveData(messages[i], socket);
 			}
-
 			accumulatedData = messages[messages.length - 1];
 		}
 	});
@@ -251,7 +250,6 @@ var processor = require('./processing');
 var resume = function(robotID) {
 	var socket = getSocketByID(robotID);
 
-	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
 		socket.write('RESUME\n');
 	}
@@ -261,9 +259,17 @@ var stop = function(robotID) {
 	// Stop a robot from moving
 	var socket = getSocketByID(robotID);
 
-	// todo -- actually send a resume message
 	if (socket !== null && !socket.destroyed) {
 		socket.write('STOP\n');
+	}
+};
+
+var wait = function(robotID) {
+	// Pause a robot for 3 seconds
+	var socket = getSocketByID(robotID);
+
+	if (socket !== null && !socket.destroyed){
+		socket.write('WAIT:30000\n');
 	}
 };
 
@@ -375,6 +381,7 @@ exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.move = move;
+exports.wait = wait;
 exports.getConnectedRobots = getConnectedRobots;
 
 if (TEST) {
