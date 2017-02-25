@@ -5,6 +5,13 @@
 
 $(function () {
 
+    // Get number of robots
+    numRobots = sessionStorage.getItem("numRobots");
+
+    // Perform all module setup
+    setupState();
+    setupDraw();
+
     // Call stop in connnection.js
     $("#stop-btn").click(function () {
         stopAll();

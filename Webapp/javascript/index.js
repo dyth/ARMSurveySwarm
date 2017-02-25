@@ -47,6 +47,9 @@ $(function () {
 
 		startRobots(tileSize, gridSize, numRobots);
 
+		// Set the number of robots in session storage
+		sessionStorage.setItem("numRobots", numRobots);
+
 	});
 
 });

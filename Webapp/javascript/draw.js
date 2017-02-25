@@ -8,7 +8,9 @@ var graph;
 
 var robotSprites = [];
 
-$(function () {
+function setupDraw () {
+
+    console.log("Setup Draw");
 
     // Get references to the canvas and a new stage
     canvas = $("#canvas");
@@ -28,29 +30,33 @@ $(function () {
     // Add the graph to the stage
     stage.addChild(graph);
 
-    // Create the robot sprites
+    // Create the robot sprites and add robot HTML
     for(var i = 0; i < robots.length; i++){
         var shape = new createjs.Shape();
         shape.graphics.beginFill(robots[i].colour).drawCircle(0, 0, 10);
         robotSprites.push(shape);
         stage.addChild(shape);
-        colourCodeName(i);
+
+        addRobotHTML(i);
     }
 
-});
+}
 
 /*
 *
-* Colour codes the robot name to match that of the robot.
-* This way you can see the which robot marker on the graph corresponds to each robot.
-*
+* Adds robot to HTML and colour codes the names
+* 
  */
-function colourCodeName(robotId){
+function addRobotHTML(robotID) {
 
-    var robotSection = $(".robot-row")[robotId];
-    var name = $(robotSection).find("span.name");
+    var newRow = $('<div class="row robot-row"></div>');
+    newRow.prepend('<div class="col-xs-12"><span class="name">Robot '+(robotID + 1)+'</span> <span class="label label-warning">Calibrating</span> <a href="#info-section" class="btn btn-xs btn-default info-btn">i</a></div>');
+    newRow.data("robot-id", robotID);
+    $("#robot-list").append(newRow);
 
-    name.css("color", robots[robotId].colour);
+    // Colour code the name
+    var name = newRow.find("span.name");
+    name.css("color", robots[robotID].colour);
 
 }
 
@@ -77,13 +83,13 @@ function resizeCanvas(){
  */
 function updateCanvas() {
 
-    console.log("Updating Canvas");
+    //console.log("Updating Canvas");
 
     graph.graphics.clear();
 
     // Calculate square size
     var size = canvas.width() / tiles.length;
-    console.log("Size: " + size);
+    //console.log("Size: " + size);
 
     // Draw squares
     for(var i = 0; i<tiles.length; i++){
@@ -195,4 +201,18 @@ function updateRobotInfo() {
     if(currentlySelectedRobot != null)
         displayRobotInfo(currentlySelectedRobot);
 
+}
+
+/*
+*
+* Returns a random colour for colour coding robots.
+*
+ */
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
