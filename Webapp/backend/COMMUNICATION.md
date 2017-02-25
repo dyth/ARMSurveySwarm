@@ -17,8 +17,15 @@ Server can send a "stop" message, format:
 Server can send a "resume" message, format:
   "RESUME\n"
 
+Server can send a "wait" message, format:
+  "WAIT:0000\n"
+Where 0000 is any 4 digit number, representing the number
+of milliseconds
+
 Server can send a movement command, format:
-  "direction = forward, backward, left, right, 0001 <= speed <= 9999, 0001 <= duration <= 9999\n"
+  "x = X, y = Y, direction = forward, backward, left, right, 0001 <= speed <= 9999, 00001 <= duration <= 99999\n"
+  Where X and Y are floating point representations of the 
+  robot's current position
   After the movement command is finished, the server expects a message with format:
   "DONE: ID\n" from the robot
 
