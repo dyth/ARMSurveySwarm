@@ -82,9 +82,9 @@ describe('Route robot', function() {
 		processor.routeRobot(1);
 		console.log('x '+ processor.robots[1].xPrev + processor.robots[1].xAfter +
 	' y ' + processor.robots[1].yPrev + processor.robots[1].yAfter );
-		if (processor.robots[1].xPrev == processor.robots[1].xAfter) {
+		if (processor.robots[1].xPrev === processor.robots[1].xAfter) {
 			expect(processor.robots[1].yPrev).to.not.equal(processor.robots[1].yAfter);
-		} else if (processor.robots[1].yPrev == processor.robots[1].yAfter) {
+		} else if (processor.robots[1].yPrev === processor.robots[1].yAfter) {
 			expect(processor.robots[1].xPrev).to.not.equal(processor.robots[1].xAfter);
 		}
 	});

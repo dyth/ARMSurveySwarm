@@ -306,7 +306,7 @@ describe('Move function sending instructions to robot', function() {
 	it('Robot set to move for 35cm with degree 180 should' +
 		' just send one move backwards message for 7.29s', function(){
 		coms.move(3, 0, 0, Math.PI, 35);
-		expect(robot.nextMove).to.be.null;
+		expect(robot.nextMove).to.be.not.null;
 
 	});
 
