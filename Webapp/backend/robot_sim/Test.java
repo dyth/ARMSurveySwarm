@@ -8,7 +8,7 @@ class Test {
 		Thread thread = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Robot r = new Robot(0, tiles);
+				Robot r = new Robot(0, tiles, 10);
 				r.connect("localhost");
 			}
 		});
@@ -16,7 +16,7 @@ class Test {
 		Thread thread2 = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Robot r = new Robot(1, tiles);
+				Robot r = new Robot(1, tiles, 10);
 				r.connect("localhost");
 			}
 		});
@@ -24,7 +24,7 @@ class Test {
 		Thread thread3 = new Thread(new Runnable() {
 			@Override
 			public void run() {
-				Robot r = new Robot(2, tiles);
+				Robot r = new Robot(2, tiles, 10);
 				r.connect("localhost");
 			}
 		});
