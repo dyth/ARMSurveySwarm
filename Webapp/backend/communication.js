@@ -28,8 +28,6 @@ net = require('net');
 processor = require('./processing');
 
 var server = net.createServer(function(socket) {
-	socket.pipe(socket);
-
 	var accumulatedData = "";
 
 	socket.on('data', function(data) {
@@ -431,7 +429,7 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 		durationRotate = addPadding(durationRotate, 5);
 		// Send the current message to the robot.
 		socket.write(direction + ", " + xPosCM + ', '
-			+ yPosCM + "," +
+			+ yPosCM + 
 			', 5000, ' + durationRotate + 
 			'\n');
 
