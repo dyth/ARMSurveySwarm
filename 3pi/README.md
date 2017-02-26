@@ -1,13 +1,21 @@
 # 3pi robot code
 
-## Reflectance
+## `reflectance.cpp`
 
-Requires the following two libraries
-* "mbed.h"
-* "m3pi.h"
+using the libraries
+* `mbed.h`
+* `m3pi.h`
 
-Print value of black / white on m3pi screen. Values are between -1.0 and 1.0.
+print value of black / white on m3pi screen (between -1.0 and 1.0).
 
 -1.0 means black is on the left, or no black.
 0.0 means the robot is directly above black.
 1.0 means black is on the right.
+
+## `intensities.cpp`
+
+using the libraries
+* `mbed.h`
+* `m3pi_ng.h`
+
+return an `int array[5]` of calibrated intensities between 0 and 1000. The greater the number, the brighter the intensity.
