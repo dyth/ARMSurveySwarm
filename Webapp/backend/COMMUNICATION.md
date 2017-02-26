@@ -24,7 +24,7 @@ of milliseconds. After waiting for the amount of time specified,
 the robot should respond with a "DONE" message.
 
 Server can send a movement command, format:
-  "direction = forward, backward, left, right, 0001 <= speed <= 9999, 00001 <= duration <= 99999\n, x = X, y = Y"
+  "forward/backward/left/right, x = X, y = Y, 0001 <= speed <= 9999, 00001 <= duration <= 99999\n"
   Where X and Y are floating point representations of the 
   robot's current position
   After the movement command is finished, the server expects a message with format:
