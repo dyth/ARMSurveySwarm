@@ -167,7 +167,7 @@ void tcp_control(){
         // split instruction up into tokens separated by ' ' delimiter
         char direction[9]; // max direction length: "backward\0", 9
         memset(direction, '\0', sizeof(direction));
-        const char delim[2] = " "; // instruction delimiter
+        const char delim[3] = ", "; // instruction delimiter
                 
         // get the first token
         char *token;
