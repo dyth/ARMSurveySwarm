@@ -121,6 +121,8 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
+		console.log('in set Tiles, with coordinates x=' + coordX + ' y=' + coordY);
+
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);

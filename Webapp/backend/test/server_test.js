@@ -108,7 +108,7 @@ describe('Calling updateStatus', function() {
 });
 
 describe('Calling updateGrid', function() {
-	it('should trigger a boradcast with new area dimensions', function(done) {
+	it('should trigger a broadcast with new area dimensions', function(done) {
 		var client1 = io.connect(socketURL,  options);
 		var client2 = io.connect(socketURL,  options);
 

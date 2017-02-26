@@ -8,6 +8,7 @@ import java.util.*;
  */
 
 class Robot {
+
 	enum Direction {
 		FORWARD, BACKWARD, LEFT, RIGHT;
 	}
@@ -23,6 +24,7 @@ class Robot {
 	BufferedReader in;
 	PrintWriter out;
 
+
 	public Robot(int id, int[][] board) {
 		this.board = board;
 		this.id = id;
@@ -36,7 +38,7 @@ class Robot {
 			in = new BufferedReader(new
 					InputStreamReader(skt.getInputStream()));
 			out = new PrintWriter(skt.getOutputStream(), true);
-			
+
 			send("HELLO:" + id + "\n");
 
 			String commands = "";
@@ -60,7 +62,6 @@ class Robot {
 
 		return 0;
 	}
-
 	// Takes the command, parses it and returns
 	// the new command string.
 	public String parse(String commands) {
@@ -112,7 +113,7 @@ class Robot {
 		} else if (current.startsWith("r")) {
 			direction = Direction.RIGHT;
 			current = current.substring("right, ".length());
-		} 
+		}
 
 		if (direction == null) {
 			System.out.println("Message not a movement command");
@@ -136,7 +137,7 @@ class Robot {
 
 		int duration = Integer.parseInt(durationString);
 
-		// --------Calculation of the rotation and the 
+		// --------Calculation of the rotation and the
 		// --------movement distances.
 		float time = (float) duration / 1000f;
 		// Both are not nessecarily used
@@ -144,7 +145,7 @@ class Robot {
 
 		// In centimeters. Assume speed = 5000
 		// Robots go 46-48cm/second.
-		float distance = 0.47f * time;
+		float distance = 0.48f * time;
 
 		Intensity[] intensityMeasurements = null;
 
@@ -201,6 +202,7 @@ class Robot {
 	// Returns the measurements made
 	// Direction should be -1 for backwards +1 for forwards
 	public Intensity[] move_internal(float distance, int direction) {
+		distance = distance*10;
 		ArrayList<Intensity> intensities = new ArrayList<Intensity>();
 		System.out.println("Distance: " + distance);
 
@@ -210,6 +212,8 @@ class Robot {
 		double xTarget = xPos + xDiff;
 		double yTarget = yPos + yDiff;
 
+		System.out.println("xTarget: " + xTarget + " yTarget:" + yTarget);
+
 		while ( // if it is going up
 				(direction == 1 && xPos < xTarget && yPos < yTarget)
 				// If it is going down
@@ -217,12 +221,11 @@ class Robot {
 			xPos += direction * Math.cos(orientation);
 			yPos += direction * Math.cos(orientation);
 
-			if (xPos < 0 || yPos < 0) {
+			if (xPos < 0 || yPos < 0 || xPos > 4 || yPos > 4) {
 				continue;
 			}
-
+			System.out.println("xPos: " + xPos + " yPos: " + yPos);
 			Intensity intensity = new Intensity(xPos, yPos, takeMeasurement());
-
 			intensities.add(intensity);
 		}
 
@@ -247,7 +250,7 @@ class Robot {
 	}
 
 	public int takeMeasurement() {
-		return board[Math.round(xPos)][Math.round(yPos)];
+		return board[(int)Math.floor(xPos)][(int)Math.floor(yPos)];
 	}
 }
 

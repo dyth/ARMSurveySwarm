@@ -1,8 +1,8 @@
 class Test {
-	static int[][] tiles = new int[][]{ {1, 0, 0, 1},
+	static int[][] tiles = new int[][]{ {1, 0, 1, 1},
 		{1, 0, 0, 1},
-		{1, 0, 0, 1},
-		{1, 0, 0, 1} };
+		{1, 1, 0, 1},
+		{0, 0, 1, 1} };
 
 	public static void main(String[] args) {
 		Thread thread = new Thread(new Runnable() {
