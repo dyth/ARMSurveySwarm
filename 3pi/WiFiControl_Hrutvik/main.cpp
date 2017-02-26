@@ -9,8 +9,8 @@
 // definitions: IP and port of TCP server to connect to; SSID/password of WiFi network; unique ID of robot
 #define SERVIP "192.168.46.2"
 #define SERVPORT 8000
-#define SSID HRKPrint
-#define PASSWORD qwertyuiop
+#define SSID "HRKPrint"
+#define PASSWORD "qwertyuiop"
 #define ROBOT_ID 1
 
 /**
