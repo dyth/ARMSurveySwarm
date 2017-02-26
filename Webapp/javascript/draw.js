@@ -135,6 +135,10 @@ function updateCanvas() {
 
     }
 
+    // Update robots
+    for(var i = 0; i < numRobots; i++)
+        updateRobotPosition(i);
+
     stage.update();
 
 }
@@ -175,8 +179,6 @@ function updateRobotPosition(robotID) {
     // Position the robot sprites at the center of the correct square
     robotSprite.x = (robot.x + 0.5) * size;
     robotSprite.y = (tiles.length - robot.y - 0.5) * size;
-
-    updateCanvas();
 
 }
 
@@ -243,4 +245,37 @@ function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+
+// TESTING
+function randomiseEverything() {
+
+    // Robot positions
+    for(var i = 0; i < numRobots; i++){
+        robots[i].x = Math.floor((Math.random() * (tiles.length - 1)));
+        robots[i].y = Math.floor((Math.random() * (tiles.length - 1)));
+        robots[i].status = 1;
+        updateState(i);
+    }
+
+    // White tiles
+    for(var i = 0; i < tiles.length; i++){
+        for(var j = 0; j < tiles.length; j++){
+            tiles[i][j] = 0;
+        }
+    }
+
+    // Black tiles
+    for(var i = 0; i < 10; i++){
+        tiles[Math.floor((Math.random() * (tiles.length - 1)))][Math.floor((Math.random() * (tiles.length - 1)))] = 1;
+    }
+
+    // Add in uncertain tiles
+    for(var i = 0; i < 4; i++){
+        tiles[Math.floor((Math.random() * (tiles.length - 1)))][Math.floor((Math.random() * (tiles.length - 1)))] = 2;
+    }
+
+    updateCanvas();
+
 }
