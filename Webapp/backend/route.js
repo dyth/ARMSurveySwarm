@@ -116,7 +116,6 @@ var willCollide = function(robotID, nextX, nextY) {
 
   // remove this robot
   robots.splice(robotID, 1);
-  console.log(robots);
 
   // check that each path does not intersect with proposed path
   var startPoint;
@@ -125,11 +124,11 @@ var willCollide = function(robotID, nextX, nextY) {
   for (var i = 0; i < robots.length; i++) {
     startPoint = [robots[i].xPrev, robots[i].yPrev];
     endPoint = [robots[i].xAfter, robots[i].yAfter];
-    console.log('robotID: ' + robotID
+    /* console.log('robotID: ' + robotID
      + ' currentStartPoint: ' + currentStartPoint
      + ' currentEndPoint: ' + currentEndPoint
      + ' startPoint: ' + startPoint
-     + ' endPoint: ' + endPoint);
+     + ' endPoint: ' + endPoint);*/
 
     if (intersect(currentStartPoint[0], currentStartPoint[1],
        currentEndPoint[0], currentEndPoint[1],
