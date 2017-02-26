@@ -418,23 +418,25 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	} else if (degree < 180) { // turn left
 		direction = 'left';
 		// 2.965 seconds for 180 degrees of rotation
-		durationRotate = degree/180 * 296.5;
+		durationRotate = degree/180 * 2965;
 	} else { // turn right
 		direction = 'right'
 		degree = 360 - degree;
-		durationRotate = degree/180 * 296.5 ;
+		durationRotate = degree/180 * 2965 ;
 	}
 
 	//convert durations to have leading 0s and be 5 digits long
 	durationStraight = addPadding(durationStraight, 5);
 
 	console.log("SENDING DIRECTIONS");
+	console.log('durationStraight ' + durationStraight);
 
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
 
 		durationRotate = addPadding(durationRotate, 5);
+		console.log('durationRotate ' + durationRotate);
 		// Send the current message to the robot.
 		socket.write(direction + ", " + xPosCM + ', '
 			+ yPosCM +
