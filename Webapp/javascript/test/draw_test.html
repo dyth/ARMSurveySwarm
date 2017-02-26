@@ -1,0 +1,24 @@
+  <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Index Test</title>
+  <link rel="stylesheet" media="all" href="vendor/mocha.css">
+</head>
+<body>
+  <div id="mocha"><p><a href=".">Index</a></p></div>
+  <div id="messages"></div>
+  <div id="fixtures"></div>
+  <script src="vendor/mocha.js"></script>
+  <script src="../../backend/node_modules/chai/chai.js"></script>
+  <script src="../../backend/node_modules/socket.io-client/dist/socket.io.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+  <script src="https://code.createjs.com/easeljs-0.8.2.min.js"></script>
+  <script src="../keys.js"></script>
+  <script src="../state.js"></script>
+  <script src="../draw.js"></script>
+  <script>mocha.setup('bdd');</script>
+  <script src="draw_test.js"></script>
+  <script>mocha.run();</script>
+</body>
+</html>
