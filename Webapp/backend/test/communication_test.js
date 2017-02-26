@@ -292,7 +292,7 @@ describe('Move function sending instructions to robot', function() {
 					// expect(contents[1]).to.equal('y = ' + yPos[n]);
 					console.log(contents);
 					//expect(contents[2]).to.equal('direction = ' + directions[n]);
-					expect(contents[1]).to.equal('speed = 5000');
+					expect(contents[1]).to.equal('5000');
 					//expect(contents[4]).to.equal('duration = ' + durations[n] + '\n');
 				}
 				if (!doneCalled) {
