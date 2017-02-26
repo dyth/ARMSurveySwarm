@@ -390,7 +390,7 @@ var addPadding = function(number, length) {
 * receiving acknowledgements.
 * - robotID is integer ID to send message to
 * - degree in RADIANS as input where conversion rate is
-*   at 0.5 speed, 5.5 seconds for 360 degrees.
+*   at 0.5 speed, 5.93 seconds for 360 degrees.
 * - distance is distance in cm to destination tile
 *
 * At speed 0.5, robot covers 460-480mm per second
@@ -415,13 +415,13 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 
 	} else if (degree < 180) { // turn left
 		direction = 'left';
-		// 2.25 seconds for 180 degrees of rotation
-		durationRotate = degree/180 * 2250;
+		// 2.965 seconds for 180 degrees of rotation
+		durationRotate = degree/180 * 2965;
 
 	} else { // turn right
 		direction = 'right'
 		degree = 360 - degree;
-		durationRotate = degree/180 * 2250 ;
+		durationRotate = degree/180 * 2965 ;
 	}
 
 	//convert durations to have leading 0s and be 5 digits long
