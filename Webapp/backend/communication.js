@@ -404,15 +404,15 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	distance = distance * 10; // convert distances to mm
 	degree = degree * 180 / Math.PI; // convert angle to degrees
 
-	var speed = 48; // speed fixed at 480mm per second
+	var speed = 47; // speed fixed at 480mm per second
 	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
 	var durationRotate;
 	var direction;
 
-	if (degree == 0) {
+	if (degree === 0) {
 		direction = "forward";
 
-	} else if (degree == 180) {
+	} else if (degree === 180) {
 		direction = "backward";
 
 	} else if (degree < 180) { // turn left
@@ -439,13 +439,13 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 		// Send the current message to the robot.
 		socket.write(direction + ", " + xPosCM + ', '
 			+ yPosCM +
-			', 0500, ' + durationRotate +
+			', 5000, ' + durationRotate +
 			'\n');
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
 			socket.write('forward, ' + xPosCM + ', ' + yPosCM +
-				', 0500, ' + durationStraight +
+				', 5000, ' + durationStraight +
 				'\n');
 
 			// If the robots are being started, then after the
