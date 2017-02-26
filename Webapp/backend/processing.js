@@ -22,11 +22,11 @@ var initialTileState = [2,2,2,2,2,2];
 // on the frontend.
 // Orientation in Radians
 var robots = [
-	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2},
-	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 2}];
+	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
+	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
+	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
+	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
+	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0}];
 
 var width = 0;
 var length = 0;
@@ -78,6 +78,23 @@ var roundPosition = function(pos) {
 	} else {
 		return Math.floor(pos/tileSize);
 	}
+}
+
+var resetRobot = function(robotID) {
+	robots[robotID] = {id: robotID, xPrev: 0,yPrev: 0, 
+		xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 1}
+
+	// id, x,  y, status
+	server.updateStatus(robotID, 0, 0, 1);
+}
+
+var robotConnectionLost = function(robotID) {
+	// Set the robot status to calibrating again.
+	robots[robotID].robotStatus = 0;
+	var robot = robots[robotID];
+
+	// id, x,  y, status
+	server.updateStatus(robotID, robot.x, robot.y, robot.robotStatus);
 }
 
 /*
@@ -337,6 +354,8 @@ exports.setTiles = setTiles;
 exports.startProcessing = startProcessing;
 exports.routeRobot = routeRobot;
 exports.getRobots = getRobots;
+exports.resetRobot = resetRobot;
+exports.robotConnectionLost = robotConnectionLost;
 
 /*
  * Unit testing
