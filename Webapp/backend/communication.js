@@ -74,9 +74,9 @@ var receiveData = function(data, socket) {
 		// If the processing has started, then tell the robot
 		// to move down the ramp.
 		// Otherwise it will be started when the server starts.
+		enqueueRobot(idNumber);
 		if (processor.hasStartedProcessing()) {
 			// enqueue the robot and start it if needed
-			enqueueRobot(idNumber);
 			startRobots();
 		}
 	} else if (data.substring(0, "RESET:".length) === "RESET:") {
@@ -89,7 +89,7 @@ var receiveData = function(data, socket) {
 		}
 
 		processor.resetRobot(idNumber);
-		robotMove(idNumber);
+		processor.routeRobot(idNumber);
 	} else if (data.substring(0, "DONE:".length) === "DONE:") {
 		var id = data.substring("DONE:".length).trim();
 		var idNumber = stringToNumber(id);
@@ -109,6 +109,7 @@ var receiveData = function(data, socket) {
 			robotMove(idNumber);
 		} else {
 			// No queued moves, ask for new moves from the server
+			console.log("sending new commands");
 			processor.routeRobot(idNumber);
 		}
 	} else if (data.substring(0, "INTENSITY:".length) === "INTENSITY:") {
@@ -264,6 +265,12 @@ var addRobotByID = function(robotID, socket) {
 };
 
 var getRobotIndex = function(robotID) {
+	if (robotID === undefined) {
+		console.log("NON-FATAL ERROR--------------------------------");
+		console.log("robot ID is undefined");
+		return null;
+	}
+	 
 	for(var i = 0; i < robots.length; i ++) {
 		if (robotID === robots[i].id) {
 			return i;
@@ -335,7 +342,7 @@ var wait = function(robotID) {
 	var socket = getSocketByID(robotID);
 
 	if (socket !== null && !socket.destroyed){
-		socket.write('WAIT:30000\n');
+		socket.write('WAIT 03000\n');
 	}
 };
 
