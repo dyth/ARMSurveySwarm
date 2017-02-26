@@ -1,6 +1,7 @@
 var io = require('socket.io-client');
 var expect = require('chai').expect;
 var server = require('../server');
+var processing = require('../processing');
 
 server.TEST = true;
 
@@ -183,5 +184,20 @@ describe('Stop Function Test', function() {
 				'"stopAll" call did not return a callback').to.equal(true);
 			client.disconnect();
 		}, 1000);
+	});
+});
+
+describe('start processing message', function(done) {
+	var client = io.connect(socketURL, options);
+
+	it('sending startRobots should result in the system being started',
+		function() {
+			client.emit('startProcessing', {tileSize: 1, gridSize: 1,
+					numRobots: 10});
+
+			setTimeout(function() {
+				expect(processor.startedProcessing).to.be.true;
+				done();
+			}, 100);
 	});
 });
