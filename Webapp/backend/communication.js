@@ -56,7 +56,7 @@ var server = net.createServer(function(socket) {
 	});
 });
 
-server.listen(8000, '127.0.0.1');
+server.listen(8000);
 
 var receiveData = function(data, socket) {
 	console.log(data);

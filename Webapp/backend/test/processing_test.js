@@ -76,6 +76,27 @@ describe('Vector Length', function() {
 	});
 });
 
+describe('reset robot', function() {
+	it('should reset the robot position after being called', function() {
+		processor.robots[0].xPrev = -1000;
+		processor.robots[0].orientation = 11111;
+
+		processor.resetRobot(0);
+
+		expect(processor.robots[0].xPrev).to.equal(0);
+		expect(processor.robots[0].orientation).to.equal(0);
+	});
+
+	it('should reset change the status of the robot after being called',
+		function() {
+			processor.robots[0].robotStatus = 100;
+
+			processor.robotConnectionLost(0);
+
+			expect(processor.robots[0].robotStatus).to.equal(0);
+	});
+});
+
 describe('Route robot', function() {
 	it('Check that route does not set robots to recheck current tile', function() {
 		processor.startProcessing();
