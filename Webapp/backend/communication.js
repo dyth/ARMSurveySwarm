@@ -50,8 +50,8 @@ var server = net.createServer(function(socket) {
 
 	socket.on('error', function(error) {
 		if (socket.robotID) {
-			// If the robot ID was put in the socket, then 
-			// we can use this to trigger an error message. Otherwise 
+			// If the robot ID was put in the socket, then
+			// we can use this to trigger an error message. Otherwise
 			// the robot didn't get to the HELLO:n stage.
 			processor.robotConnectionLost(socket.robotID);
 			console.log("Lost ID: " + socket.robotID);
@@ -394,7 +394,7 @@ var addPadding = function(number, length) {
 *   at 0.5 speed, .50 seconds for 360 degrees.
 * - distance is distance in cm to destination tile
 *
-* At speed 0.5, robot covers 46-48mm per second
+* At speed 0.5, robot covers 460-480mm per second
 * Directions forward, back, left, right
 */
 var move = function(robotID, xPosCM, yPosCM, degree, distance) {
@@ -406,7 +406,6 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 
 	var speed = 48; // speed fixed at 480mm per second
 	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
-
 	var durationRotate;
 	var direction;
 
@@ -428,7 +427,6 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	}
 
 	//convert durations to have leading 0s and be 5 digits long
-	parseFloat(durationStraight.toFixed(5));
 	durationStraight = addPadding(durationStraight, 5);
 
 	console.log("SENDING DIRECTIONS");

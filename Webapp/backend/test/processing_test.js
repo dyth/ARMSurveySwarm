@@ -4,6 +4,7 @@ var expect = require('chai').expect;
 
 describe('Create tiles list', function() {
 	it('Should setup a new list of tiles of size 10, 10', function() {
+		processor.setRobotStates(5);
 		processor.setGridDimensions({x:10, y:10});
 		expect(10).to.equal(processor.processingTiles[0].length);
 		expect(10).to.equal(processor.processingTiles.length);
@@ -28,6 +29,7 @@ describe('Round given position to correspond to tile index', function() {
 
 describe('Set Tile with light intensity given x and y positions', function() {
 	it('Round to tile indices and set tile to light Intensity', function() {
+		processor.setRobotStates(5);
 		processor.setGridDimensions({x: 10, y: 10});
 		processor.startProcessing();
 		processor.setTiles(0, [{x: 10.12, y: 45.31, lightIntensity: 1},
