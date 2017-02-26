@@ -424,15 +424,16 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	//convert durations to have leading 0s and be 5 digits long
 	durationStraight = addPadding(durationStraight, 5);
 
+	console.log("SENDING DIRECTIONS");
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
 		durationRotate = addPadding(durationRotate, 5);
 		// Send the current message to the robot.
-		socket.write(direction +
+		socket.write(direction + ", " + xPosCM + ', '
+			+ yPosCM + "," +
 			', 5000, ' + durationRotate + 
-			', ' + xPosCM + ', '
-			+ yPosCM +'\n');
+			'\n');
 
 		// console.log('id ' + robotID.toString() + ' Direction:' + direction
 		// 	+ ' Duration: ' + durationRotate
@@ -440,9 +441,9 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
-			socket.write('forward' +
+			socket.write('forward, ' + xPosCM + ', ' + yPosCM +
 				', 5000, ' + durationStraight +
-				', ' + xPosCM + ', ' + yPosCM + '\n');
+				'\n');
 
 			// If the robots are being started, then after the
 			// linear morement is complete we have to send
@@ -453,9 +454,9 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 			}
 		}
 	} else {
-		socket.write(direction +
+		socket.write(direction + ', ' + xPosCM + ', ' + yPosCM + 
 			', 5000, ' + durationStraight +
-			', ' + xPosCM + ', ' + yPosCM + '\n');
+			'\n');
 		// This is just a straight movement so just
 		// there is no next move.
 
