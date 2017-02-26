@@ -8,7 +8,7 @@ On connection to the server (which will be on a static IP address):
 
   "START\n"
 
-Once the roboot is done with this command, it sends a "DONE" message back
+Once the roboot is done with this command, it sends a "RESET" message back
 ;o the server. (See the done message section).
 
 Server can send a "stop" message, format:
@@ -39,3 +39,15 @@ INTENSITY: ID; (X1, Y1, Intensity1); (X2, Y2, Intensity2); ... (XN, YN, Intensit
 
 The ITENSITY message will be sent *before* the DONE message for that 
 respective command.
+
+__On a reconnection__
+The robot sends a HELLO message.
+
+When the server sends a START message, the robot either:
+	(a) Starts down the ramp if it is on the ramp. When it 
+	gets to the end of the ramp it sends a RESET message.
+
+	(b) Does not send a RESET message. Instead sends a DONE
+	message to the server which starts the routing.
+
+
