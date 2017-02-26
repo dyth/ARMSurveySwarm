@@ -92,103 +92,103 @@ class Robot {
 			// stop
 		} else if (current.equals("RESUME")) {
 			// resume
-		} else if (current.startsWith("direction")) {
-			// Parse the movement message:
-			// Get the direction:
-			current = current.substring("direction = ".length());
-			Direction direction;
-
-			if (current.startsWith("f")) {
-				// it's forward
-				direction = Direction.FORWARD;
-				current = current.substring("forward, ".length());
-			} else if (current.startsWith("b")) {
-				// backward
-				direction = Direction.BACKWARD;
-				current = current.substring("backward, ".length());
-			} else if (current.startsWith("l")) {
-				direction = Direction.LEFT;
-				current = current.substring("left, ".length());
-			} else if (current.startsWith("r")) {
-				direction = Direction.RIGHT;
-				current = current.substring("right, ".length());
-			} else {
-				System.out.println("ERROR -- could not parse message");
-				throw new RuntimeException("");
-			}
-
-
-			// Now get the rest of the directions
-			// Get rid of the speed.
-			current = current.substring("speed = ".length());
-			String speedNum = current.substring(0, 4);
-			// Cuts off the number we just parsed.
-			current = current.substring(4);
-
-			int speed = Integer.parseInt(speedNum);
-
-			// Get rid of the next part
-			current = current.substring(", duration = ".length());
-			String durationString = current.substring(0, 4);
-			// Cuts off the number we just parsed.
-			current = current.substring(4);
-
-			int duration = Integer.parseInt(durationString);
-
-			// --------Calculation of the rotation and the 
-			// --------movement distances.
-			float time = (float) duration / 1000f;
-			// Both are not nessecarily used
-			float rotation = (360.0f / 5.5f) * time;
-
-			// In centimeters. Assume speed = 5000
-			// Robots go 46-48cm/second.
-			float distance = 0.47f * time;
-
-			Intensity[] intensityMeasurements = null;
-
-			switch (direction) {
-				case FORWARD:
-					intensityMeasurements = move(distance);
-					break;
-				case BACKWARD:
-					intensityMeasurements = move_back(distance);
-					break;
-				case LEFT:
-					rotate_left(rotation);
-					break;
-				case RIGHT:
-					rotate_right(rotation);
-					break;
-			}
-
-			// Now sleep for that time
-			try {
-				Thread.sleep((long) (time * 1000));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
-			// Send messages to the server:
-			if (intensityMeasurements != null) {
-				StringBuilder builder = new StringBuilder();
-				builder.append("INTENSITY:" + id);
-
-				for (Intensity intensity: intensityMeasurements) {
-					builder.append(";(");
-					builder.append(intensity.getXPos());
-					builder.append(",");
-					builder.append(intensity.getYPos());
-					builder.append(",");
-					builder.append(intensity.getValue());
-					builder.append(")");
-				}
-
-				builder.append("\n");
-				send(builder.toString());
-			}
-			send("DONE:" + id + "\n");
 		}
+
+		// Parse the movement message:
+		// Get the direction:
+		Direction direction = null;
+
+		if (current.startsWith("f")) {
+			// it's forward
+			direction = Direction.FORWARD;
+			current = current.substring("forward, ".length());
+		} else if (current.startsWith("b")) {
+			// backward
+			direction = Direction.BACKWARD;
+			current = current.substring("backward, ".length());
+		} else if (current.startsWith("l")) {
+			direction = Direction.LEFT;
+			current = current.substring("left, ".length());
+		} else if (current.startsWith("r")) {
+			direction = Direction.RIGHT;
+			current = current.substring("right, ".length());
+		} 
+
+		if (direction == null) {
+			System.out.println("Message not a movement command");
+			System.out.println("message is" + current);
+			return parse(rest);
+		}
+
+		// Drop the x and ys for now:
+		String[] sections = current.split(", ");
+
+
+		// Now get the rest of the directions
+		// Cuts off the number we just parsed.
+		String speedNum = sections[2];
+
+		int speed = Integer.parseInt(speedNum);
+
+		// Get rid of the next part
+		String durationString = sections[3];
+		// Cuts off the number we just parsed.
+
+		int duration = Integer.parseInt(durationString);
+
+		// --------Calculation of the rotation and the 
+		// --------movement distances.
+		float time = (float) duration / 1000f;
+		// Both are not nessecarily used
+		float rotation = (360.0f / 5.5f) * time;
+
+		// In centimeters. Assume speed = 5000
+		// Robots go 46-48cm/second.
+		float distance = 0.47f * time;
+
+		Intensity[] intensityMeasurements = null;
+
+		switch (direction) {
+			case FORWARD:
+				intensityMeasurements = move(distance);
+				break;
+			case BACKWARD:
+				intensityMeasurements = move_back(distance);
+				break;
+			case LEFT:
+				rotate_left(rotation);
+				break;
+			case RIGHT:
+				rotate_right(rotation);
+				break;
+		}
+
+		// Now sleep for that time
+		try {
+			Thread.sleep((long) (time * 1000));
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		// Send messages to the server:
+		if (intensityMeasurements != null) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("INTENSITY:" + id);
+
+			for (Intensity intensity: intensityMeasurements) {
+				builder.append(";(");
+				builder.append(intensity.getXPos());
+				builder.append(",");
+				builder.append(intensity.getYPos());
+				builder.append(",");
+				builder.append(intensity.getValue());
+				builder.append(")");
+			}
+
+			builder.append("\n");
+			send(builder.toString());
+		}
+		send("DONE:" + id + "\n");
 
 		return parse(rest);
 	}
