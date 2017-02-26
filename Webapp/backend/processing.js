@@ -234,6 +234,9 @@ var checkTile = function(robotID, tileX, tileY){
 
 	if (coordX == tileX && coordY == tileY){
 		console.log("Routing to current tile - abort. ");
+		// Add a wait so that the robot calls back to the server
+		// and asks again later.
+		communication.wait(robotID);
 		return;
 	}
 
