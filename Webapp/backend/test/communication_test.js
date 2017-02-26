@@ -231,6 +231,7 @@ describe('Add padding', function() {
 		expect(coms.addPadding(1, 10).length).to.equal(10);
 		expect(coms.addPadding(5, 2).length).to.equal(2);
 		expect(coms.addPadding(-5, 3).length).to.equal(3);
+		expect(coms.addPadding(12345, 5).length).to.equal(5);
 
 		// checking preservation properties
 		expect(Number(coms.addPadding(5, 2))).to.equal(5);
