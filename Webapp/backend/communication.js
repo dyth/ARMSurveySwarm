@@ -53,7 +53,8 @@ var server = net.createServer(function(socket) {
 			// If the robot ID was put in the socket, then 
 			// we can use this to trigger an error message. Otherwise 
 			// the robot didn't get to the HELLO:n stage.
-			processing.robotConnectionLost(socket.robotID);
+			processor.robotConnectionLost(socket.robotID);
+			console.log("Lost ID: " + socket.robotID);
 		}
 
 		console.log('Connection abruptly terminated');
@@ -390,13 +391,14 @@ var addPadding = function(number, length) {
 * receiving acknowledgements.
 * - robotID is integer ID to send message to
 * - degree in RADIANS as input where conversion rate is
-*   at 0.5 speed, 5.5 seconds for 360 degrees.
+*   at 0.5 speed, .50 seconds for 360 degrees.
 * - distance is distance in cm to destination tile
 *
 * At speed 0.5, robot covers 46-48mm per second
 * Directions forward, back, left, right
 */
 var move = function(robotID, xPosCM, yPosCM, degree, distance) {
+	console.log("more called");
 	var socket = getSocketByID(robotID);
 
 	distance = distance * 10; // convert distances to mm
@@ -416,13 +418,13 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 
 	} else if (degree < 180) { // turn left
 		direction = 'left';
-		// 2.25 seconds for 180 degrees of rotation
-		durationRotate = degree/180 * 2250;
+		// 0.25 seconds for 180 degrees of rotation
+		durationRotate = degree/180 * 250.0;
 
 	} else { // turn right
 		direction = 'right'
 		degree = 360 - degree;
-		durationRotate = degree/180 * 2250 ;
+		durationRotate = degree/180 * 250.0;
 	}
 
 	//convert durations to have leading 0s and be 5 digits long
@@ -439,13 +441,13 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 		// Send the current message to the robot.
 		socket.write(direction + ", " + xPosCM + ', '
 			+ yPosCM +
-			', 5000, ' + durationRotate +
+			', 0500, ' + durationRotate +
 			'\n');
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
 			socket.write('forward, ' + xPosCM + ', ' + yPosCM +
-				', 5000, ' + durationStraight +
+				', 0500, ' + durationStraight +
 				'\n');
 
 			// If the robots are being started, then after the
@@ -458,7 +460,7 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 		}
 	} else {
 		socket.write(direction + ', ' + xPosCM + ', ' + yPosCM +
-			', 5000, ' + durationStraight +
+			', 0500, ' + durationStraight +
 			'\n');
 		// This is just a straight movement so just
 		// there is no next move.
