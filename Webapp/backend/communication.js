@@ -422,11 +422,7 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	} else { // turn right
 		direction = 'right'
 		degree = 360 - degree;
-<<<<<<< HEAD
-		durationRotate = degree/180 * 250.0;
-=======
-		durationRotate = degree/180 * 2965 ;
->>>>>>> 7db3bc1b3f180d3b66a5bf4192a4394ded4b6b07
+		durationRotate = degree/180 * 296.5 ;
 	}
 
 	//convert durations to have leading 0s and be 5 digits long
