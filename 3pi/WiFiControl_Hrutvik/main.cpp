@@ -8,8 +8,8 @@
 #include <math.h>
 
 
-#define SERVIP "192.168.137.1"
-#define SERVPORT 1234
+#define SERVIP "192.168.46.2"
+#define SERVPORT 8000
 #define ROBOT_ID 1
 
 /**
@@ -51,60 +51,19 @@ void updateOrientation(float rotationSpeed, float duration){
 
 /***** MOVEMENT/SAMPLING: moving forward/backward and sending intensity informtion *****/
 void sendXYIs(float* xs, float* ys, float* intensities, int length){
-    char toSend[(length * 20) + 1]; //each entry to send is of format: (x.xxx,y.yyy,i.iii); - 20 chars
+    char toSend[(length * 23) + 2]; //each entry to send is of format: (+x.xxx,+y.yyy,+i.iii); - 23 chars, then \n\0 at end
     memset(toSend, '\0', sizeof(toSend));
     
     for (int i = 0; i < length; i++){
-/*        char c = '(';
-        socket.send(&c,              sizeof(char));
-        c = xs[i] > 0.0f ? '1' : '0';
-        socket.send(&c,              sizeof(char));
-        c = ',';
-        socket.send(&c,              sizeof(char));
-        c = ys[i] > 0.0f ? '1' : '0';
-        socket.send(&c,              sizeof(char));
-        c = ',';
-        socket.send(&c,              sizeof(char));
-        c = intensities[i] > 0.0f ? '1' : '0';
-        socket.send(&c,              sizeof(char));
-        c = ')';
-        socket.send(&c,              sizeof(char));
-        c = ';';   
-        socket.send(&c,              sizeof(char));
-*/    
-/*        socket.send(&c,              sizeof(char));
-        socket.send(&xs[i],          sizeof(float)); c = ',';
-        socket.send(&c,              sizeof(char));
-        socket.send(&ys[i],          sizeof(float));
-        socket.send(&c,              sizeof(char));
-        socket.send(&intensities[i], sizeof(float)); c = ')';
-        socket.send(&c,              sizeof(char)); c = ';';
-        socket.send(&c,              sizeof(char));
-*/
-        char entry[21]; memset(entry, '\0', sizeof(entry));
-        char x[6]; memset(x, '\0', sizeof(x));
-        char y[6]; memset(y, '\0', sizeof(y));
-        char intensity[6]; memset(intensity, '\0', sizeof(intensity));
-        char temp[4]; memset(temp, '\0', sizeof(temp));
+        char entry[24]; memset(entry, '\0', sizeof(entry));
+        char x[7]; memset(x, '\0', sizeof(x));
+        char y[7]; memset(y, '\0', sizeof(y));
+        char intensity[7]; memset(intensity, '\0', sizeof(intensity));
+        
+        sprintf(x, "%-+0*.*f", 6, 3, xs[i]);
+        sprintf(y, "%-+0*.*f", 6, 3, ys[i]);
+        sprintf(intensity, "%-+0*.*f", 6, 3, intensities[i]);
 
-        sprintf(x, "%d", (int) xs[i]);
-        strcat(x, ".");                          //append decimal point
-        int tx = (xs[i] - (int)xs[i]) * 1000; //subtract to get the decimals, and multiply by 1000
-        sprintf(temp, "%d", (int) tx);           //convert to a second string
-        strcat(x, temp);                         //and append to the first
-        
-        sprintf(y, "%d", (int) y[i]);
-        strcat(y, ".");                          //append decimal point
-        int ty = (ys[i] - (int)ys[i]) * 1000; //subtract to get the decimals, and multiply by 1000
-        sprintf(temp, "%d", (int) ty);           //convert to a second string
-        strcat(y, temp);                         //and append to the first
-        
-        sprintf(intensity, "%d", (int) intensities[i]);
-        strcat(intensity, ".");                                      //append decimal point
-        int ti = (intensities[i] - (int)intensities[i]) * 1000; //subtract to get the decimals, and multiply by 1000
-        sprintf(temp, "%d", (int) ti);                               //convert to a second string
-        strcat(intensity, temp);                                     //and append to the first
-        
         strcat(entry, "(");
         strcat(entry, x);
         strcat(entry, ",");
@@ -112,15 +71,15 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
         strcat(entry, ",");
         strcat(entry, intensity);
         strcat(entry, ");");
-        
         strcat(toSend, entry);
     }
-    socket.send(toSend, sizeof(toSend));
+    strcat(toSend, "\n");
+    socket.send(toSend, sizeof(toSend)-1);
 }
 
 void moveForward(float speed, float duration){
     float timeBetweenSamples = 0.1/speed;
-    int noSamples = floor(duration/timeBetweenSamples);
+    int noSamples = floor(duration/timeBetweenSamples); //TODO: calibrate this
     float xs[noSamples];
     float ys[noSamples];
     float intensities[noSamples+1];
@@ -140,7 +99,7 @@ void moveForward(float speed, float duration){
 
 void moveBackward(float speed, float duration){
     float timeBetweenSamples = 0.1/speed;
-    int noSamples = floor(duration/timeBetweenSamples);
+    int noSamples = floor(duration/timeBetweenSamples); //TODO: calibrate this
     float xs[noSamples];
     float ys[noSamples];
     float intensities[noSamples+1];
@@ -160,16 +119,15 @@ void moveBackward(float speed, float duration){
 
 /***** CONTROL: controlling m3pi *****/
 void tcp_control(){
-    // expect instructions of form <direction> <speed> <duration> <termination>
+    // expect instructions of form <direction> <x> <y> <speed> <duration> <termination>
     // 'forward', 'left', 'backward', 'right' for <direction>; integer from 0001 to 9999 for <speed>, <duration>; '\n' for <termination>
     // duration is in thousandths of seconds, speed is relative to m3pi max speed - scaled to between 0.0 and 1.0
     char received[256];
     memset(received, '\0', sizeof(received));
     
-    char id[1];
-    sprintf(id,"%d",ROBOT_ID);
-    char hello[] = {'H', 'E', 'L', 'L', 'O', ':', ' ', id[0], ';'};
-    socket.send(hello, sizeof(hello));
+    char hello[10];
+    sprintf(hello,"HELLO: %d\n",ROBOT_ID);
+    socket.send(hello, sizeof(hello)-1);
     
     while(true) {
         //ASSUMPTION: INSTRUCTION IS WELL_FORMED, AND IS LESS THAN 256 BYTES
@@ -211,10 +169,27 @@ void tcp_control(){
             }
         } else if (strcmp(direction, "RESUME") == 0){ //received a random RESUME instruction
             continue;
-        } else {
+        } else if (strcmp(direction, "START") == 0){
+            //TODO: CALL RAMP CODE
+            char reset[10];
+            sprintf(reset,"RESET: %d\n",ROBOT_ID);
+            socket.send(reset, sizeof(reset)-1); 
+        } else if (strcmp(direction, "WAIT") == 0){
+            float waitTime;
+            token = strtok(NULL, delim);
+            waitTime = ((float) atoi(token))/1000.0;
+            wait(waitTime);
+            char done[9];
+            sprintf(done,"DONE: %d\n",ROBOT_ID);
+            socket.send(done, sizeof(done)-1); 
+        } else { // we have received a genuine direction for movement
             float speed;
             float duration;
-            // assume that <speed> <duration> follow
+            // assume that <x> <y> <speed> <duration> follow
+            token = strtok(NULL, delim);
+            currentX = ((float) atoi(token))/1000.0;        
+            token = strtok(NULL, delim);
+            currentY = ((float) atoi(token))/1000.0;        
             token = strtok(NULL, delim);
             speed = ((float) atoi(token))/1000.0;        
             token = strtok(NULL, delim);
@@ -241,8 +216,9 @@ void tcp_control(){
             } else {
                 continue; //not expected - would imply malformed instruction
             }
-            char done[] = {'D', 'O', 'N', 'E', ':', ' ', id[0], ';'};
-            socket.send(done, sizeof(done));    
+            char done[9];
+            sprintf(done,"DONE: %d\n",ROBOT_ID);
+            socket.send(done, sizeof(done)-1);    
         }   
     }
 }
@@ -250,7 +226,7 @@ void tcp_control(){
 /***** MAIN *****/
 int main() {
     m3pi.locate(0,1);
-    m3pi.printf("TCP");
+    m3pi.printf("November");
     printf("\n\n******************************\n");
     printf("ESP8266 WiFi control\n");
 
