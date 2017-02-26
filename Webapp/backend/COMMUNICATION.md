@@ -8,7 +8,7 @@ On connection to the server (which will be on a static IP address):
 
   "START\n"
 
-Once the roboot is done with this command, it sends a "RESET" message back
+Once the robot is done with this command, it sends a "RESET: ID\n" message back
 ;o the server. (See the done message section).
 
 Server can send a "stop" message, format:
