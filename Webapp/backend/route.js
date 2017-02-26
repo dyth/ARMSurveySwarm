@@ -132,8 +132,6 @@ var willCollide = function(robotID, nextX, nextY) {
 
     if (math.intersect(currentStartPoint, currentEndPoint, startPoint, endPoint)){
       // if same starting tile then don't collide
-      console.log((currentStartPoint[0] === startPoint[0]) &&
-        (currentStartPoint[1] === startPoint[1]));
       if (!((currentStartPoint[0] === startPoint[0]) &&
         (currentStartPoint[1] === startPoint[1]))) {
         return true;

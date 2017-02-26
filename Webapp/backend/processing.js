@@ -22,11 +22,11 @@ var initialTileState = [2,2,2,2,2,2];
 // on the frontend.
 // Orientation in Radians
 var robots = [
-	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
-	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
-	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
-	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0},
-	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 1, orientation: 0, robotStatus: 0}];
+	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
+	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
+	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
+	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
+	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0}];
 
 var width = 0;
 var length = 0;
@@ -81,7 +81,7 @@ var roundPosition = function(pos) {
 }
 
 var resetRobot = function(robotID) {
-	robots[robotID] = {id: robotID, xPrev: 0,yPrev: 0, 
+	robots[robotID] = {id: robotID, xPrev: 0,yPrev: 0,
 		xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 1}
 
 	// id, x,  y, status
@@ -248,7 +248,7 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	// Turn by angle clockwise
-	communication.move(robotID, coordX * tileSize, coordY * tileSize, 
+	communication.move(robotID, coordX * tileSize, coordY * tileSize,
 		angle, vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
