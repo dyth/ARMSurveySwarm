@@ -130,7 +130,10 @@ var willCollide = function(robotID, nextX, nextY) {
      + ' startPoint: ' + startPoint
      + ' endPoint: ' + endPoint);
 
-    if (math.intersect(currentStartPoint, currentEndPoint, startPoint, endPoint)){
+    if (intersect(currentStartPoint[0], currentStartPoint[1],
+       currentEndPoint[0], currentEndPoint[1],
+       startPoint[0], startPoint[1],
+       endPoint[0], endPoint[1])){
       // if same starting tile then don't collide
       if (!((currentStartPoint[0] === startPoint[0]) &&
         (currentStartPoint[1] === startPoint[1]))) {
@@ -139,6 +142,16 @@ var willCollide = function(robotID, nextX, nextY) {
     }
   }
   return false;
+}
+
+var intersect = function(x1, y1, x2, y2, x3, y3, x4, y4){
+  var a_dx = x2 - x1;
+  var a_dy = y2 - y1;
+  var b_dx = x4 - x3;
+  var b_dy = y4 - y3;
+  var s = (-a_dy * (x1 - x3) + a_dx * (y1 - y3)) / (-b_dx * a_dy + a_dx * b_dy);
+  var t = (+b_dx * (y1 - y3) - b_dy * (x1 - x3)) / (-b_dx * a_dy + a_dx * b_dy);
+  return (s >= 0 && s <= 1 && t >= 0 && t <= 1);
 }
 
 exports.move = move;
