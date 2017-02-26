@@ -241,13 +241,14 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	var orientation = robots[robotID].orientation;
+	console.log('orientation ' + orientation);
 	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 
-	// make A unit vector
-	A[0] = A[0]/ vectorLength(A);
-	A[1] = A[1]/ vectorLength(A);
+	console.log('vector A ' + A);
 
-	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
+	var B = [Math.sin(orientation), Math.cos(orientation)]; // current orientation of robot
+
+	console.log('vector B ' + B);
 
 	// Find angle between current robot orientation and direction to tile
 	// a.b = |a||b| sin(theta)
@@ -258,6 +259,7 @@ var checkTile = function(robotID, tileX, tileY){
 	if (angle < 0) {
 		angle += 2*Math.PI;
 	}
+	console.log(angle);
 
 	// Turn by angle clockwise
 	communication.move(robotID, coordX * tileSize, coordY * tileSize,
