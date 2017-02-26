@@ -248,8 +248,8 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	// Turn by angle clockwise
-	communication.move(robotID, coordX, coordY, angle,
-		vectorLength(A)*tileSize);
+	communication.move(robotID, coordX * tileSize, coordY * tileSize, 
+		angle, vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
 	rotateClockwise(robotID, angle);

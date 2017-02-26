@@ -385,7 +385,7 @@ var addPadding = function(number, length) {
 * At speed 0.5, robot covers 46-48mm per second
 * Directions forward, back, left, right
 */
-var move = function(robotID, xPos, yPos, degree, distance) {
+var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	var socket = getSocketByID(robotID);
 
 	distance = distance * 10; // convert distances to mm
@@ -424,8 +424,8 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 		// Send the current message to the robot.
 		socket.write('direction = ' + direction +
 			', speed = 5000, duration = ' + durationRotate + 
-			', x = ' + xPos + ', y = '
-			+ yPos +'\n');
+			', x = ' + xPosCM + ', y = '
+			+ yPosCM +'\n');
 
 		// console.log('id ' + robotID.toString() + ' Direction:' + direction
 		// 	+ ' Duration: ' + durationRotate
@@ -435,7 +435,7 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 		robots[robotIndex].nextMove = function() {
 			socket.write('direction = forward' +
 				', speed = 5000, duration = ' + durationStraight +
-				', x = ' + xPos + ', y = ' + yPos + '\n');
+				', x = ' + xPosCM + ', y = ' + yPosCM + '\n');
 
 			// If the robots are being started, then after the
 			// linear morement is complete we have to send
@@ -448,7 +448,7 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 	} else {
 		socket.write('direction = ' + direction +
 			', speed = 5000, duration = ' + durationStraight +
-			', x = ' + xPos + ', y = ' + yPos + '\n');
+			', x = ' + xPosCM + ', y = ' + yPosCM + '\n');
 		// This is just a straight movement so just
 		// there is no next move.
 
