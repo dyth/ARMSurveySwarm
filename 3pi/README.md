@@ -19,3 +19,7 @@ using the libraries
 * `m3pi_ng.h`
 
 return an `int array[5]` of calibrated intensities between 0 and 1000. The greater the number, the brighter the intensity.
+
+## Odometery
+
+Test random motion of a robot within a 1m by 1m space.
