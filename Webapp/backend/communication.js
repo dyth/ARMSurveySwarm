@@ -49,14 +49,14 @@ var server = net.createServer(function(socket) {
 	});
 
 	socket.on('error', function(error) {
-		// TODO -- find the robot ID and 
+		// TODO -- find the robot ID and
 		// call processor.
 		console.log('Connection abruptly terminated');
 		console.log(error);
 	});
 });
 
-server.listen(8000);
+server.listen(8000, '127.0.0.1');
 
 var receiveData = function(data, socket) {
 	console.log(data);
@@ -67,7 +67,6 @@ var receiveData = function(data, socket) {
 		if (idNumber === null) {
 			return;
 		}
-
 		// This is a connection message.
 		// Run the server
 		addRobotByID(idNumber, socket);
@@ -270,7 +269,7 @@ var getRobotIndex = function(robotID) {
 		console.log("robot ID is undefined");
 		return null;
 	}
-	 
+
 	for(var i = 0; i < robots.length; i ++) {
 		if (robotID === robots[i].id) {
 			return i;
@@ -420,22 +419,21 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 	}
 
 	//convert durations to have leading 0s and be 5 digits long
+	parseFloat(durationStraight.toFixed(5));
 	durationStraight = addPadding(durationStraight, 5);
 
 	console.log("SENDING DIRECTIONS");
+
 	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
 	if (durationRotate != null) {
+
 		durationRotate = addPadding(durationRotate, 5);
 		// Send the current message to the robot.
 		socket.write(direction + ", " + xPosCM + ', '
-			+ yPosCM + 
-			', 5000, ' + durationRotate + 
+			+ yPosCM +
+			', 5000, ' + durationRotate +
 			'\n');
-
-		// console.log('id ' + robotID.toString() + ' Direction:' + direction
-		// 	+ ' Duration: ' + durationRotate
-    //   + ' DurationStraight: ' + durationStraight);
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
@@ -452,7 +450,7 @@ var move = function(robotID, xPosCM, yPosCM, degree, distance) {
 			}
 		}
 	} else {
-		socket.write(direction + ', ' + xPosCM + ', ' + yPosCM + 
+		socket.write(direction + ', ' + xPosCM + ', ' + yPosCM +
 			', 5000, ' + durationStraight +
 			'\n');
 		// This is just a straight movement so just

@@ -15,7 +15,7 @@ describe('opening a connection to the TCP socket', function() {
 	});
 
 	it('should work from another host', function(done) {
-		require('dns').lookup(require('os').hostname(), 
+		require('dns').lookup(require('os').hostname(),
 			function (err, add, fam) {
 				net.connect({port: 8000, host: add}, function() {
 					done();
@@ -241,8 +241,13 @@ describe('Add padding', function() {
 	it('should round floating point numbers', function() {
 		expect(Number(coms.addPadding(1/3, 10))).to.equal(0);
 		expect(Number(coms.addPadding(2/3, 1))).to.equal(1);
-
 		expect(coms.addPadding(23.1, 3)).to.equal("023");
+	});
+
+	it('maximum length should be 5 regardless of input', function() {
+		expect(coms.addPadding(1232.0232, 5).length).to.equal(5);
+		expect(coms.addPadding(2354, 5).length).to.equal(5);
+		expect(coms.addPadding(23.1, 5).length).to.equal(5);
 	});
 });
 
@@ -310,7 +315,7 @@ describe('Move function sending instructions to robot', function() {
 					// expect(contents[1]).to.equal('y = ' + yPos[n]);
 					console.log(contents);
 					//expect(contents[2]).to.equal('direction = ' + directions[n]);
-					expect(contents[1]).to.equal('5000');
+					expect(contents[3]).to.equal('5000');
 					//expect(contents[4]).to.equal('duration = ' + durations[n] + '\n');
 				}
 				if (!doneCalled) {
