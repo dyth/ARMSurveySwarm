@@ -49,8 +49,13 @@ var server = net.createServer(function(socket) {
 	});
 
 	socket.on('error', function(error) {
-		// TODO -- find the robot ID and
-		// call processor.
+		if (socket.robotID) {
+			// If the robot ID was put in the socket, then 
+			// we can use this to trigger an error message. Otherwise 
+			// the robot didn't get to the HELLO:n stage.
+			processing.robotConnectionLost(socket.robotID);
+		}
+
 		console.log('Connection abruptly terminated');
 		console.log(error);
 	});
@@ -70,6 +75,8 @@ var receiveData = function(data, socket) {
 		// This is a connection message.
 		// Run the server
 		addRobotByID(idNumber, socket);
+		// Also set the robotID in the socket
+		socket.robotID = idNumber;
 		// If the processing has started, then tell the robot
 		// to move down the ramp.
 		// Otherwise it will be started when the server starts.
