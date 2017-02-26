@@ -39,7 +39,7 @@ describe('start robots', function() {
 	});
 
 	it('should send START messages sequentially', function() {
-
+		// TODO
 	});
 });
 
@@ -68,21 +68,6 @@ describe('Test tcp server', function() {
 			client.write('\n');
 			done();
 		});
-	});
-
-	it('should accept a fragmented message', function(done) {
-		var n = 0;
-		client.on('data', function(data) {
-			expect(coms.getRobotByID(1).socket.destroyed).to.equal(false);
-
-			n ++;
-			if (n === 2) {
-				done();
-			}
-		});
-
-		client.write('HELLO:1\n');
-		client.write('DONE:1\n');
 	});
 
 	it('should accept two messages at once', function(done) {
