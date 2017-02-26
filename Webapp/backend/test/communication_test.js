@@ -126,6 +126,7 @@ describe('receiveData', function() {
 	it('should send a message to the robot',
 		function(done) {
 			// To test this, we need some tiles set in processing.
+			processor.setRobotStates(5);
 			processor.setGridDimensions({x: 10, y: 10});
 			var instructionsSent = false;
 			// This is done because this can be triggered at a later
@@ -284,7 +285,7 @@ describe('Move function sending instructions to robot', function() {
 		var doneCalled = false;
 		var n = 0;
 		var m = 0;
-
+		processor.setRobotStates(5);
 		processor.setGridDimensions({x:10, y:10});
 		processor.startProcessing();
 

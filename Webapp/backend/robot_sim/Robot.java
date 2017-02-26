@@ -202,7 +202,6 @@ class Robot {
 	// Returns the measurements made
 	// Direction should be -1 for backwards +1 for forwards
 	public Intensity[] move_internal(float distance, int direction) {
-		distance = distance*10;
 		ArrayList<Intensity> intensities = new ArrayList<Intensity>();
 		System.out.println("Distance: " + distance);
 

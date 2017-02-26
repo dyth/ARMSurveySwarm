@@ -21,12 +21,7 @@ var initialTileState = [2,2,2,2,2,2];
 // for the status, it is an index in the array  'states' in state.js
 // on the frontend.
 // Orientation in Radians
-var robots = [
-	{id: 0, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
-	{id: 1, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
-	{id: 2, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
-	{id: 3, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0},
-	{id: 4, xPrev: 0,yPrev: 0, xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0}];
+var robots = [];
 
 var width = 0;
 var length = 0;
@@ -66,6 +61,16 @@ var createTilesList = function() {
 		}
 	}
 }
+
+var createRobotsList = function(numRobots) {
+	robots.length = 0;
+	for(var i = 0; i < numRobots; i++) {
+		robots.push({id: i, xPrev: 0,yPrev: 0,
+			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0 });
+	}
+}
+
+
 /* Function to round accurate position to correspond
  * to bottom left corner of tile.
  * Get position in list.
@@ -121,7 +126,7 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
-		console.log('in set Tiles, with coordinates x=' + coordX + ' y=' + coordY);
+		console.log(robotID + ' in set Tiles, with coordinates x=' + coordX + ' y=' + coordY);
 
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
@@ -143,7 +148,7 @@ var routeRobot = function(robotID) {
 		return;
 	}
 
-	console.log("routing robot" + robotID);
+	console.log("routing robot " + robotID);
 
 	// set robots to move to random point in another module
 	// send robotID, last x position, last y position
@@ -328,6 +333,10 @@ var setGridDimensions = function(sizes) {
 	createTilesList();
 }
 
+var setRobotStates = function(numRobots) {
+	createRobotsList(numRobots);
+}
+
 var getGridDimensions = function() {
 	return {x: width, y: length};
 }
@@ -351,6 +360,7 @@ exports.setTileSize = setTileSize;
 exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
+exports.setRobotStates = setRobotStates;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;

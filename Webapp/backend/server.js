@@ -85,6 +85,7 @@ io.sockets.on('connection', function(socket) {
 		processor.setTileSize(input.tileSize);
 		// READY?
 		processor.setGridDimensions({x: numTiles, y: numTiles});
+		processor.setRobotStates(input.numRobots);
 		// SET?
 		//processor.createTilesList();
 		// GO!!
