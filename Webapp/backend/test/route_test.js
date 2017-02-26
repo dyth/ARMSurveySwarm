@@ -48,6 +48,21 @@ describe('Test move call to route', function() {
 			robots[1].yPrev === results.yAfter);
 		expect(sameTile).to.be.false;
 	});
+
+	it('check for collisions ', function() {
+		routing.setUp(10);
+		var robots = processing.getRobots().slice();
+		var results = routing.move(2);
+		var sameTile = (robots[2].xPrev === results.xAfter &&
+			robots[2].yPrev === results.yAfter);
+		expect(sameTile).to.be.false;
+
+		//now not first move so can collide
+		results = routing.move(2);
+		sameTile = (robots[2].xPrev === results.xAfter &&
+			robots[2].yPrev === results.yAfter);
+		expect(sameTile).to.be.false;
+	});
 });
 
 describe('setUp ', function() {
@@ -75,10 +90,10 @@ describe('removeTile ', function() {
 });
 
 describe('willCollide', function() {
-		it('Return true when attempting to cross another robot\'s path', function() {
+		it('Return true when trying to route to same tile', function() {
 			routing.setUp(10);
 			// when 2 isn't set it is going one step in x direction
-			expect(routing.willCollide(4, 0, 3)).to.be.true;
+			expect(routing.willCollide(4, 0, 0)).to.be.true;
 		});
 
 });
