@@ -30,7 +30,7 @@ processor = require('./processing');
 var server = net.createServer(function(socket) {
 	socket.pipe(socket);
 
-	var accumulatedData;
+	var accumulatedData = "";
 
 	socket.on('data', function(data) {
 		// Search the incoming data for the end of line
@@ -39,6 +39,7 @@ var server = net.createServer(function(socket) {
 
 		var messages = accumulatedData.split('\n');
 		if (messages.length === 1) {
+			// No \n found yet
 			accumulatedData = messages[0];
 		} else {
 			// There have been messages received!
@@ -50,6 +51,8 @@ var server = net.createServer(function(socket) {
 	});
 
 	socket.on('error', function(error) {
+		// TODO -- find the robot ID and 
+		// call processor.
 		console.log('Connection abruptly terminated');
 		console.log(error);
 	});
@@ -76,6 +79,17 @@ var receiveData = function(data, socket) {
 			enqueueRobot(idNumber);
 			startRobots();
 		}
+	} else if (data.substring(0, "RESET:".length) === "RESET:") {
+		// Then reset the robot position and  move the robot
+		var id = data.substring("RESET:".length).trim();
+		var idNumber = stringToNumber(id);
+
+		if (idNumber === null) {
+			return;
+		}
+
+		processor.resetRobot(idNumber);
+		robotMove(idNumber);
 	} else if (data.substring(0, "DONE:".length) === "DONE:") {
 		var id = data.substring("DONE:".length).trim();
 		var idNumber = stringToNumber(id);
@@ -408,9 +422,10 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 	if (durationRotate != null) {
 		durationRotate = addPadding(durationRotate, 5);
 		// Send the current message to the robot.
-		socket.write('x = ' + xPos + ', y = '
-			+ yPos + ', direction = ' + direction +
-			', speed = 5000, duration = ' + durationRotate + '\n');
+		socket.write('direction = ' + direction +
+			', speed = 5000, duration = ' + durationRotate + 
+			', x = ' + xPos + ', y = '
+			+ yPos +'\n');
 
 		// console.log('id ' + robotID.toString() + ' Direction:' + direction
 		// 	+ ' Duration: ' + durationRotate
@@ -418,9 +433,9 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 
 		// Add the callback for the next instruction
 		robots[robotIndex].nextMove = function() {
-			socket.write('x = ' + xPos + ', y = ' + yPos +
-				', direction = forward' +
-				', speed = 5000, duration = ' + durationStraight + '\n');
+			socket.write('direction = forward' +
+				', speed = 5000, duration = ' + durationStraight +
+				', x = ' + xPos + ', y = ' + yPos + '\n');
 
 			// If the robots are being started, then after the
 			// linear morement is complete we have to send
@@ -431,9 +446,9 @@ var move = function(robotID, xPos, yPos, degree, distance) {
 			}
 		}
 	} else {
-		socket.write('x = ' + xPos + ', y = ' + yPos +
-			', direction = ' + direction +
-			', speed = 5000, duration = ' + durationStraight + '\n');
+		socket.write('direction = ' + direction +
+			', speed = 5000, duration = ' + durationStraight +
+			', x = ' + xPos + ', y = ' + yPos + '\n');
 		// This is just a straight movement so just
 		// there is no next move.
 
