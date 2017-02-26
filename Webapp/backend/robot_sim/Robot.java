@@ -65,6 +65,7 @@ class Robot {
 	// the new command string.
 	public String parse(String commands) {
 		int delim = commands.indexOf('\n');
+		System.out.println("(" + id + ") got commands " + commands);
 		if (delim == -1) {
 			// No command received yet.
 			return commands;
@@ -75,9 +76,9 @@ class Robot {
 
 		if (current.equals("START")) {
 			// There is no loading ramp in this example
-			send("DONE\n");
-		} else if (current.startsWith("WAIT:")) {
-			current = current.substring("WAIT:".length()).trim();
+			send("RESET:" + id + "\n");
+		} else if (current.startsWith("WAIT ")) {
+			current = current.substring("WAIT ".length()).trim();
 			long waitTime = Long.parseLong(current.substring(0, 5));
 
 			try {
@@ -85,7 +86,8 @@ class Robot {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			send("DONE\n");
+			System.out.println("(" + id + ") Waking up");
+			send("DONE:" + id + "\n");
 		} else if (current.equals("STOP")) {
 			// stop
 		} else if (current.equals("RESUME")) {
