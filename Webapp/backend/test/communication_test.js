@@ -7,6 +7,23 @@ describe('should be in test mode', function() {
 	expect(coms.TEST).to.equal(true);
 });
 
+describe('opening a connection to the TCP socket', function() {
+	it('should work from localhost', function(done) {
+		net.connect({port:8000}, function() {
+			done();
+		});
+	});
+
+	it('should work from another host', function(done) {
+		require('dns').lookup(require('os').hostname(), 
+			function (err, add, fam) {
+				net.connect({port: 8000, host: add}, function() {
+					done();
+				});
+			});
+	});
+});
+
 describe('start robots', function() {
 	it('add new robots to the queue if processing has not started',
 		function() {
