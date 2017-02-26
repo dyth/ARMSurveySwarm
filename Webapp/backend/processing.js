@@ -141,6 +141,8 @@ var routeRobot = function(robotID) {
 		return;
 	}
 
+	console.log("routing robot" + robotID);
+
 	// set robots to move to random point in another module
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
