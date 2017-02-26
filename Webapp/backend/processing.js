@@ -151,7 +151,7 @@ var routeRobot = function(robotID) {
 		console.log('stop all called');
 		return;
 	} else if (destination.wait) {
-		communication.wait();
+		communication.wait(robotID);
 		console.log('robot ' + robotID + ' waiting');
 		return;
 	}
