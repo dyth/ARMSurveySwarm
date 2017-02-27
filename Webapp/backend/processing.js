@@ -19,7 +19,8 @@ var initialTileState = [2,2,2,2,2,2];
 
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
-// on the frontend.
+// on the frontend:
+// 	Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3
 // Orientation in Radians
 var robots = [];
 
@@ -67,7 +68,7 @@ var addRobotsToList = function(robotID) {
 	// i.e. add robots to the list to accomdate more stuff being added
 	for(var i = robots.length; i < robotID; i++) {
 		robots.push({id: i, xPrev: 0,yPrev: 0,
-			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0 });
+			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2 });
 	}
 }
 
@@ -88,7 +89,7 @@ var roundPosition = function(pos) {
 
 var resetRobot = function(robotID) {
 	robots[robotID] = {id: robotID, xPrev: 0,yPrev: 0,
-		xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 1}
+		xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2}
 
 	// id, x,  y, status
 	server.updateStatus(robotID, 0, 0, 1);
@@ -96,7 +97,8 @@ var resetRobot = function(robotID) {
 
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.
-	robots[robotID].robotStatus = 0;
+	console.log("CONNECTION LOST CALLED");
+	robots[robotID].robotStatus = 3;
 	var robot = robots[robotID];
 
 	// id, x,  y, status

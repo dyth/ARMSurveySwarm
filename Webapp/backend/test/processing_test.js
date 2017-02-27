@@ -95,7 +95,7 @@ describe('reset robot', function() {
 
 			processor.robotConnectionLost(0);
 
-			expect(processor.robots[0].robotStatus).to.equal(0);
+			expect(processor.robots[0].robotStatus).to.equal(3);
 	});
 });
 
