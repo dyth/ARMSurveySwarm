@@ -221,16 +221,16 @@ void tcp_control(){
     // expect instructions of form <directive> <x> <y> <orientation> <distance> <rotation> <termination>
     // <distance> an integer in mm; <rotation> an integer in degrees; '\n' for <termination>
 
-    char received[256]; // buffer to store received instructions
-    memset(received, '\0', sizeof(received));
-
     // send hello message on connection
     char hello[10];
     sprintf(hello,"HELLO: %d\n",ROBOT_ID);
     socket.send(hello, sizeof(hello)-1); // don't include "\0" termination character
 
+    char received[256]; // buffer to store received instructions
+    
     while(true) {
         //ASSUMPTION: INSTRUCTION IS WELL_FORMED, AND IS LESS THAN 256 BYTES
+        memset(received, '\0', sizeof(received));
 
         // loop, receiving single bytes of instruction - keep instr_size as counter of no. bytes received
         int instr_size = 0;
