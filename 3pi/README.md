@@ -1,5 +1,7 @@
 # 3pi robot code
 
+Mainly C++ code that can be flashed into the robots for their communication.
+
 ## `main.cpp`
 Final combined program of WiFi module, intensities and odometry.
 
@@ -10,21 +12,15 @@ Import the above library and replace the `main.cpp` within it to the `main.cpp` 
 Import the [ESP8266 driver](https://developer.mbed.org/teams/ESP8266/code/esp8266-driver/) and a [m3pi library](https://developer.mbed.org/users/ngoldin/code/m3pi_ng/) into the project.
 
 
-## `positioning.cpp`
+## Calibration of position
 
-using the libraries
-* `mbed.h`
-* `m3pi.h`
+`positioning.cpp` tests the rotation and the distance travelled by the robot. Repeated tests and experimentation per robot per surface enables more accurate readings. This utilises the `mbed.h` and `m3pi.h` libraries.
 
-This is used to test out the rotation and the distance travelled by the robot.
+## Obtaining values from reflectance sensors
 
-## `intensities.cpp`
+`intensities.cpp` displays the outputs of sensory values on the LCD screen of a robot. It uses the `mbed.h`and `m3pi_ng.h` libraries.
 
-using the libraries
-* `mbed.h`
-* `m3pi_ng.h`
-
-has two functions which determine the reflection / intensity of the floor beneath it.
+There are two functions which determine the reflection / intensity of the floor beneath it.
 
 One returns an `int array[5]` of calibrated intensities between 0 and 1000. The greater the number, the brighter the intensity.
 
