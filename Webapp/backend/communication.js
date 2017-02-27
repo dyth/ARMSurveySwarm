@@ -397,19 +397,27 @@ var addPadding = function(number, length) {
 * At speed 0.5, robot covers 460-480mm per second
 * Directions forward, back, left, right
 */
-var move = function(robotID, xPosCM, yPosCM, orientationCM, degree, distance) {
+var move = function(robotID, xPosCM, yPosCM, orientationDeg, 
+			radiansRotate, distance) {
 	console.log("more called");
 	var socket = getSocketByID(robotID);
 
+	var xPosMM = xPosCM * 10;
+	var yPosMM = yPosCM * 10;
+
+
 	distance = distance * 10; // convert distances to mm
-	degree = degree * 180 / Math.PI; // convert angle to degrees
+	var degreesRotate = radiansRotate * 180 / Math.PI; 
+	// convert angle to degrees
 
 	console.log("SENDING DIRECTIONS");
 	var robotIndex = getRobotIndex(robotID);
 
-	socket.write('INSTRUCTION, ' + xPosCM + ', ' + yPosCM + 
-		', ' + orientationCM + ', ' + distance + ', ' + 
-		degree + '\n');
+	socket.write('INSTRUCTION, ' + Math.round(xPosMM) + ', ' + 
+		Math.round(yPosMM) + 
+		', ' + Math.round(orientationCM) + ', ' + 
+		Math.round(distance) + ', ' + 
+		Math.round(degreesRotate) + '\n');
 	// This is just a straight movement so just
 	// there is no next move.
 
