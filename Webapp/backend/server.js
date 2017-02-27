@@ -47,7 +47,6 @@ io.sockets.on('connection', function(socket) {
 	var dim = processor.getGridDimensions();
 	updateGrid(dim.x, dim.y);
 	socket.on('stop', function(robot) {
-		// console.log('robot ' + robot.toString() + ' stopped');
 		processor.stop(robot.id);
 
 		// For testing purposes only.
