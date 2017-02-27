@@ -288,7 +288,6 @@ describe('Move function sending instructions to robot', function() {
 				if (message !== "STOP\n" && message !== "RESUME\n" && !doneCalled) {
 					var contents = message.split(', ');
 					expect(contents.length).to.equal(6);
-					console.log(contents);
 				}
 				if (!doneCalled) {
 					doneCalled = true;
@@ -304,11 +303,7 @@ describe('Move function sending instructions to robot', function() {
 
 				if (message !== 'STOP\n' && message !=='RESUME\n'){
 					var contents = message.split(', ');
-					// expect(contents[0]).to.equal('x = ' + xPos[m]);
-					// expect(contents[1]).to.equal('y = ' + yPos[m]);
-					//expect(contents[2]).to.equal('direction = ' + directions[m]);
-					expect(contents[3]).to.equal('speed = 5000');
-					//expect(contents[4]).to.equal('duration = ' + durations[m] + '\n');
+					expect(contents.length).to.equal(6);
 				}
 			}
 		});
