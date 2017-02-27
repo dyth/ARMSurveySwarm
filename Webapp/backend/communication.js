@@ -415,7 +415,7 @@ var move = function(robotID, xPosCM, yPosCM, orientationRad,
 
 	socket.write('INSTRUCTION, ' + Math.round(xPosMM) + ', ' +
 		Math.round(yPosMM) +
-		', ' + Math.round(orientationDeg) + ', ' +
+		', ' + Math.round(degreesOrientation) + ', ' +
 		Math.round(distance) + ', ' +
 		Math.round(degreesRotate) + '\n');
 	// This is just a straight movement so just
