@@ -2,10 +2,9 @@
 
 Mainly C++ code that can be flashed into the robots for their communication.
 
-## `main.cpp`
-Final combined program of WiFi module, intensities and odometry.
+## Final program
 
-This program is based on [a sample TCP mbed program](https://developer.mbed.org/teams/ST/code/mbed-os-tcp-server-example/).
+`main.cpp` combines the WiFi module, intensities and odometry together. This program is based on [a sample TCP mbed program](https://developer.mbed.org/teams/ST/code/mbed-os-tcp-server-example/).
 
 Import the above library and replace the `main.cpp` within it to the `main.cpp` in this repository.
 
