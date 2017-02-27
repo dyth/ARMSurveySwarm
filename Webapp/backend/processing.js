@@ -245,7 +245,6 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	var orientation = robots[robotID].orientation;
-	console.log('orientation ' + orientation);
 	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 
 	console.log('vector A ' + A);

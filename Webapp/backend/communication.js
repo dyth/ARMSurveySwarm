@@ -94,7 +94,6 @@ var receiveData = function(data, socket) {
 		if (idNumber === null) {
 			return;
 		}
-
 		processor.resetRobot(idNumber);
 		processor.routeRobot(idNumber);
 	} else if (data.substring(0, "DONE:".length) === "DONE:") {
@@ -134,6 +133,8 @@ var receiveData = function(data, socket) {
 		for (var i = 1; i < contents.length; i ++) {
 			// String is in the format (X, Y, Intensity)
 			var string = contents[i].trim();
+			console.log('next string in contents: ' + string);
+			console.log(string.length);
 			// Need to do a lot of verification here because
 			// the server should really not crash
 			if (string.length < 2) {
@@ -152,8 +153,8 @@ var receiveData = function(data, socket) {
 				return;
 			}
 
-			var x = stringToFloat(values[0]);
-			var y = stringToFloat(values[1]);
+			var x = stringToFloat(values[0])/10;
+			var y = stringToFloat(values[1])/10;
 			var intensity = stringToNumber(values[2]);
 
 			if (x === null || y === null || intensity === null) {
@@ -200,7 +201,7 @@ var stringToNumber = function(string, isFloat) {
 	if (!isFloat && idNumber % 1 !== 0) {
 		// This is a floating point number
 		console.log("NON-FATAL ERROR ------------------------------");
-		console.log("Number " + idNumber + " should not be floating point");
+		console.log("Number " + idNumber + " should not be floating point");c
 		return null;
 	}
 
@@ -397,7 +398,7 @@ var addPadding = function(number, length) {
 * At speed 0.5, robot covers 460-480mm per second
 * Directions forward, back, left, right
 */
-var move = function(robotID, xPosCM, yPosCM, orientationRad, 
+var move = function(robotID, xPosCM, yPosCM, orientationRad,
 			radiansRotate, distance) {
 	console.log("more called");
 	var socket = getSocketByID(robotID);
@@ -406,8 +407,9 @@ var move = function(robotID, xPosCM, yPosCM, orientationRad,
 	var yPosMM = yPosCM * 10;
 
 	distance = distance * 10; // convert distances to mm
-	var degreesRotate = radiansRotate * 180 / Math.PI; 
+	var degreesRotate = radiansRotate * 180 / Math.PI;
 	var degreesOrientation = orientationRad * 180 / Math.PI;
+	console.log('degrees Orientation ' + degreesOrientation);
 	// convert angle to degrees
 
 	console.log("SENDING DIRECTIONS");

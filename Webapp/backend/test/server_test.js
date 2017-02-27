@@ -113,6 +113,12 @@ describe('Calling updateGrid', function() {
 		var client2 = io.connect(socketURL,  options);
 
 		var receivedData = [];
+		console.log(receivedData);
+
+		client2.on('connect', function() {
+			server.updateGrid(10, 20);
+		});
+		
 		client1.on('sendAreaDimensions', function(data) {
 			receivedData.push(data);
 			client1Received = true;
@@ -123,11 +129,8 @@ describe('Calling updateGrid', function() {
 			client2Received = true;
 		});
 
-		client2.on('connect', function() {
-			server.updateGrid(10, 20);
-		});
-
 		setTimeout(function() {
+			console.log(receivedData);
 			expect(receivedData[0].xDim, 'x data').to.equal(10);
 			expect(receivedData[0].yDim, 'y data').to.equal(20);
 			expect(receivedData[1].xDim, 'x data').to.equal(10);
