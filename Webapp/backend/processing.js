@@ -111,13 +111,10 @@ var setTiles = function(robotID, messages) {
 		// all the state below hasn't been defined yet.
 		return;
 	}
-	// update tile table for current position
 
-	// List of dictionaries in messages
+	// Update tile table for current position
 	// Get x, y, light intensity, add to processing tiles
 	// Set new position of robot
-	// Check if last position corresponds to position required to recheck tile
-	// = task complete.
 	var coordX = 0;
 	var coordY = 0;
 	var lightIntensity = 0;
@@ -125,6 +122,13 @@ var setTiles = function(robotID, messages) {
 		coordX = roundPosition(messages[i].x);
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
+
+		// convert light intensity as float into black (=0) or white (=1)
+		if (lightIntensity < 0.5) {
+			lightIntensity = 0;
+		} else {
+			lightIntensity = 1;
+		}
 
 		console.log(robotID + ' in set Tiles, with coordinates x=' + coordX + ' y=' + coordY);
 
@@ -262,7 +266,7 @@ var checkTile = function(robotID, tileX, tileY){
 	console.log(angle);
 
 	// Turn by angle clockwise
-	communication.move(robotID, coordX * tileSize, coordY * tileSize, 
+	communication.move(robotID, coordX * tileSize, coordY * tileSize,
 		orientation, angle, vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
