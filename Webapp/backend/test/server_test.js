@@ -107,39 +107,6 @@ describe('Calling updateStatus', function() {
 	});
 });
 
-describe('Calling updateGrid', function() {
-	it('should trigger a broadcast with new area dimensions', function(done) {
-		var client1 = io.connect(socketURL,  options);
-		var client2 = io.connect(socketURL,  options);
-
-		var receivedData = [];
-		client1.on('sendAreaDimensions', function(data) {
-			receivedData.push(data);
-			client1Received = true;
-		});
-
-		client2.on('sendAreaDimensions', function(data) {
-			receivedData.push(data);
-			client2Received = true;
-		});
-
-		client2.on('connect', function() {
-			server.updateGrid(10, 20);
-		});
-
-		setTimeout(function() {
-			expect(receivedData[0].xDim, 'x data').to.equal(10);
-			expect(receivedData[0].yDim, 'y data').to.equal(20);
-			expect(receivedData[1].xDim, 'x data').to.equal(10);
-			expect(receivedData[1].yDim, 'y data').to.equal(20);
-
-			client1.disconnect();
-			client2.disconnect();
-			done();
-		}, 300);
-	});
-});
-
 describe('Stop Function Test', function() {
 	it('should return an ack by emitting "stopCalled"', function(done) {
 		var client = io.connect(socketURL, options);
