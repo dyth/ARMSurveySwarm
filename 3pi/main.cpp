@@ -10,8 +10,8 @@
 // definitions: IP and port of TCP server to connect to; SSID/password of WiFi network; unique ID of robot
 #define SERVIP "192.168.46.2"
 #define SERVPORT 8000
-#define SSID "HRKPrint"
-#define PASSWORD "qwertyuiop"
+#define SSID "private_network152"
+#define PASSWORD "CelesteAqua78"
 
 #define SPEED 0.5f
 #define DISTANCE_BETWEEN_SAMPLES 2
@@ -54,7 +54,9 @@ void updatePosition(float speed, float distance){
 
 void updateOrientation(int rotation){
     currentOrientation += (float)rotation;
-    currentOrientation %= 360.0f;
+    if (currentOrientation >= 360.0f){
+        currentOrientation -= 360.0f;
+    }
 }
 
 
@@ -179,14 +181,14 @@ void rotate(int rotation){
         m3pi.stop();
     } else { // 180 < rotation < 360
         m3pi.right(SPEED);
-        wait(((float)(rotation - 180)) * ROTATION_CALIBRATION)
+        wait(((float)(rotation - 180)) * ROTATION_CALIBRATION);
         m3pi.stop();
     }
     updateOrientation(rotation);
 }
 
 void move(int distance){
-  int noSamples = floor(distance/DISTANCE_BETWEEN_SAMPLES); //TODO: calibrate this
+  int noSamples = floor((float)distance/(float)DISTANCE_BETWEEN_SAMPLES);
 
   // lists to store (x, y, intensity) values
   float xs[noSamples];
@@ -196,16 +198,18 @@ void move(int distance){
   if (distance <= 0){ // invalid distance
     return;
   }
-  m3pi.forwards(SPEED); // start moving
+  m3pi.forward(SPEED); // start moving
   for (int i = 0; i < noSamples; i++){
-      float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION
+      float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION;
       wait(timeBetweenSamples); // wait one time period
-      intensities[i] = m3pi.line_position(); // poll and store intensity
+      int sensors[5];
+      m3pi.calibrated_sensor (sensors);
+      intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
       xs[i] = currentX; // store x
       ys[i] = currentY; // store y
       updatePosition(SPEED, DISTANCE_BETWEEN_SAMPLES); // update robot's current position
   }
-  float rem = ((float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)) / DISTANCE_CALIBRATION
+  float rem = ((float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)) / DISTANCE_CALIBRATION;
   wait(rem); // wait for remainder of duration
   updatePosition(SPEED, (distance - DISTANCE_BETWEEN_SAMPLES * noSamples)); // update position one final time
   m3pi.stop(); // end movement
@@ -287,7 +291,7 @@ void tcp_control(){
             // assume that <x> <y> <orientation> <distance> <rotation> directly follow
                 // update currentX, currentY, currentOrientation and determine speed/duration of movement
             token = strtok(NULL, delim);
-            currentX = atoi(token)
+            currentX = atoi(token);
             token = strtok(NULL, delim);
             currentY = atoi(token);
             token = strtok(NULL, delim);

@@ -397,7 +397,7 @@ var addPadding = function(number, length) {
 * At speed 0.5, robot covers 460-480mm per second
 * Directions forward, back, left, right
 */
-var move = function(robotID, xPosCM, yPosCM, orientationDeg,
+var move = function(robotID, xPosCM, yPosCM, orientationRad, 
 			radiansRotate, distance) {
 	console.log("more called");
 	var socket = getSocketByID(robotID);
@@ -406,7 +406,8 @@ var move = function(robotID, xPosCM, yPosCM, orientationDeg,
 	var yPosMM = yPosCM * 10;
 
 	distance = distance * 10; // convert distances to mm
-	var degreesRotate = radiansRotate * 180 / Math.PI;
+	var degreesRotate = radiansRotate * 180 / Math.PI; 
+	var degreesOrientation = orientationRad * 180 / Math.PI;
 	// convert angle to degrees
 
 	console.log("SENDING DIRECTIONS");
