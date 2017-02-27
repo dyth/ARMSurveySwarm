@@ -62,9 +62,10 @@ var createTilesList = function() {
 	}
 }
 
-var createRobotsList = function(numRobots) {
-	robots.length = 0;
-	for(var i = 0; i < numRobots; i++) {
+var addRobotsToList = function(robotID) {
+	// This creates the list up to the point of the robotID.
+	// i.e. add robots to the list to accomdate more stuff being added
+	for(var i = robots.length; i < robotID; i++) {
 		robots.push({id: i, xPrev: 0,yPrev: 0,
 			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 0 });
 	}
@@ -340,7 +341,8 @@ var setGridDimensions = function(sizes) {
 }
 
 var setRobotStates = function(numRobots) {
-	createRobotsList(numRobots);
+	// This adds up to `numRobots` robots
+	addRobotsToList(numRobots);
 }
 
 var getGridDimensions = function() {
@@ -367,6 +369,7 @@ exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
 exports.setRobotStates = setRobotStates;
+exports.addRobotsToList = addRobotsToList;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;

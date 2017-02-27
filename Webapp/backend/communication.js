@@ -264,6 +264,8 @@ var startRobots = function() {
 }
 
 var addRobotByID = function(robotID, socket) {
+	// Make sure there are enough robots on the processor:
+	processor.addRobotsToList(robotID);
 	// Check if the robot is in the robots list.
 	// If not then add it. Otherwise, update the socket.
 	for (var i = 0; i < robots.length; i++) {
