@@ -111,6 +111,13 @@ describe('receiveData', function() {
 			expect(socket.test).to.equal(100);
 	});
 
+	it('RESET message should reset the position and orientation of '
+		+ ' the robot', function() {
+			processor.robots[1].orientation = 120;
+			coms.receiveData('RESET:1');
+			expect(processor.robots[1].orientation).to.equal(0);
+	});
+
 	it('should work when DONE messages are sent', function() {
 		coms.receiveData("DONE:2\n");
 		coms.receiveData("DONE:\n");
