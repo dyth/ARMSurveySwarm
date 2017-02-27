@@ -44,7 +44,6 @@ var updateTile = function(x, y, tileValue) {
 io.sockets.on('connection', function(socket) {
 	// The functions in this are caller per client
 	// instance.
-
 	socket.on('stop', function(robot) {
 		// console.log('robot ' + robot.toString() + ' stopped');
 		processor.stop(robot.id);

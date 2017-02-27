@@ -113,25 +113,19 @@ describe('Calling updateGrid', function() {
 		var client2 = io.connect(socketURL,  options);
 
 		var receivedData = [];
-		var client1Received = false;
-		var client2Received = false;
 		client1.on('sendAreaDimensions', function(data) {
 			receivedData.push(data);
 			client1Received = true;
-			if (client1Received && client2Received) {
-				done();
-			}
 		});
 
 		client2.on('sendAreaDimensions', function(data) {
 			receivedData.push(data);
 			client2Received = true;
-			if (client1Received && client2Received) {
-				done();
-			}
 		});
 
-		server.updateGrid(10, 20);
+		client2.on('connect', function() {
+			server.updateGrid(10, 20);
+		});
 
 		setTimeout(function() {
 			expect(receivedData[0].xDim, 'x data').to.equal(10);
@@ -141,7 +135,8 @@ describe('Calling updateGrid', function() {
 
 			client1.disconnect();
 			client2.disconnect();
-		}, 1000);
+			done();
+		}, 300);
 	});
 });
 
