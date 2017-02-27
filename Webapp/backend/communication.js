@@ -397,79 +397,27 @@ var addPadding = function(number, length) {
 * At speed 0.5, robot covers 460-480mm per second
 * Directions forward, back, left, right
 */
-var move = function(robotID, xPosCM, yPosCM, degree, distance) {
+var move = function(robotID, xPosCM, yPosCM, orientationCM, degree, distance) {
 	console.log("more called");
 	var socket = getSocketByID(robotID);
 
 	distance = distance * 10; // convert distances to mm
 	degree = degree * 180 / Math.PI; // convert angle to degrees
 
-	var speed = 47; // speed fixed at 480mm per second
-	var durationStraight = distance/speed * 1000; // milliseconds 0001 - 9999
-	var durationRotate;
-	var direction;
-
-	if (degree === 0) {
-		direction = "forward";
-
-	} else if (degree === 180) {
-		direction = "backward";
-
-	} else if (degree < 180) { // turn left
-		direction = 'left';
-		// 2.965 seconds for 180 degrees of rotation
-		durationRotate = degree/180 * 2965;
-	} else { // turn right
-		direction = 'right'
-		degree = 360 - degree;
-		durationRotate = degree/180 * 2965 ;
-	}
-
-	//convert durations to have leading 0s and be 5 digits long
-	durationStraight = addPadding(durationStraight, 5);
-
 	console.log("SENDING DIRECTIONS");
-	console.log('durationStraight ' + durationStraight);
-
-	// speed is set to 5000 to be half the power
 	var robotIndex = getRobotIndex(robotID);
-	if (durationRotate != null) {
 
-		durationRotate = addPadding(durationRotate, 5);
-		console.log('durationRotate ' + durationRotate);
-		// Send the current message to the robot.
-		socket.write(direction + ", " + xPosCM + ', '
-			+ yPosCM +
-			', 5000, ' + durationRotate +
-			'\n');
+	socket.write('INSTRUCTION, ' + xPosCM + ', ' + yPosCM + 
+		', ' + orientationCM + ', ' + distance + ', ' + 
+		degree + '\n');
+	// This is just a straight movement so just
+	// there is no next move.
 
-		// Add the callback for the next instruction
-		robots[robotIndex].nextMove = function() {
-			socket.write('forward, ' + xPosCM + ', ' + yPosCM +
-				', 5000, ' + durationStraight +
-				'\n');
-
-			// If the robots are being started, then after the
-			// linear morement is complete we have to send
-			// the next one off the ramp. This triggers a
-			// callback that deals with that.
-			if (startRobot_movementDone) {
-				startRobot_movementDone(robotID);
-			}
-		}
-	} else {
-		socket.write(direction + ', ' + xPosCM + ', ' + yPosCM +
-			', 0500, ' + durationStraight +
-			'\n');
-		// This is just a straight movement so just
-		// there is no next move.
-
-		// If the robots are being started, then after the
-		// linear morement is complete we have to send
-		// the next one off the ramp. This triggers a
-		// callback that deals with that.
-		robots[robotIndex].nextMove = startRobot_movementDone;
-	}
+	// If the robots are being started, then after the
+	// linear morement is complete we have to send
+	// the next one off the ramp. This triggers a
+	// callback that deals with that.
+	robots[robotIndex].nextMove = startRobot_movementDone;
 };
 
 exports.resume = resume;
