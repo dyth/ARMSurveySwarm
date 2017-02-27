@@ -44,7 +44,7 @@ var updateTile = function(x, y, tileValue) {
 io.sockets.on('connection', function(socket) {
 	// The functions in this are caller per client
 	// instance.
-	var dim = getGridDimensions();
+	var dim = processor.getGridDimensions();
 	updateGrid(dim.x, dim.y);
 	socket.on('stop', function(robot) {
 		// console.log('robot ' + robot.toString() + ' stopped');
