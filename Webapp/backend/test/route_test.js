@@ -68,7 +68,18 @@ describe('Test move call to route', function() {
 describe('setUp ', function() {
 	it('should work if setup is called multiple times', function() {
 		routing.setUp(10);
+		routing.setUp(10);
 		expect(routing.uncheckedTiles.length).to.equal(99);
+	});
+
+
+	it('should work if setup is called in a non-sensical manner', function() {
+		routing.setUp(100);
+		routing.setUp(0);
+		routing.setUp(-2);
+		routing.setUp(9);
+
+		expect(routing.uncheckedTiles.length).to.equal(80);
 	});
 });
 
