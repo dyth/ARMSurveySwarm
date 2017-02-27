@@ -76,6 +76,24 @@ describe('Test tcp server', function() {
 	});
 });
 
+describe('wait message', function() {
+	it('should send out a wait message to the connected (specified) client',
+		function(done) {
+			var client = net.connect({port:8000}, function() {
+				client.write("HELLO:1\n");
+			});
+
+			client.on('data', function(data) {
+				expect(data.toString()).to.equal('WAIT 03000\n');
+				done()
+			});
+
+			setTimeout(function() {
+				coms.wait(1);
+			}, 100);
+	});
+});
+
 describe('robot list management', function() {
 	it('should add connections ok', function() {
 		coms.addRobotByID(0, {destroyed: false, write: function() {}});
