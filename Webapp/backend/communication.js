@@ -65,7 +65,12 @@ var server = net.createServer(function(socket) {
 server.listen(8000);
 
 var receiveData = function(data, socket) {
+	data.replace(new RegExp(String.fromCharCode(160),"g"),"");
+	data.replace(/\xA0/g,"");
 	console.log(data);
+	console.log('data length: ' + data.length);
+	data = data.trim();
+	console.log('trimmed data length ' + data.length);
 	if (data.substring(0, "HELLO:".length) === ("HELLO:")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = stringToNumber(id);
@@ -323,8 +328,6 @@ var getConnectedRobots = function() {
 	return connections;
 };
 
-var processor = require('./processing');
-
 /* Messages to Robot */
 var resume = function(robotID) {
 	var socket = getSocketByID(robotID);
@@ -400,19 +403,17 @@ var addPadding = function(number, length) {
 */
 var move = function(robotID, xPosCM, yPosCM, orientationRad,
 			radiansRotate, distance) {
-	console.log("more called");
 	var socket = getSocketByID(robotID);
 
 	var xPosMM = xPosCM * 10;
 	var yPosMM = yPosCM * 10;
 
 	distance = distance * 10; // convert distances to mm
+	// convert angle to degrees
 	var degreesRotate = radiansRotate * 180 / Math.PI;
 	var degreesOrientation = orientationRad * 180 / Math.PI;
-	console.log('degrees Orientation ' + degreesOrientation);
-	// convert angle to degrees
 
-	console.log("SENDING DIRECTIONS");
+
 	var robotIndex = getRobotIndex(robotID);
 
 	socket.write('INSTRUCTION, ' + Math.round(xPosMM) + ', ' +
@@ -420,8 +421,6 @@ var move = function(robotID, xPosCM, yPosCM, orientationRad,
 		', ' + Math.round(degreesOrientation) + ', ' +
 		Math.round(distance) + ', ' +
 		Math.round(degreesRotate) + '\n');
-	// This is just a straight movement so just
-	// there is no next move.
 
 	// If the robots are being started, then after the
 	// linear morement is complete we have to send
