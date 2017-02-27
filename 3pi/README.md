@@ -1,5 +1,15 @@
 # 3pi robot code
 
+## `main.cpp`
+Final combined program of WiFi module, intensities and odometry.
+
+This program is based on [a sample TCP mbed program](https://developer.mbed.org/teams/ST/code/mbed-os-tcp-server-example/).
+
+Import the above library and replace the `main.cpp` within it to the `main.cpp` in this repository.
+
+Import the [ESP8266 driver](https://developer.mbed.org/teams/ESP8266/code/esp8266-driver/) and a [m3pi library](https://developer.mbed.org/users/ngoldin/code/m3pi_ng/) into the project.
+
+
 ## `reflectance.cpp`
 
 using the libraries

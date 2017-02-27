@@ -13,6 +13,15 @@
 #define PASSWORD "qwertyuiop"
 #define ROBOT_ID 1
 
+// Minimum and maximum motor speeds
+#define MAX 1.0
+#define MIN 0
+ 
+// PID terms
+#define P_TERM 1
+#define I_TERM 0
+#define D_TERM 20
+
 /**
     This program implements the ability to control a Pololu
     3pi robot over WiFi using TCP sockets. The robot must have an ESP8266 WiFi
@@ -134,6 +143,68 @@ void moveBackward(float speed, float duration){
     sendXYIs(xs, ys, intensities, noSamples); // send (x, y, intensity) list over TCP
 }
 
+void loadingBay() {
+    wait(0.5);
+ 
+    m3pi.sensor_auto_calibrate();
+ 
+    float right;
+    float left;
+    float current_pos_of_line = 0.0;
+    float previous_pos_of_line = 0.0;
+    float derivative,proportional,integral = 0;
+    float power;
+    float speed = MAX;
+    
+    int count = 0;
+    
+    while (1) {
+        count++;
+ 
+        // Get the position of the line.
+        current_pos_of_line = m3pi.line_position();        
+        proportional = current_pos_of_line;
+        
+        // Compute the derivative
+        derivative = current_pos_of_line - previous_pos_of_line;
+        
+        // Compute the integral
+        integral += proportional;
+        
+        // Remember the last position.
+        previous_pos_of_line = current_pos_of_line;
+        
+        // Compute the power
+        power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM)) ;
+        
+        // Compute new speeds   
+        right = speed+power;
+        left  = speed-power;
+        
+        // limit checks
+        if (right < MIN) {
+            right = MIN;
+        } else if (right > MAX) {
+            right = MAX;
+        }
+            
+        if (left < MIN) {
+            left = MIN;
+        } else if (left > MAX) {
+            left = MAX;
+        }
+        
+        if (count > 20 && (right == MIN || left == MIN)) {
+            break;
+        }
+        
+        // set speed 
+        m3pi.left_motor(left / 2);
+        m3pi.right_motor(right / 2);
+    }
+}
+
+
 /***** CONTROL: controlling m3pi *****/
 void tcp_control(){
     // expect instructions of form <direction> <x> <y> <speed> <duration> <termination>
@@ -191,8 +262,7 @@ void tcp_control(){
         } else if (strcmp(direction, "RESUME") == 0){ // received a random RESUME instruction
             continue;
         } else if (strcmp(direction, "START") == 0){ // received a calibration instruction
-            //TODO: CALL RAMP CODE
-            
+            loadingBay();
             // send confirmation of calibration
             char reset[10];
             sprintf(reset,"RESET: %d\n",ROBOT_ID);

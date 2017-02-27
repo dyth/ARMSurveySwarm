@@ -404,8 +404,7 @@ var move = function(robotID, xPosCM, yPosCM, orientationDeg,
 
 	var xPosMM = xPosCM * 10;
 	var yPosMM = yPosCM * 10;
-
-
+	
 	distance = distance * 10; // convert distances to mm
 	var degreesRotate = radiansRotate * 180 / Math.PI; 
 	// convert angle to degrees
