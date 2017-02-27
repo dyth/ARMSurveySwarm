@@ -202,7 +202,9 @@ void move(int distance){
   for (int i = 0; i < noSamples; i++){
       float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION;
       wait(timeBetweenSamples); // wait one time period
-      intensities[i] = m3pi.line_position(); // poll and store intensity
+      int sensors[5];
+      m3pi.calibrated_sensor (sensors);
+      intensities[i] = sensors[2]; // poll and store intensity
       xs[i] = currentX; // store x
       ys[i] = currentY; // store y
       updatePosition(SPEED, DISTANCE_BETWEEN_SAMPLES); // update robot's current position
