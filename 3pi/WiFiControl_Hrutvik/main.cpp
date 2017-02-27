@@ -214,7 +214,7 @@ void tcp_control(){
             token = strtok(NULL, delim);
             currentY = ((float) atoi(token))/1000.0;        
             token = strtok(NULL, delim);
-            speed = ((float) atoi(token))/1000.0;        
+            speed = ((float) atoi(token))/10000.0;        
             token = strtok(NULL, delim);
             duration = ((float) atoi(token))/1000.0;
         
