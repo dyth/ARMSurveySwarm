@@ -58,7 +58,7 @@ var socketUpdateArea = function(data) {
 var socketReceiveStatus = function(data) {
 	// Get the robot that this is talking about.
 	// Then, update the status of that robot.
-	robots[data.id].status = data.robotStatus;
+	robots[data.id].status = data.status;
 	robots[data.id].x = data.x;
 	robots[data.id].y = data.y;
 
