@@ -48,7 +48,7 @@ The robots should initially be placed over the bottom edge of the board, facing 
 * **Kamile Matulenaite** - *Initial work* - [Kamile](https://github.com/Kamile)
 * **Jackson Woodruff** - *Initial work* - [j-c-w](https://github.com/j-c-w)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/dyth/ARMSurveySwarm/contributors) who participated in this project.
 
 ## License
 
