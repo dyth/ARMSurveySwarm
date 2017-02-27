@@ -26,7 +26,8 @@ the robot should respond with a "DONE" message.
 Server can send a movement command, format:
   "INSTRUCTION, currentX, currentY, currentOritentation, distance, rotation"
   Where X and Y are floating point representations of the 
-  robot's current position. Distance is the distance that the robot
+  robot's current position. All distances are in millimeters.
+  Distance is the distance that the robot
   should travel, rotation is the amount it should rotate 
   in degrees, currentOrientation is the current orientation of the robot
   After the movement command is finished, the server expects a message with format:
