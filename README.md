@@ -17,7 +17,7 @@ If you are wishing to compile from source, do all the instructions. If you are w
 2. Add [development board](https://developer.mbed.org/platforms/mbed-LPC1768/) (on panel on right).
 3. Create a program.
 4. To download a program, press "Compile".
-5. Connect the miniUSB port of the mbed to a USB port on your computer, and move the downloaded .bin file into the device. 
+5. Connect the miniUSB port of the mbed to a USB port on your computer, and move the downloaded .bin file into the device.
 5. To run the program, press the reset button on the mbed (the big central button), or restart the robot.
 
 Detailed instructions per program can be found in READMEs within subdirectories.
@@ -25,7 +25,7 @@ Detailed instructions per program can be found in READMEs within subdirectories.
 ### Installing
 The backend can be set up by compiling and importing the 3pi code into the online ARM compiler.
 
-To install the front end, 
+To install the front end,
 ```
 sudo npm install connect serve-static socket.io socket.io-client html express path mocha
 ```
@@ -45,7 +45,8 @@ The robots should initially be placed over the bottom edge of the board, facing 
 * **Jamie Davenport** - *Initial work* - [jamienet](https://github.com/jamienet)
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
-* **Kamile Matulenaite** - *Initial work* - [Kamile](https://github.com/Kamile)
+<<<<<<< Updated upstream
+* **Kamile Matulenaite** - *Processing robot data, collision prevention, next movement calculation, communication with server and robots, unit testing* - [Kamile](https://github.com/Kamile)
 * **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing* - [j-c-w](https://github.com/j-c-w)
 
 See also the list of [contributors](https://github.com/dyth/ARMSurveySwarm/contributors) who participated in this project.
@@ -59,4 +60,3 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * **ARM** for providing the project idea, and for providing the 3pi robots, especially **Ashkan Tousimojarad**, our client and contact.
 * **Nikolas Goldin** and **Chris Styles** for their wonderful libraries for the mbed + Pololu 3pi robots.
 *  **Chris Hadley** for providing assistance in the creation of the board.
-
