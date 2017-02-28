@@ -201,7 +201,7 @@ var twoColoursAgree = function(coordX, coordY){
 	var tile = processingTiles[coordX][coordY];
 	var potentials = [];
 
-	for (var i = 0; i < 5; i++){
+	for (var i = 0; i < robots.length; i++){
 		if (tile[i] == 0) {
 			numBlack += 1;
 		} else if (tile[i] == 1) {
@@ -216,13 +216,16 @@ var twoColoursAgree = function(coordX, coordY){
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
 		checkTile(robotID, coordX, coordY);
 
-	} else if (numWhite > numBlack && numWhite >= 2) {
+	} else if ((numWhite > numBlack && numWhite >= 2) ||
+		(robots.length == 1 && numWhite == 1)) {
+
 		processingTiles[coordX][coordY][5] = 1;
 		server.updateTile(coordX, coordY, 1);
 		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
 
-	} else if (numBlack > numWhite && numBlack >= 2) {
+	} else if ((numBlack > numWhite && numBlack >= 2) ||
+		(robots.length == 1 && numBlack == 1)) {
 		processingTiles[coordX][coordY][5] = 0;
 		server.updateTile(coordX, coordY, 0);
 		route.removeTile(coordX, coordY);
