@@ -36,3 +36,7 @@ Test random motion of a robot within a 1m by 1m space.
 ## WiFi Control
 
 Previous experimentation in controlling a m3pi from a server using a Java TCP connection.
+
+## Calibrating middle sensor for reflectance.
+
+`reflectance.cpp` displays the reflectance on the LCD screen.
