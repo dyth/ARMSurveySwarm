@@ -20,7 +20,7 @@ var initialTileState = [];
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
 // on the frontend:
-// 	Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3
+// 	Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3, Recalibrate: 4
 // Orientation in Radians
 var robots = [];
 
@@ -101,6 +101,10 @@ var resetRobot = function(robotID) {
 	server.updateStatus(robotID, 0, 0, 1);
 }
 
+var sendRecalibrationMessage = function(robotID) {
+	robots[robotID].robotStatus = 4;
+}
+
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.
 	console.log("CONNECTION LOST CALLED");
@@ -136,6 +140,7 @@ var setTiles = function(robotID, messages) {
 				coordY > processingTiles[coordX].length - 1) {
 			console.log("NON FATAL ERROR -------------------------------");
 			console.log("robot off grid");
+			recalibrateRobot(robotID);
 			return;
 		}
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
