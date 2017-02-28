@@ -3,7 +3,7 @@ Dependencies:
 
 	Then do:
 
-	sudo npm install connect serve-static socket.io socket.io-client html express path mocha istanbul mathjs
+	sudo npm install connect serve-static socket.io socket.io-client html express path mocha istanbul mathjs mongodb
 
 	In the backend directory
 
@@ -11,6 +11,10 @@ Running:
 	After installing that, do:
 
 	sudo node server.js
+
+	Also start the database with:
+
+	sudo mongod --dbpath ./data
 
 	Then go to:
 
