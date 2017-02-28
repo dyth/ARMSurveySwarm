@@ -139,7 +139,7 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
-		if (coordX > processingTiles.length - 1 || 
+		if (coordX > processingTiles.length - 1 ||
 				coordY > processingTiles[coordX].length - 1) {
 			console.log("NON FATAL ERROR -------------------------------");
 			console.log("robot off grid");
@@ -276,6 +276,10 @@ var checkTile = function(robotID, tileX, tileY){
 
 	var angle = Math.acos(cos_theta);
 
+	if (angle < 0) {
+		angle = (2*Math.PI) - (angle*-1);
+	}
+
 	console.log('from x=' + coordX + ' ,y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
 	console.log('angle ' + angle*180/Math.PI);
 
@@ -285,7 +289,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 	//Set new orientation of robotID
 	console.log('old orientation ' + robots[robotID].orientation*180/Math.PI);
-	rotateClockwise(robotID, angle);
+	rotateClockwise(robotID, angle); //actually anticlockwise
 	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
 }
 
