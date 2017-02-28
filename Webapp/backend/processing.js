@@ -71,7 +71,7 @@ var addRobotsToList = function(robotID) {
 			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2 });
 		initialTileState.push(2);
 		for (var j = 0; j < processingTiles.length; j++) {
-			for (var k = 0; k < processingTile[j].length; k++) {
+			for (var k = 0; k < processingTiles[j].length; k++) {
 				processingTiles[j][k].push(2);
 			}
 		}
