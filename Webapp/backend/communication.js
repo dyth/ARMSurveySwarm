@@ -153,7 +153,7 @@ var receiveData = function(data, socket) {
 
 			var x = stringToFloat(values[0])/10;
 			var y = stringToFloat(values[1])/10;
-			var intensity = stringToFloat(values[2]);
+			var intensity = Math.round(stringToFloat(values[2]));
 
 			if (x === null || y === null || intensity === null) {
 				console.log("NON-FATAL ERROR ------------------------------");
