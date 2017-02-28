@@ -24,7 +24,7 @@
     This program implements the ability to control a Pololu
     3pi robot over WiFi using TCP sockets. The robot must have an ESP8266 WiFi
     module, preconfigured to connect to the relevant WiFi network.
-    Author: Hrutvik Kanabar
+    Authors: Hrutvik Kanabar, David Hui
     Date: 26/02/2017
 */
 
@@ -92,7 +92,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
         sprintf(intensity, "%-+0.*f", 3, intensities[i]);
         
         /*
-         sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
+        sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
         sprintf(y, "%-+0*.*f,", 7, 3, ys[i]);
         sprintf(intensity, "%-+0*.*f", 7, 3, intensities[i]);
         */
@@ -300,6 +300,7 @@ void tcp_control(){
         } else if (strcmp(directive, "START") == 0){ // received a calibration instruction
             // call loading bay code
             //loadingBay();
+            m3pi.sensor_auto_calibrate();
             // send confirmation of calibration
             char reset[10];
             sprintf(reset,"RESET: %d\n",ROBOT_ID);
@@ -315,7 +316,7 @@ void tcp_control(){
             socket.send(done, sizeof(done)-1);
         } else if (strcmp(directive, "INSTRUCTION") == 0){ // we have received a genuine direction for movement
             // assume that <x> <y> <orientation> <distance> <rotation> directly follow
-                // update currentX, currentY, currentOrientation and determine speed/duration of movement
+            // update currentX, currentY, currentOrientation and determine speed/duration of movement
             token = strtok(NULL, delim);
             currentX = (float) atoi(token);
             token = strtok(NULL, delim);
@@ -339,7 +340,7 @@ void tcp_control(){
 
             // send done message
             char done[9];
-            sprintf(done,"DONE: %d\n",ROBOT_ID);
+            sprintf(done,"\nDONE: %d\n",ROBOT_ID);
             socket.send(done, sizeof(done)-1); // don't include "\0" termination character
         } else {
           // not expected - would imply malformed instruction
