@@ -65,12 +65,6 @@ var server = net.createServer(function(socket) {
 server.listen(8000);
 
 var receiveData = function(data, socket) {
-	data.replace(new RegExp(String.fromCharCode(160),"g"),"");
-	data.replace(/\xA0/g,"");
-	console.log(data);
-	console.log('data length: ' + data.length);
-	data = data.trim();
-	console.log('trimmed data length ' + data.length);
 	if (data.substring(0, "HELLO:".length) === ("HELLO:")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = stringToNumber(id);
@@ -138,8 +132,6 @@ var receiveData = function(data, socket) {
 		for (var i = 1; i < contents.length; i ++) {
 			// String is in the format (X, Y, Intensity)
 			var string = contents[i].trim();
-			console.log('next string in contents: ' + string);
-			console.log(string.length);
 			// Need to do a lot of verification here because
 			// the server should really not crash
 			if (string.length < 2) {

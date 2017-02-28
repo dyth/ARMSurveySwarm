@@ -9,10 +9,10 @@
 // file loaded.
 
 // moved this outside the socket call for testing
-// This is called when the server says that the 
+// This is called when the server says that the
 // area was updated.
 var socketUpdateArea = function(data) {
-	// Create a new zeroed array for the tiles. 
+	// Create a new zeroed array for the tiles.
 	// This will probably need to be changed once we stop
 	// inputting the dimensions of the surface.
     console.log("New Area Dimensions " + data.xDim + " " + data.yDim);
@@ -33,7 +33,7 @@ var socketUpdateArea = function(data) {
 	}
 
 	// Again, need to use the max length. Consider
-	// getting an update with: (x = 10, y = 10) 
+	// getting an update with: (x = 10, y = 10)
 	// then an update with (x = 11, y = 5). Need
 	// to make the last row of length 10 to keep it
 	// consistent (we are assuming a square surface).
@@ -98,7 +98,7 @@ var stopAll = function () {
 	socket.emit('stopAll');
 }
 
-// This should be called to resume a robot 
+// This should be called to resume a robot
 // with ID 'robotID'
 var resume = function(robotID) {
 	socket.emit('resume', {id: robotID});

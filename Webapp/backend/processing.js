@@ -252,7 +252,7 @@ var checkTile = function(robotID, tileX, tileY){
 	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 
 
-	var B = [Math.sin(orientation), Math.cos(orientation)]; // current orientation of robot
+	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
 
 
 	// Find angle between current robot orientation and direction to tile
