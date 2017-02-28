@@ -110,7 +110,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
     printf("\n");
     //strcat(toSend, "\nDONE: %d\n", ROBOT_ID);
     //strcat(toSend, "\nDONE: 0\n");
-    //strcat(toSend, "\n"); // append "\n" termination character
+    strcat(toSend, "\n"); // append "\n" termination character
     printf("To send: %s", toSend);
     
     int sent = 0;
@@ -202,7 +202,7 @@ void rotate(int rotation){
         wait(((float) rotation) * ROTATION_CALIBRATION);
     } else { // 180 < rotation < 360
         m3pi.right(SPEED);
-        wait(((float)(rotation - 180)) * ROTATION_CALIBRATION);
+        wait(((float)(360 - rotation)) * ROTATION_CALIBRATION);
     }
     m3pi.stop();
     updateOrientation(rotation);
@@ -230,7 +230,7 @@ void move(int distance){
             intensities[i] = 0.0;
         } else {
             intensities[i] = 1.0;
-        }       
+        }
         //intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
         xs[i] = currentX; // store x
         ys[i] = currentY; // store y
@@ -254,7 +254,7 @@ void tcp_control(){
     // send hello message on connection
     char hello[10];
     sprintf(hello,"HELLO: %d\n",ROBOT_ID);
-    socket.send(hello, sizeof(hello)); // don't include "\0" termination character
+    socket.send(hello, sizeof(hello)-1); // don't include "\0" termination character
     
     char received[256]; // buffer to store received instructions
 
@@ -311,16 +311,16 @@ void tcp_control(){
             // send confirmation of calibration
             char reset[10];
             sprintf(reset,"RESET: %d\n",ROBOT_ID);
-            socket.send(reset, sizeof(reset));
+            socket.send(reset, sizeof(reset)-1);
         } else if (strcmp(directive, "WAIT") == 0){ // received a wait instruction
             // determine time to wait, then wait
             float waitTime;
             token = strtok(NULL, delim);
             waitTime = ((float) atoi(token))/1000.0;
             wait(waitTime);
-            char done[9];
+            char done[12];
             sprintf(done,"DONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done));
+            socket.send(done, sizeof(done)-1);
         } else if (strcmp(directive, "INSTRUCTION") == 0){ // we have received a genuine direction for movement
             // assume that <x> <y> <orientation> <distance> <rotation> directly follow
             // update currentX, currentY, currentOrientation and determine speed/duration of movement
@@ -344,11 +344,19 @@ void tcp_control(){
             printf("Rotated.\n");
             move(distance);
             printf("Moved.\n");
-
+            
+            m3pi.cls();
+            m3pi.locate(0,0);
+            m3pi.printf("%f", currentX);
+            m3pi.locate(4,0);
+            m3pi.printf("%f", currentY);
+            m3pi.locate(0,1);
+            m3pi.printf("%f", currentOrientation);
+                       
             // send done message
             char done[9];
-            sprintf(done,"\nDONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done)); // don't include "\0" termination character
+            sprintf(done,"DONE: %d\n",ROBOT_ID);
+            socket.send(done, sizeof(done)-1); // don't include "\0" termination character
         } else {
           // not expected - would imply malformed instruction
         }
