@@ -64,7 +64,7 @@ void updateOrientation(int rotation){
 // sends lists of x-coordinates, y-coordinates, intensities over TCP
     // format is: "(x_1,y_1,intensity_1);...;(x_n,y_n,intensity_n)\n"
     // where each x_i, y_i, intensity_i are formatted: +x.xxx, +y.yyy, +i.iii
-void sendXYIs(float* xs, float* ys, float* intensities, int length){
+void sendXYIs(float* xs, float* ys, int* intensities, int length){
     //each entry to send is of format: (+x.xxx,+y.yyy,+i.iii); - 23 chars, then "INTENSITY: #ID;" at beginning
         // and "\n\0" at end
     char toSend[13 + (length * 23) + 2     +200]; // final string/list to send
@@ -89,7 +89,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
         // .* option: precision of floating point string, max no. decimal places (3 in our case)
         sprintf(x, "%-+0.*f,", 3, xs[i]);     // 6 instead of 7
         sprintf(y, "%-+0.*f,", 3, ys[i]);
-        sprintf(intensity, "%-+0.*f", 3, intensities[i]);
+        sprintf(intensity, "%-+0.*d", 3, intensities[i]);
         
         /*
         sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
@@ -110,7 +110,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
     printf("\n");
     //strcat(toSend, "\nDONE: %d\n", ROBOT_ID);
     //strcat(toSend, "\nDONE: 0\n");
-    //strcat(toSend, "\n"); // append "\n" termination character
+    strcat(toSend, "\n"); // append "\n" termination character
     printf("To send: %s", toSend);
     
     int sent = 0;
@@ -202,7 +202,7 @@ void rotate(int rotation){
         wait(((float) rotation) * ROTATION_CALIBRATION);
     } else { // 180 < rotation < 360
         m3pi.right(SPEED);
-        wait(((float)(rotation - 180)) * ROTATION_CALIBRATION);
+        wait(((float)(360 - rotation)) * ROTATION_CALIBRATION);
     }
     m3pi.stop();
     updateOrientation(rotation);
@@ -214,7 +214,7 @@ void move(int distance){
     // lists to store (x, y, intensity) values
     float xs[noSamples];
     float ys[noSamples];
-    float intensities[noSamples];
+    int intensities[noSamples];
 
     if (distance <= 0){ // invalid distance
         return;
@@ -227,10 +227,10 @@ void move(int distance){
         int sensors[5];
         m3pi.calibrated_sensor (sensors);
         if (sensors[2] > 500) {
-            intensities[i] = 0.0;
+            intensities[i] = 0;
         } else {
-            intensities[i] = 1.0;
-        }       
+            intensities[i] = 1;
+        }
         //intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
         xs[i] = currentX; // store x
         ys[i] = currentY; // store y
@@ -254,7 +254,7 @@ void tcp_control(){
     // send hello message on connection
     char hello[10];
     sprintf(hello,"HELLO: %d\n",ROBOT_ID);
-    socket.send(hello, sizeof(hello)); // don't include "\0" termination character
+    socket.send(hello, sizeof(hello)-1); // don't include "\0" termination character
     
     char received[256]; // buffer to store received instructions
 
@@ -311,16 +311,16 @@ void tcp_control(){
             // send confirmation of calibration
             char reset[10];
             sprintf(reset,"RESET: %d\n",ROBOT_ID);
-            socket.send(reset, sizeof(reset));
+            socket.send(reset, sizeof(reset)-1);
         } else if (strcmp(directive, "WAIT") == 0){ // received a wait instruction
             // determine time to wait, then wait
             float waitTime;
             token = strtok(NULL, delim);
             waitTime = ((float) atoi(token))/1000.0;
             wait(waitTime);
-            char done[9];
+            char done[12];
             sprintf(done,"DONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done));
+            socket.send(done, sizeof(done)-1);
         } else if (strcmp(directive, "INSTRUCTION") == 0){ // we have received a genuine direction for movement
             // assume that <x> <y> <orientation> <distance> <rotation> directly follow
             // update currentX, currentY, currentOrientation and determine speed/duration of movement
@@ -344,11 +344,19 @@ void tcp_control(){
             printf("Rotated.\n");
             move(distance);
             printf("Moved.\n");
-
+            
+            m3pi.cls();
+            m3pi.locate(0,0);
+            m3pi.printf("%f", currentX);
+            m3pi.locate(4,0);
+            m3pi.printf("%f", currentY);
+            m3pi.locate(0,1);
+            m3pi.printf("%f", currentOrientation);
+                       
             // send done message
             char done[9];
-            sprintf(done,"\nDONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done)); // don't include "\0" termination character
+            sprintf(done,"DONE: %d\n",ROBOT_ID);
+            socket.send(done, sizeof(done)-1); // don't include "\0" termination character
         } else {
           // not expected - would imply malformed instruction
         }
