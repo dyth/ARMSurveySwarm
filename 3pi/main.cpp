@@ -111,11 +111,13 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
     strcat(toSend, "\n"); // append "\n" termination character
     printf("To send: %s",toSend);
     
-    int s = 0;
-    while (s < strlen(toSend - 1)){
-        int s1 = 500 < (sizeof(toSend) - 1 - s) ? 500 : (sizeof(toSend) - 1 - s);
-        socket.send(toSend + s, s1);
-        s += s1;
+    int sent = 0;
+    int totalToSend = strlen(toSend) - 1;
+   
+    while (sent < totalToSend){
+        int sendNow = (500 < (totalToSend - sent)) ? 500 : (totalToSend - sent);
+        socket.send(toSend + sent, sendNow);
+        sent += sendNow;
     }
   //  socket.send(toSend, sizeof(toSend)-1); // send - don't include the "\0" null character
 }
