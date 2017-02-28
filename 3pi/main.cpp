@@ -2,19 +2,19 @@
 #include "TCPSocket.h"
 #include "ESP8266Interface.h"
 #include "SocketAddress.h"
-#include "m3pi.h"
+#include "m3pi_ng.h"
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
 // definitions: IP and port of TCP server to connect to; SSID/password of WiFi network; unique ID of robot
-#define SERVIP "192.168.46.2"
+#define SERVIP "192.168.46.3"
 #define SERVPORT 8000
 #define SSID "private_network152"
 #define PASSWORD "CelesteAqua78"
 
 #define SPEED 0.5f
-#define DISTANCE_BETWEEN_SAMPLES 2
+#define DISTANCE_BETWEEN_SAMPLES 20
 
 #define ROBOT_ID 1
 #define DISTANCE_CALIBRATION 470.0f
@@ -62,44 +62,62 @@ void updateOrientation(int rotation){
 
 /***** MOVEMENT/SAMPLING: moving forward/backward and sending intensity informtion *****/
 // sends lists of x-coordinates, y-coordinates, intensities over TCP
-    // format is: "(x_1,y_1,intensity_1);...;(x_n,y_n,intensity_n);\n"
+    // format is: "(x_1,y_1,intensity_1);...;(x_n,y_n,intensity_n)\n"
     // where each x_i, y_i, intensity_i are formatted: +x.xxx, +y.yyy, +i.iii
 void sendXYIs(float* xs, float* ys, float* intensities, int length){
     //each entry to send is of format: (+x.xxx,+y.yyy,+i.iii); - 23 chars, then "INTENSITY: #ID;" at beginning
         // and "\n\0" at end
-    char toSend[13 + (length * 23) + 2]; // final string/list to send
+    char toSend[13 + (length * 23) + 2     +200]; // final string/list to send
     memset(toSend, '\0', sizeof(toSend));
     char preamble[14];
-    sprintf(preamble,"INTENSITY: %d;",ROBOT_ID);
+    memset(preamble, '\0', sizeof(preamble));
+    sprintf(preamble,"INTENSITY: %d",ROBOT_ID);
     strcat(toSend, preamble);
     for (int i = 0; i < length; i++){
-        char entry[24]; memset(entry, '\0', sizeof(entry)); // single entry to append to list
-        char x[7]; memset(x, '\0', sizeof(x)); // single x-coordinate to send
-        char y[7]; memset(y, '\0', sizeof(y)); // single y-coordinate to send
-        char intensity[7]; memset(intensity, '\0', sizeof(intensity)); //single intensity to send
-
+        strcat(toSend, ";");
+        
+        char entry[60]; memset(entry, '\0', sizeof(entry)); // single entry to append to list                       24 for entry, 7 for x, y, intensity
+        char x[20]; memset(x, '\0', sizeof(x)); // single x-coordinate to send
+        char y[20]; memset(y, '\0', sizeof(y)); // single y-coordinate to send
+        char intensity[20]; memset(intensity, '\0', sizeof(intensity)); //single intensity to send
+        
         // dark magic: use sprintf formatting to give correct lenghts and padding
         // -  option: left-align numbers in field (not really necessary)
         // +  option: puts sign in front of number, "+" or "-"
         // 0  option: pads with "0"s instead of " "s
         // *  option: total length of string, specified by later argument to sprintf (6 in our case)
         // .* option: precision of floating point string, max no. decimal places (3 in our case)
-        sprintf(x, "%-+0*.*f", 6, 3, xs[i]);
-        sprintf(y, "%-+0*.*f", 6, 3, ys[i]);
-        sprintf(intensity, "%-+0*.*f", 6, 3, intensities[i]);
-
+        sprintf(x, "%-+0.*f,", 3, xs[i]);     // 6 instead of 7
+        sprintf(y, "%-+0.*f,", 3, ys[i]);
+        sprintf(intensity, "%-+0.*f", 3, intensities[i]);
+        
+        /*
+         sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
+        sprintf(y, "%-+0*.*f,", 7, 3, ys[i]);
+        sprintf(intensity, "%-+0*.*f", 7, 3, intensities[i]);
+        */
+        
         // format brackets, commas, semicolons for each entry
         strcat(entry, "(");
         strcat(entry, x);
-        strcat(entry, ",");
+//        strcat(entry, ",");
         strcat(entry, y);
-        strcat(entry, ",");
+//        strcat(entry, ",");
         strcat(entry, intensity);
-        strcat(entry, ");");
+        strcat(entry, ")");
         strcat(toSend, entry); // append to result string
     }
+    printf("\n");
     strcat(toSend, "\n"); // append "\n" termination character
-    socket.send(toSend, sizeof(toSend)-1); // send - don't include the "\0" null character
+    printf("To send: %s",toSend);
+    
+    int s = 0;
+    while (s < strlen(toSend - 1)){
+        int s1 = 1000 < (sizeof(toSend) - 1 - s) ? 1000 : (sizeof(toSend) - 1 - s);
+        socket.send(toSend + s, s1);
+        s += s1;
+    }
+  //  socket.send(toSend, sizeof(toSend)-1); // send - don't include the "\0" null character
 }
 
 // Minimum and maximum motor speeds
@@ -178,12 +196,11 @@ void rotate(int rotation){
     } else if (rotation <= 180){
         m3pi.left(SPEED);
         wait(((float) rotation) * ROTATION_CALIBRATION);
-        m3pi.stop();
     } else { // 180 < rotation < 360
         m3pi.right(SPEED);
         wait(((float)(rotation - 180)) * ROTATION_CALIBRATION);
-        m3pi.stop();
     }
+    m3pi.stop();
     updateOrientation(rotation);
 }
 
@@ -198,6 +215,7 @@ void move(int distance){
   if (distance <= 0){ // invalid distance
     return;
   }
+  printf("void move(int distance):\nNo. samples: %d\n", noSamples);
   m3pi.forward(SPEED); // start moving
   for (int i = 0; i < noSamples; i++){
       float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION;
@@ -207,12 +225,15 @@ void move(int distance){
       intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
       xs[i] = currentX; // store x
       ys[i] = currentY; // store y
-      updatePosition(SPEED, DISTANCE_BETWEEN_SAMPLES); // update robot's current position
+      printf(".");
+      updatePosition(SPEED, (float) DISTANCE_BETWEEN_SAMPLES); // update robot's current position
+      printf(" ");
   }
   float rem = ((float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)) / DISTANCE_CALIBRATION;
   wait(rem); // wait for remainder of duration
-  updatePosition(SPEED, (distance - DISTANCE_BETWEEN_SAMPLES * noSamples)); // update position one final time
+  updatePosition(SPEED, (float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)); // update position one final time
   m3pi.stop(); // end movement
+  printf("Stopped moving.\n");
   sendXYIs(xs, ys, intensities, noSamples); // send (x, y, intensity) list over TCP
 }
 
@@ -225,16 +246,15 @@ void tcp_control(){
     char hello[10];
     sprintf(hello,"HELLO: %d\n",ROBOT_ID);
     socket.send(hello, sizeof(hello)-1); // don't include "\0" termination character
-
-    char received[256]; // buffer to store received instructions
     
+    char received[256]; // buffer to store received instructions
+
     while(true) {
         //ASSUMPTION: INSTRUCTION IS WELL_FORMED, AND IS LESS THAN 256 BYTES
         memset(received, '\0', sizeof(received));
-
         // loop, receiving single bytes of instruction - keep instr_size as counter of no. bytes received
         int instr_size = 0;
-        char r;
+        char r = '\0';
         socket.recv(&r, sizeof(char));
         while (r != '\n'){ //"\n" is termination character for an instruction
             received[instr_size] = r;
@@ -243,10 +263,14 @@ void tcp_control(){
         }
 
         // copy across instruction bytes into a new array
-        char instruction[instr_size+1];
+        char instruction[instr_size+1+10];
         memset(instruction, '\0', sizeof(instruction)); // ensure final character is '\0'
         strncpy(instruction, received, instr_size);
-
+        
+        
+        printf("Received: %s    strlen: %d\nInstruction: %s     strlen: %d  instr_size: %d\n", received, strlen(received), instruction, strlen(instruction), instr_size); //DEBUG
+        
+        
         // split instruction up into tokens separated by ' ' delimiter
         char directive[20]; // instruction directive: START, STOP, RESUME, INSTRUCTION
         memset(directive, '\0', sizeof(directive));
@@ -273,7 +297,7 @@ void tcp_control(){
             continue;
         } else if (strcmp(directive, "START") == 0){ // received a calibration instruction
             // call loading bay code
-            loadingBay();
+            //loadingBay();
             // send confirmation of calibration
             char reset[10];
             sprintf(reset,"RESET: %d\n",ROBOT_ID);
@@ -291,12 +315,12 @@ void tcp_control(){
             // assume that <x> <y> <orientation> <distance> <rotation> directly follow
                 // update currentX, currentY, currentOrientation and determine speed/duration of movement
             token = strtok(NULL, delim);
-            currentX = atoi(token);
+            currentX = (float) atoi(token);
             token = strtok(NULL, delim);
-            currentY = atoi(token);
+            currentY = (float) atoi(token);
             token = strtok(NULL, delim);
-            currentOrientation = atoi(token);
-
+            currentOrientation = (float) atoi(token);
+            
             int distance;
             int rotation;
             token = strtok(NULL, delim);
@@ -304,8 +328,12 @@ void tcp_control(){
             token = strtok(NULL, delim);
             rotation = atoi(token);
 
+            printf("x: %f, y: %f, orient: %f, dist: %d, rot: %d\n", currentX, currentY, currentOrientation, distance, rotation);
             rotate(rotation);
+            printf("Rotation calibration: %f\n", ROTATION_CALIBRATION);
+            printf("Rotated.\n");
             move(distance);
+            printf("Moved.\n");
 
             // send done message
             char done[9];
@@ -314,6 +342,8 @@ void tcp_control(){
         } else {
           // not expected - would imply malformed instruction
         }
+        printf("Executed.\n\n"); //DEBUG
+
     }
 }
 
