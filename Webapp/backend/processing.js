@@ -15,7 +15,7 @@ var route = require('./route');
 var TEST = true;
 
 var processingTiles = [];
-var initialTileState = [2,2,2,2,2,2];
+var initialTileState = [];
 
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
@@ -69,6 +69,12 @@ var addRobotsToList = function(robotID) {
 	for(var i = robots.length; i < robotID; i++) {
 		robots.push({id: i, xPrev: 0,yPrev: 0,
 			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2 });
+		initialTileState.push(2);
+		for (var j = 0; j < processingTiles.length; j++) {
+			for (var k = 0; k < processingTile[j].length; k++) {
+				processingTiles[j][k].push(2);
+			}
+		}
 	}
 }
 
