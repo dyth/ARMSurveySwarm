@@ -101,8 +101,11 @@ var resetRobot = function(robotID) {
 	server.updateStatus(robotID, 0, 0, 1);
 }
 
-var sendRecalibrationMessage = function(robotID) {
+var setRecalibrationStatus = function(robotID) {
 	robots[robotID].robotStatus = 4;
+
+
+	server.updateStatus(robotID, 0, 0, 4);
 }
 
 var robotConnectionLost = function(robotID) {
@@ -140,7 +143,7 @@ var setTiles = function(robotID, messages) {
 				coordY > processingTiles[coordX].length - 1) {
 			console.log("NON FATAL ERROR -------------------------------");
 			console.log("robot off grid");
-			recalibrateRobot(robotID);
+			setRecalibrationStatus(robotID);
 			return;
 		}
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
