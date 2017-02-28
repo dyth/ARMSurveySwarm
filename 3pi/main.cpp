@@ -16,7 +16,7 @@
 #define SPEED 0.5f
 #define DISTANCE_BETWEEN_SAMPLES 20
 
-#define ROBOT_ID 1
+#define ROBOT_ID 0
 #define DISTANCE_CALIBRATION 470.0f
 #define ROTATION_CALIBRATION (0.554f / 360.0f)
 
@@ -113,7 +113,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
     
     int s = 0;
     while (s < strlen(toSend - 1)){
-        int s1 = 1000 < (sizeof(toSend) - 1 - s) ? 1000 : (sizeof(toSend) - 1 - s);
+        int s1 = 500 < (sizeof(toSend) - 1 - s) ? 500 : (sizeof(toSend) - 1 - s);
         socket.send(toSend + s, s1);
         s += s1;
     }
