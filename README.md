@@ -41,12 +41,12 @@ The robots should initially be placed over the bottom edge of the board, facing 
 ## Authors
 (listed in alphabetical order)
 
-* **Lucia Bura** - *documentation, debugging* - [luciabura](https://github.com/luciabura)
+* **Lucia Bura** - *Initial work* - [luciabura](https://github.com/luciabura)
 * **Jamie Davenport** - *Initial work* - [jamienet](https://github.com/jamienet)
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
 * **Kamile Matulenaite** - *Initial work* - [Kamile](https://github.com/Kamile)
-* **Jackson Woodruff** - *Initial work* - [j-c-w](https://github.com/j-c-w)
+* **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing* - [j-c-w](https://github.com/j-c-w)
 
 See also the list of [contributors](https://github.com/dyth/ARMSurveySwarm/contributors) who participated in this project.
 
