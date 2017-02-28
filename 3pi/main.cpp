@@ -44,11 +44,11 @@ float currentOrientation = 0.0; //currentOrientation in degrees
 void updatePosition(float speed, float distance){
     float orientation = currentOrientation * PI/180.0;
     if (speed > 0){
-      currentX += distance * sin(orientation);
-      currentY += distance * cos(orientation);
+      currentX += distance * cos(orientation);
+      currentY += distance * sin(orientation);
     } else {
-      currentX -= distance * sin(orientation);
-      currentY -= distance * cos(orientation);
+      currentX -= distance * cos(orientation);
+      currentY -= distance * sin(orientation);
     }
 }
 
@@ -111,7 +111,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
     //strcat(toSend, "\nDONE: %d\n", ROBOT_ID);
     strcat(toSend, "\nDONE: 0\n");
     //strcat(toSend, "\n"); // append "\n" termination character
-    printf("To send: %s",toSend);
+    printf("To send: %s", toSend);
     
     int sent = 0;
     int totalToSend = strlen(toSend) - 1;
