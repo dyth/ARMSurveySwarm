@@ -129,7 +129,7 @@ function updateCanvas() {
             else
                 graphics = graph.graphics.beginFill("#ccc");
 
-            graphics.drawRect(j*size, ( tiles.length - i - 1 ) * size, size, size);
+            graphics.drawRect(i*size, ( tiles.length - j - 1 ) * size, size, size);
 
         }
 
