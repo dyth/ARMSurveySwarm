@@ -15,7 +15,7 @@ var currentlySelectedRobot;
 // Empty, gets filled once the widths are all set
 var tiles = [];
 
-var states = [["Calibrating", "label label-warning"], ["Scanning", "label label-success"], ["Stopped", "label label-danger"]];
+var states = [["Calibrating", "label label-warning"], ["Scanning", "label label-success"], ["Stopped", "label label-danger"], ["Disconnected", "label label-danger"], ["Recalibrate", "label label-danger"]];
 
 // Fill the robots array with some default values before
 // anything is received. Could alternatively talk to
