@@ -108,7 +108,9 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
         strcat(toSend, entry); // append to result string
     }
     printf("\n");
-    strcat(toSend, "\n"); // append "\n" termination character
+    //strcat(toSend, "\nDONE: %d\n", ROBOT_ID);
+    strcat(toSend, "\nDONE: 0\n");
+    //strcat(toSend, "\n"); // append "\n" termination character
     printf("To send: %s",toSend);
     
     int sent = 0;
@@ -207,36 +209,36 @@ void rotate(int rotation){
 }
 
 void move(int distance){
-  int noSamples = floor((float)distance/(float)DISTANCE_BETWEEN_SAMPLES);
+    int noSamples = floor((float)distance/(float)DISTANCE_BETWEEN_SAMPLES);
 
-  // lists to store (x, y, intensity) values
-  float xs[noSamples];
-  float ys[noSamples];
-  float intensities[noSamples];
+    // lists to store (x, y, intensity) values
+    float xs[noSamples];
+    float ys[noSamples];
+    float intensities[noSamples];
 
-  if (distance <= 0){ // invalid distance
-    return;
-  }
-  printf("void move(int distance):\nNo. samples: %d\n", noSamples);
-  m3pi.forward(SPEED); // start moving
-  for (int i = 0; i < noSamples; i++){
-      float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION;
-      wait(timeBetweenSamples); // wait one time period
-      int sensors[5];
-      m3pi.calibrated_sensor (sensors);
-      intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
-      xs[i] = currentX; // store x
-      ys[i] = currentY; // store y
-      printf(".");
-      updatePosition(SPEED, (float) DISTANCE_BETWEEN_SAMPLES); // update robot's current position
-      printf(" ");
-  }
-  float rem = ((float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)) / DISTANCE_CALIBRATION;
-  wait(rem); // wait for remainder of duration
-  updatePosition(SPEED, (float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)); // update position one final time
-  m3pi.stop(); // end movement
-  printf("Stopped moving.\n");
-  sendXYIs(xs, ys, intensities, noSamples); // send (x, y, intensity) list over TCP
+    if (distance <= 0){ // invalid distance
+        return;
+    }
+    printf("void move(int distance):\nNo. samples: %d\n", noSamples);
+    m3pi.forward(SPEED); // start moving
+    for (int i = 0; i < noSamples; i++){
+        float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION;
+        wait(timeBetweenSamples); // wait one time period
+        int sensors[5];
+        m3pi.calibrated_sensor (sensors);
+        intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
+        xs[i] = currentX; // store x
+        ys[i] = currentY; // store y
+        printf(".");
+        updatePosition(SPEED, (float) DISTANCE_BETWEEN_SAMPLES); // update robot's current position
+        printf(" ");
+    }
+    float rem = ((float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)) / DISTANCE_CALIBRATION;
+    wait(rem); // wait for remainder of duration
+    updatePosition(SPEED, (float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)); // update position one final time
+    m3pi.stop(); // end movement
+    printf("Stopped moving.\n");
+    sendXYIs(xs, ys, intensities, noSamples); // send (x, y, intensity) list over TCP
 }
 
 /***** CONTROL: controlling m3pi *****/
@@ -339,9 +341,9 @@ void tcp_control(){
             printf("Moved.\n");
 
             // send done message
-            char done[9];
-            sprintf(done,"\nDONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done)-1); // don't include "\0" termination character
+            //char done[9];
+            //sprintf(done,"\nDONE: %d\n",ROBOT_ID);
+            //socket.send(done, sizeof(done)-1); // don't include "\0" termination character
         } else {
           // not expected - would imply malformed instruction
         }
