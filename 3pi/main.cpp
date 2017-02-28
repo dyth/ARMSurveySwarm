@@ -64,7 +64,7 @@ void updateOrientation(int rotation){
 // sends lists of x-coordinates, y-coordinates, intensities over TCP
     // format is: "(x_1,y_1,intensity_1);...;(x_n,y_n,intensity_n)\n"
     // where each x_i, y_i, intensity_i are formatted: +x.xxx, +y.yyy, +i.iii
-void sendXYIs(float* xs, float* ys, float* intensities, int length){
+void sendXYIs(float* xs, float* ys, int* intensities, int length){
     //each entry to send is of format: (+x.xxx,+y.yyy,+i.iii); - 23 chars, then "INTENSITY: #ID;" at beginning
         // and "\n\0" at end
     char toSend[13 + (length * 23) + 2     +200]; // final string/list to send
@@ -89,7 +89,7 @@ void sendXYIs(float* xs, float* ys, float* intensities, int length){
         // .* option: precision of floating point string, max no. decimal places (3 in our case)
         sprintf(x, "%-+0.*f,", 3, xs[i]);     // 6 instead of 7
         sprintf(y, "%-+0.*f,", 3, ys[i]);
-        sprintf(intensity, "%-+0.*f", 3, intensities[i]);
+        sprintf(intensity, "%-+0.*d", 3, intensities[i]);
         
         /*
         sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
@@ -214,7 +214,7 @@ void move(int distance){
     // lists to store (x, y, intensity) values
     float xs[noSamples];
     float ys[noSamples];
-    float intensities[noSamples];
+    int intensities[noSamples];
 
     if (distance <= 0){ // invalid distance
         return;
@@ -227,9 +227,9 @@ void move(int distance){
         int sensors[5];
         m3pi.calibrated_sensor (sensors);
         if (sensors[2] > 500) {
-            intensities[i] = 0.0;
+            intensities[i] = 0;
         } else {
-            intensities[i] = 1.0;
+            intensities[i] = 1;
         }
         //intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
         xs[i] = currentX; // store x
