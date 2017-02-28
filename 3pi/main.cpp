@@ -17,8 +17,8 @@
 #define DISTANCE_BETWEEN_SAMPLES 20
 
 #define ROBOT_ID 0
-#define DISTANCE_CALIBRATION 470.0f
-#define ROTATION_CALIBRATION (0.554f / 360.0f)
+#define DISTANCE_CALIBRATION 400.0f
+#define ROTATION_CALIBRATION (0.5f / 360.0f)
 
 /**
     This program implements the ability to control a Pololu
@@ -89,7 +89,7 @@ void sendXYIs(float* xs, float* ys, int* intensities, int length){
         // .* option: precision of floating point string, max no. decimal places (3 in our case)
         sprintf(x, "%-+0.*f,", 3, xs[i]);     // 6 instead of 7
         sprintf(y, "%-+0.*f,", 3, ys[i]);
-        sprintf(intensity, "%-+0.*d", 3, intensities[i]);
+        sprintf(intensity, "%-+0.*d", 1, intensities[i]);
         
         /*
         sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
@@ -337,7 +337,8 @@ void tcp_control(){
             distance = atoi(token);
             token = strtok(NULL, delim);
             rotation = atoi(token);
-
+            currentOrientation += rotation;
+            
             printf("x: %f, y: %f, orient: %f, dist: %d, rot: %d\n", currentX, currentY, currentOrientation, distance, rotation);
             rotate(rotation);
             printf("Rotation calibration: %f\n", ROTATION_CALIBRATION);
