@@ -19,68 +19,129 @@ var url = 'mongodb://localhost:27017/SurveySwarm';
 *
 * Robots<Collection>
 *     Position
+*     RobotId
+*     Status
 *
 *
 */
 
-// Use connect method to connect to the server
 MongoClient.connect(url, function(err, db) {
 
     if(err == null) {
 
         console.log("Connected successfully to server");
 
+        /*upsertRobot(db, {id: 2, x: 0, y: 0, status: 0}, function () {
+
+            db.close();
+
+        });*/
+
+        getRobotById(db, 0, function () {
+
+            db.close();
+
+        });
+
     }
 
 });
 
-function insertRobot(robotId) {
 
+/*
+*
+* upsertRobot(db, robot, callback)
+*
+* Inserts a robot to the database or updates one if it already exists.
+*
+* db: An instance to the database
+* robot: Data to store of the form {id: , x: , y: , status: }
+* callback: Function to call when the upsert has finished.
+*
+ */
+//TODO: Return error status in callback / return
+function upsertRobot(db, robot, callback) {
 
+    // Get the robots collection
+    var collection = db.collection('robots');
 
-}
+    // Insert the robot
+    collection.updateOne({id:robot.id}, robot, {upsert: true}, function (err, res) {
 
-// Insert document
-var insertDocuments = function(db, callback) {
-    // Get the documents collection
-    var collection = db.collection('documents');
-    // Insert some documents
-    collection.insertMany([
-        {a : 1}, {a : 2}, {a : 3}
-    ], function(err, result) {
-        assert.equal(err, null);
-        assert.equal(3, result.result.n);
-        assert.equal(3, result.ops.length);
-        console.log("Inserted 3 documents into the collection");
-        callback(result);
-    });
-}
+        console.log(res.upsertedCount);
+        console.log(res.matchedCount);
 
-// Find Documents
-var findDocuments = function(db, callback) {
-    // Get the documents collection
-    var collection = db.collection('documents');
-    // Find some documents
-    collection.find({}).toArray(function(err, docs) {
-        assert.equal(err, null);
-        console.log("Found the following records");
-        console.log(docs)
-        callback(docs);
-    });
-}
-
-var removeDocuments = function (db, callback) {
-
-    var collection = db.collection('documents');
-    collection.deleteMany({}, function (err, r) {
-        console.log(r.deletedCount);
         callback();
+
     });
 
 }
 
-function dropCollection(db, callback) {
-    if(db.collection('documents').drop())
-        console.log("Dropped");
-    callback();
+
+/*
+*
+* getAllRobots(db, callback)
+* db: An instance to the database
+* callback: Function to call when the find has finished.
+*
+ */
+// TODO: Pass all robots to the callback / return robots
+function getAllRobots(db, callback){
+
+    // Get the robots collection
+    var collection = db.collection('robots');
+
+    // Read all the robots
+    collection.find({}).toArray(function (err, docs) {
+
+        console.log(docs);
+
+        callback();
+
+    });
+
+
+}
+
+
+/*
+*
+* function getRobotById(db, id, callback)
+*
+* db: An instance to the database
+* id: The robot id to search for
+* callback: Function to call when the find has finished.
+*
+*
+ */
+// TODO: Return the robot if one exists
+function getRobotById(db, id, callback) {
+
+    // Get the robots collection
+    var collection = db.collection('robots');
+
+    // Read all the robots
+    collection.find({id: id}).toArray(function (err, docs) {
+
+        console.log(docs);
+
+        callback();
+
+    });
+
+
+}
+
+/*
+*
+* 
+*
+ */
+function insertTileData(db, x, y, intensity, robotId, callback) {
+
+    // Get the tiles collection
+    var collection = db.collection('tiles');
+
+
+
 }

@@ -132,6 +132,12 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
+		if (coordX > processingTiles.length || 
+				coordY > processingTiles[coordX].length) {
+			console.log("NON FATAL ERROR -------------------------------");
+			console.log("robot off grid");
+			return;
+		}
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);
