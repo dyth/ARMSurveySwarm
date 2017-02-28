@@ -93,112 +93,68 @@ class Robot {
 			// stop
 		} else if (current.equals("RESUME")) {
 			// resume
-		}
+		} else if (current.startsWith("INSTRUCTION,")) {
+			String[] sections = current.split(", ");
 
-		// Parse the movement message:
-		// Get the direction:
-		Direction direction = null;
+			// Now get the rest of the directions
+			xPos = (float) Integer.parseInt(sections[1]) / 10;
+			yPos = (float) Integer.parseInt(sections[2]) / 10;
+			orientation = (float) Integer.parseInt(sections[3]) * 
+				(float) Math.PI / 180.0f;
 
-		if (current.startsWith("f")) {
-			// it's forward
-			direction = Direction.FORWARD;
-			current = current.substring("forward, ".length());
-		} else if (current.startsWith("b")) {
-			// backward
-			direction = Direction.BACKWARD;
-			current = current.substring("backward, ".length());
-		} else if (current.startsWith("l")) {
-			direction = Direction.LEFT;
-			current = current.substring("left, ".length());
-		} else if (current.startsWith("r")) {
-			direction = Direction.RIGHT;
-			current = current.substring("right, ".length());
-		}
+			// Get rid of the next part
 
-		if (direction == null) {
-			System.out.println("Message not a movement command");
-			System.out.println("message is" + current);
-			return parse(rest);
-		}
+			// --------Calculation of the rotation and the
+			// --------movement distances.
+			float distance = (float) Integer.parseInt(sections[4]) / 10;
+			float rotation = (float) Integer.parseInt(sections[5]) * 
+				(float) Math.PI / 180.0f;
 
-		// Drop the x and ys for now:
-		String[] sections = current.split(", ");
+			orientation += rotation;
+			orientation = orientation % (2 * (float) Math.PI);
 
+			// Now adjust position:
+			xPos += distance * Math.cos(orientation);
+			yPos += distance * Math.sin(orientation);
 
-		// Now get the rest of the directions
-		// Cuts off the number we just parsed.
-		String speedNum = sections[2];
+			// In centimeters. Assume speed = 5000
+			// Robots go 46-48cm/second.
+			System.out.println("(" + id + ") Position is: " + xPos + " " + yPos);
+			System.out.println("(" + id + ") Orientation is: " + orientation);
 
-		int speed = Integer.parseInt(speedNum);
-
-		xPos = (float) Integer.parseInt(sections[0]);
-		yPos = (float) Integer.parseInt(sections[1]);
-
-		// Get rid of the next part
-		String durationString = sections[3];
-		// Cuts off the number we just parsed.
-
-		int duration = Integer.parseInt(durationString);
-
-		// --------Calculation of the rotation and the
-		// --------movement distances.
-		float time = (float) duration / 1000f;
-		// Both are not nessecarily used
-		float rotation = (float) (2 * Math.PI / 5.5f) * time;
-
-		// In centimeters. Assume speed = 5000
-		// Robots go 46-48cm/second.
-		float distance = 0.48f * time;
-		System.out.println("(" + id + ") Time is: " + time);
-		System.out.println("(" + id + ") Distance is: " + distance);
-
-		System.out.println("(" + id + ") Position is: " + xPos + " " + yPos);
-		System.out.println("(" + id + ") Orientation is: " + orientation);
-
-		Intensity[] intensityMeasurements = null;
-
-		switch (direction) {
-			case FORWARD:
-				intensityMeasurements = move(distance);
-				System.out.println("(" + id + ") Position is: " + xPos + " " + yPos);
-				break;
-			case BACKWARD:
-				intensityMeasurements = move_back(distance);
-				break;
-			case LEFT:
-				rotate_left(rotation);
-				break;
-			case RIGHT:
-				rotate_right(rotation);
-				break;
-		}
-
-		// Now sleep for that time
-		try {
-			Thread.sleep((long) (time * 1000));
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		// Send messages to the server:
-		if (intensityMeasurements != null) {
-			StringBuilder builder = new StringBuilder();
-			builder.append("INTENSITY:" + id);
-
-			for (Intensity intensity: intensityMeasurements) {
-				builder.append(";(");
-				builder.append(intensity.getXPos());
-				builder.append(",");
-				builder.append(intensity.getYPos());
-				builder.append(",");
-				builder.append(intensity.getValue());
-				builder.append(")");
+			// Assume 47 cm/sec + 0.5 sec for rotation
+			float time = 0.5f + distance / 47f;
+			// Now sleep for that time
+			try {
+				Thread.sleep((long) (time));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
 
-			builder.append("\n");
-			send(builder.toString());
+			Intensity[] intensityMeasurements = new Intensity[] {
+				new Intensity(xPos, yPos, takeMeasurement())
+			};
+
+			// Send messages to the server:
+			if (intensityMeasurements != null) {
+				StringBuilder builder = new StringBuilder();
+				builder.append("INTENSITY:" + id);
+
+				for (Intensity intensity: intensityMeasurements) {
+					builder.append(";(");
+					builder.append(intensity.getXPos());
+					builder.append(",");
+					builder.append(intensity.getYPos());
+					builder.append(",");
+					builder.append(intensity.getValue());
+					builder.append(")");
+				}
+
+				builder.append("\n");
+				send(builder.toString());
+			}
+			send("DONE:" + id + "\n");
 		}
-		send("DONE:" + id + "\n");
 
 		return parse(rest);
 	}
@@ -208,35 +164,9 @@ class Robot {
 		out.flush();
 	}
 
-	public Intensity[] move(float distance) {
-		xPos = xPos + distance * (float) Math.sin(orientation);
-		yPos = yPos + distance * (float) Math.cos(orientation);
-
-		System.out.println("(" + id + ") New position is: " + xPos + " " + yPos);
-		return new Intensity[] {
-			new Intensity(xPos, yPos, takeMeasurement()) };
-	}
-
-	// returns the measurements made
-	public Intensity[] move_back(float distance) {
-		xPos = xPos - distance * (float) Math.sin(orientation);
-		yPos = yPos - distance * (float) Math.cos(orientation);
-
-		System.out.println("(" + id + ") New position is: " + xPos + " " + yPos);
-		return new Intensity[] {
-			new Intensity(xPos, yPos, takeMeasurement()) };
-	}
-
-	public void rotate_left(float rotation) {
-		orientation += rotation;
-	}
-
-	public void rotate_right(float rotation) {
-		orientation -= rotation;
-	}
-
 	public int takeMeasurement() {
-		return board[(int)Math.floor(xPos)][(int)Math.floor(yPos)];
+		return board[Math.abs(Math.round(xPos / tileSize))]
+			[Math.round(yPos / tileSize)];
 	}
 }
 
