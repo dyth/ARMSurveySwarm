@@ -38,7 +38,7 @@ If the connection is broken, the robot connects to the server again and sends an
 Robots will send a message indicating intensities at positions as a list (possibly empty or single valued) in the format:
 
 
-INTENSITY: ID; (X1, Y1, Intensity1); (X2, Y2, Intensity2); ... (XN, YN, IntensityN)\n
+'''INTENSITY: ID; (X1, Y1, Intensity1); (X2, Y2, Intensity2); ... (XN, YN, IntensityN)\n'''
 
 The ITENSITY message will be sent *before* the DONE message for that 
 respective command.
