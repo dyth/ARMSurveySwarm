@@ -126,13 +126,6 @@ var setTiles = function(robotID, messages) {
 		coordY = roundPosition(messages[i].y);
 		lightIntensity = messages[i].lightIntensity;
 
-		// convert light intensity as float into black (=0) or white (=1)
-		if (lightIntensity < 0.5) {
-			lightIntensity = 0;
-		} else {
-			lightIntensity = 1;
-		}
-
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);
