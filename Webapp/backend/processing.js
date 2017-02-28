@@ -133,8 +133,6 @@ var setTiles = function(robotID, messages) {
 			lightIntensity = 1;
 		}
 
-		console.log(robotID + ' in set Tiles, with coordinates x=' + coordX + ' y=' + coordY);
-
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);
@@ -252,18 +250,21 @@ var checkTile = function(robotID, tileX, tileY){
 	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 
 
-	var B = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
+	var B = [Math.sin(orientation), Math.cos(orientation)]; // current orientation of robot
 
 
 	// Find angle between current robot orientation and direction to tile
 	// a.b = |a||b| sin(theta)
-	var sin_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
+	var cos_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
 
 
-	var angle = Math.asin(sin_theta);
+	var angle = Math.acos(cos_theta);
+
 	if (angle < 0) {
 		angle += 2*Math.PI;
 	}
+	console.log('from x=' + coordX + ' ,y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
+	console.log('angle ' + angle*180/Math.PI);
 
 	// Turn by angle clockwise
 	communication.move(robotID, coordX * tileSize, coordY * tileSize,
