@@ -56,7 +56,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* **ARM** for providing the project idea, and for providing hte 3pi robots, especially **Ashkan Tousimojarad**, our client and contact.
+* **ARM** for providing the project idea, and for providing the 3pi robots, especially **Ashkan Tousimojarad**, our client and contact.
 * **Nikolas Goldin** and **Chris Styles** for their wonderful libraries for the mbed + Pololu 3pi robots.
 *  **Chris Hadley** for providing assistance in the creation of the board.
 
