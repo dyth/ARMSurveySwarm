@@ -45,7 +45,6 @@ The robots should initially be placed over the bottom edge of the board, facing 
 * **Jamie Davenport** - *Initial work* - [jamienet](https://github.com/jamienet)
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
-<<<<<<< Updated upstream
 * **Kamile Matulenaite** - *Processing robot data, collision prevention, next movement calculation, communication with server and robots, unit testing* - [Kamile](https://github.com/Kamile)
 * **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing* - [j-c-w](https://github.com/j-c-w)
 
