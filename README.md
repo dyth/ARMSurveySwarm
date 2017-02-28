@@ -41,7 +41,7 @@ The robots should initially be placed over the bottom edge of the board, facing 
 ## Authors
 (listed in alphabetical order)
 
-* **Lucia Bura** - *Initial work* - [luciabura](https://github.com/luciabura)
+* **Lucia Bura** - *documentation, debugging* - [luciabura](https://github.com/luciabura)
 * **Jamie Davenport** - *Initial work* - [jamienet](https://github.com/jamienet)
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
