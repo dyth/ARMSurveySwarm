@@ -265,6 +265,7 @@ describe('Add padding', function() {
 describe('Move function sending instructions to robot', function() {
 
 	coms.addRobotByID(3, {destroyed: false, write: function() {}});
+	processor.resetRobot(3);
 	var directions = ['forward', 'backward','left', 'right'];
 	var secondaryDirections = ['forward', 'forward'];
 

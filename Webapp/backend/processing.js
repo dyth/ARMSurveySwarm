@@ -63,15 +63,15 @@ var createTilesList = function() {
 	}
 }
 
-var addRobotsToList = function(robotID) {
+var addRobotsToList = function(numRobots) {
 	// This creates the list up to the point of the robotID.
 	// i.e. add robots to the list to accomdate more stuff being added
-	for(var i = robots.length; i < robotID; i++) {
+	for(var i = robots.length; i <= numRobots; i++) {
 		robots.push({id: i, xPrev: 0,yPrev: 0,
 			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2 });
 		initialTileState.push(2);
 		for (var j = 0; j < processingTiles.length; j++) {
-			for (var k = 0; k < processingTile[j].length; k++) {
+			for (var k = 0; k < processingTiles[j].length; k++) {
 				processingTiles[j][k].push(2);
 			}
 		}
@@ -262,6 +262,7 @@ var checkTile = function(robotID, tileX, tileY){
 	if (angle < 0) {
 		angle += 2*Math.PI;
 	}
+
 	console.log('from x=' + coordX + ' ,y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
 	console.log('angle ' + angle*180/Math.PI);
 
@@ -270,12 +271,14 @@ var checkTile = function(robotID, tileX, tileY){
 		orientation, angle, vectorLength(A)*tileSize);
 
 	//Set new orientation of robotID
+	console.log('old orientation ' + robots[robotID].orientation*180/Math.PI);
 	rotateClockwise(robotID, angle);
+	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
 }
 
 var rotateClockwise = function(robotID, radians) {
 	var currentOrientation = robots[robotID].orientation;
-	robots[robotID].orientation = (currentOrientation + radians) % 2*Math.PI;
+	robots[robotID].orientation = (currentOrientation + radians) % (2*Math.PI);
 }
 
 /*
