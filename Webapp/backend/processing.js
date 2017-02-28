@@ -15,7 +15,7 @@ var route = require('./route');
 var TEST = true;
 
 var processingTiles = [];
-var initialTileState = [];
+var initialTileState = [2,2];
 
 // array order is by ID
 // for the status, it is an index in the array  'states' in state.js
@@ -66,7 +66,7 @@ var createTilesList = function() {
 var addRobotsToList = function(numRobots) {
 	// This creates the list up to the point of the robotID.
 	// i.e. add robots to the list to accomdate more stuff being added
-	for(var i = robots.length; i <= numRobots; i++) {
+	for(var i = robots.length; i < numRobots; i++) {
 		robots.push({id: i, xPrev: 0,yPrev: 0,
 			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2 });
 		initialTileState.push(2);
@@ -267,10 +267,6 @@ var checkTile = function(robotID, tileX, tileY){
 
 
 	var angle = Math.acos(cos_theta);
-
-	if (angle < 0) {
-		angle += 2*Math.PI;
-	}
 
 	console.log('from x=' + coordX + ' ,y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
 	console.log('angle ' + angle*180/Math.PI);
