@@ -65,6 +65,7 @@ var server = net.createServer(function(socket) {
 server.listen(8000);
 
 var receiveData = function(data, socket) {
+	console.log(data);
 	if (data.substring(0, "HELLO:".length) === ("HELLO:")) {
 		var id = data.substring("HELLO:".length).trim();
 		var idNumber = stringToNumber(id);
@@ -152,7 +153,7 @@ var receiveData = function(data, socket) {
 
 			var x = stringToFloat(values[0])/10;
 			var y = stringToFloat(values[1])/10;
-			var intensity = stringToNumber(values[2]);
+			var intensity = stringToFloat(values[2]);
 
 			if (x === null || y === null || intensity === null) {
 				console.log("NON-FATAL ERROR ------------------------------");
@@ -214,7 +215,6 @@ var stringToNumber = function(string, isFloat) {
  * ramp it starts routing.
  */
 var startRobot_waitingRobots = []
-var startRobot_running = false;
 var startRobot_movementDone = null;
 var enqueueRobot = function(robotID) {
 	startRobot_waitingRobots.push(robotID);
@@ -224,17 +224,11 @@ var enqueueRobot = function(robotID) {
  * This starts all enqueued robots in the stack.
  */
 var startRobots = function() {
-	if (startRobot_running) {
-		return;
-	}
 	console.log('start robot waiting ' + startRobot_waitingRobots.length)
 	if (startRobot_waitingRobots.length === 0) {
-		startRobot_running = false;
 		startRobot_movementDone = null;
 		return;
 	}
-
-	startRobot_running = true;
 
 	var thisRobot = getSocketByID(startRobot_waitingRobots[0]);
 
@@ -244,8 +238,8 @@ var startRobots = function() {
 	startRobot_movementDone = function(thisRobotID) {
 		// remove from the head of the list
 		startRobot_waitingRobots.shift();
+		console.log("starting next robot");
 
-		startRobot_running = false;
 		startRobots();
 
 		// need to send directions to this robot now that
@@ -442,7 +436,6 @@ if (TEST) {
 	exports.getRobotIndex = getRobotIndex;
 	exports.getRobotByID = getRobotByID;
 	exports.startRobot_waitingRobots = startRobot_waitingRobots;
-	exports.startRobot_running = startRobot_running;
 	exports.startRobot_movementDone = startRobot_movementDone;
 	exports.enqueueRobot = enqueueRobot;
 }
