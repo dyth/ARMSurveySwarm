@@ -165,8 +165,8 @@ class Robot {
 	}
 
 	public int takeMeasurement() {
-		return board[Math.abs(Math.round(xPos / tileSize))]
-			[Math.round(yPos / tileSize)];
+		return board[(int) Math.floor(0.001 + xPos / tileSize)]
+			[(int) Math.floor(0.001 + yPos / tileSize)];
 	}
 }
 
