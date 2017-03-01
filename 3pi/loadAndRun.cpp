@@ -1,6 +1,7 @@
 #include "mbed.h"
 #include "m3pi.h"
 #include <algorithm>
+#include <sstream>
 
 #define DEBOUNCE 2
 
@@ -15,6 +16,9 @@
 
 m3pi m3pi;
 // 0.51, 530
+
+float leftRotation;
+float rightRotation;
 
 void turnCounterClockwise(int degree) {
     // Turn left at half speed
@@ -37,12 +41,13 @@ void turnClockwise(int degree) {
 void goForwards(int distance) {
     // goes forward distance mm
     //m3pi.stop();
-    //m3pi.forward(0.25);
-    //wait(0.2f);
-    m3pi.forward(1.0f);
-    wait(((float) distance) / 960.0f);
-    //m3pi.forward(0.25f);
-    //wait(0.2f);
+    m3pi.forward(0.25);
+    wait(0.05f);
+    m3pi.left_motor(leftRotation);
+    m3pi.right_motor(rightRotation);
+    wait(((float) distance) / 990.0f);
+    m3pi.forward(0.25f);
+    wait(0.05f);
     m3pi.stop();
     wait(1.0f);
 }
@@ -68,6 +73,23 @@ float limit(float speed) {
     }
 }
 
+std::string Convert (float number){
+    std::ostringstream buff;
+    buff<<number;
+    return buff.str();   
+}
+
+void setRotations(float left, float right) {
+    // take the values from the line following and automatically calibrate
+    if (right > left) {
+        rightRotation = 1.0f;
+        leftRotation = right / left;
+     } else {
+        rightRotation = left / right;
+        leftRotation = 1.0f;
+    }
+}
+
 void PID() {
   
     m3pi.cls();
@@ -79,6 +101,8 @@ void PID() {
  
     float right;
     float left;
+    float rightTotal;
+    float leftTotal;
     float current_pos_of_line = 0.0;
     float previous_pos_of_line = 0.0;
     float derivative,proportional,integral = 0;
@@ -119,20 +143,23 @@ void PID() {
             count = 0;
         }
         s = sum(rotations);
+        leftTotal += left;
+        rightTotal += right;
     }
+    setRotations(leftTotal, rightTotal);
     m3pi.stop();
+    m3pi.cls();
+    m3pi.locate(0,0);
+    m3pi.printf("%s", Convert(leftTotal));
+    m3pi.locate(0,1);
+    m3pi.printf("%s", Convert(rightTotal));
 }
 
 int main() {
     wait(0.5);
-    //goForwards(2000);
-    //turnCounterClockwise(180);
-    //goForwards(2000);
-    //turnClockwise(720);
-    
     PID();
-    turnClockwise(168);
-    turnCounterClockwise(45);
-    goForwards(2828);
+    turnClockwise(170);
+    turnCounterClockwise(90);
+    goForwards(2000);
 }
     
