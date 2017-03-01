@@ -5,7 +5,7 @@
 m3pi m3pi;
 
 // Debouncing speed
-#define DEBOUNCE 1
+#define DEBOUNCE 2
 
 // Minimum and maximum motor speeds
 #define MAX 1.0
@@ -53,12 +53,12 @@ int main() {
     float power;
     float speed = MAX;
     
-    // create array for debouncing and fill it with null values
+    // create array for debouncing and fill it with a starting
     float rotations[DEBOUNCE];
     std::fill(rotations, rotations + DEBOUNCE, 1.0f);
     int count = 0;
     
-    float s = 0.0f;
+    float s = 1.0f;
     
     while (s != 0.0f) {
         // Get the position of the line.
@@ -87,12 +87,6 @@ int main() {
             count = 0;
         }
         s = sum(rotations);
-        
-        m3pi.cls();
-        m3pi.locate(0,0);
-        //m3pi.printf("%.5s", sum);
-        //wait(0.001);
-        
     }
     m3pi.stop();
 }
