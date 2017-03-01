@@ -37,7 +37,19 @@ MongoClient.connect(url, function(err, db) {
 
         });*/
 
-        getRobotById(db, 0, function () {
+        /*getRobotById(db, 0, function () {
+
+            db.close();
+
+        });*/
+
+        /*insertTileData(db, 5, 3, 1, 0, function () {
+
+            db.close();
+
+        });*/
+
+        getAllLatestTiles(db, function () {
 
             db.close();
 
@@ -106,7 +118,7 @@ function getAllRobots(db, callback){
 
 /*
 *
-* function getRobotById(db, id, callback)
+* getRobotById(db, id, callback)
 *
 * db: An instance to the database
 * id: The robot id to search for
@@ -134,14 +146,74 @@ function getRobotById(db, id, callback) {
 
 /*
 *
-* 
+* insertTileData(db, x, y, intensity, robotId, callback)
+*
+* Inserts a new tile into the document
 *
  */
+// TODO: Return error data
 function insertTileData(db, x, y, intensity, robotId, callback) {
 
     // Get the tiles collection
     var collection = db.collection('tiles');
 
+    // Get the timestamp
+    var t = Date.now();
 
+    // Add the tiledata
+    collection.insertOne({x: x, y: y, intensity: intensity, robotId: robotId, timestamp: t}, function (err, res) {
+
+        console.log(res.insertedCount);
+
+        callback();
+    });
 
 }
+
+/*
+*
+* getAllTiles(db, callback)
+*
+* Returns all tiles in the document
+*
+*
+ */
+function getAllTiles(db, callback) {
+
+    // Get the tiles collection
+    var collection = db.collection('tiles');
+
+    collection.find({}).toArray(function (err, docs) {
+
+        console.log(docs);
+
+        callback();
+
+    });
+
+}
+
+/*
+*
+*
+*
+ */
+function getAllLatestTiles(db, callback){
+
+    // Get the tiles collection
+    var collection = db.collection('tiles');
+
+    collection.find({}).sort({timestamp: -1}).toArray(function (err, docs) {
+
+        console.log(docs);
+
+        callback();
+
+    });
+
+}
+
+
+
+
+
