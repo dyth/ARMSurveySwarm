@@ -1,8 +1,10 @@
 #include "mbed.h"
 #include "m3pi.h"
 #include <algorithm>
-#include <sstream>
+ 
+m3pi m3pi;
 
+// Debouncing speed
 #define DEBOUNCE 2
 
 // Minimum and maximum motor speeds
@@ -13,45 +15,6 @@
 #define P_TERM 1
 #define I_TERM 0
 #define D_TERM 20
-
-m3pi m3pi;
-// 0.51, 530
-
-float leftRotation;
-float rightRotation;
-
-void turnCounterClockwise(int degree) {
-    // Turn left at half speed
-    //m3pi.stop();
-    m3pi.left(0.15f);
-    wait(((float) degree) * 2.853f / 360.0f);
-    m3pi.stop();
-    wait(0.5f);
-}
-
-void turnClockwise(int degree) {
-    // Turn right at half speed
-    //m3pi.stop();
-    m3pi.right(0.15f);
-    wait(((float) degree) * 2.853f / 360.0f);
-    m3pi.stop();
-    wait(0.5f);
-}
-
-void goForwards(int distance) {
-    // goes forward distance mm
-    //m3pi.stop();
-    m3pi.forward(0.25);
-    wait(0.05f);
-    m3pi.left_motor(leftRotation);
-    m3pi.right_motor(rightRotation);
-    wait(((float) distance) / 990.0f);
-    m3pi.forward(0.25f);
-    wait(0.05f);
-    m3pi.stop();
-    wait(1.0f);
-}
-
 
 float sum (float* rotations) {
     // sum up debounce array
@@ -73,28 +36,19 @@ float limit(float speed) {
     }
 }
 
-std::string Convert (float number){
-    std::ostringstream buff;
-    buff<<number;
-    return buff.str();   
-}
-
-void setRotations(float left, float right) {
-    // take the values from the line following and automatically calibrate
-    if (right > left) {
-        rightRotation = 1.0f;
-        leftRotation = right / left;
-     } else {
-        rightRotation = left / right;
-        leftRotation = 1.0f;
-    }
-}
-
-void PID() {
+int main() {
+    
+    m3pi.cls();
+    m3pi.locate(0,0);
+    m3pi.printf("PID");
+ 
+    wait(0.5);
+    m3pi.sensor_auto_calibrate();
+ 
+    float totalRight;
+    float totalLeft;
     float right;
     float left;
-    float rightTotal;
-    float leftTotal;
     float current_pos_of_line = 0.0;
     float previous_pos_of_line = 0.0;
     float derivative,proportional,integral = 0;
@@ -135,34 +89,15 @@ void PID() {
             count = 0;
         }
         s = sum(rotations);
-        leftTotal += left;
-        rightTotal += right;
+        
+        totalRight += right;
+        totalLeft += left;
     }
-    // stop and calibrate sensors
     m3pi.stop();
-    setRotations(leftTotal, rightTotal);
+    
+    m3pi.cls();
+    m3pi.locate(0,0);
+    m3pi.printf("%f", totalLeft);
+    m3pi.locate(0,1);
+    m3pi.printf("%f", totalRight);
 }
-
-int main() {
-    wait(0.5);
-    m3pi.left(1.0f);
-    wait(1.5f);
-    m3pi.stop();
-    wait(1.0f);
-    m3pi.reset();
-    
-    m3pi.sensor_auto_calibrate();
-    
-    PID();
-    turnClockwise(170);
-    turnCounterClockwise(90);
-    
-    PID();
-    turnClockwise(170);
-    turnCounterClockwise(90);
-    
-    goForwards(2000);
-    turnClockwise(180);
-    goForwards(2000);
-}
-    
