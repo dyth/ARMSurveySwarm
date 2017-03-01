@@ -4,7 +4,7 @@ Mainly C++ code that can be flashed into the robots for their communication.
 
 ## Library
 
-Our own C++ library for the m3pi. This is a fork of Chris Styles's library, but with an added function for returning calibrated values from all five of the sensors.
+A fork of Chris Styles's library, but with an added function for returning calibrated values from all five reflectance sensors.
 
 ## Final program
 
