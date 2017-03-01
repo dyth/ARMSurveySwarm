@@ -161,7 +161,7 @@ var setTiles = function(robotID, messages) {
 }
 
 var routeRobot = function(robotID) {
-	if ( robotID >= robots.length) {
+	if (robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
 	}
@@ -183,15 +183,14 @@ var routeRobot = function(robotID) {
 		return;
 	}
 
-	robots[robotID].xPrev = robots[robotID].xAfter;
-	robots[robotID].yPrev = robots[robotID].yAfter;
+	// robots[robotID].xPrev = robots[robotID].xAfter;
+	// robots[robotID].yPrev = robots[robotID].yAfter;
+	//
+	// robots[robotID].xAfter = destination.xAfter;
+	// robots[robotID].yAfter = destination.yAfter;
 
-	robots[robotID].xAfter = destination.xAfter;
-	robots[robotID].yAfter = destination.yAfter;
-
-	// convert next location to angle + distance and call communication.move in
-	// checkTile
-	checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
+	checkTile(robotID, destination.xAfter, destination.yAfter);
+	//checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
 	server.updateStatus(robotID);
@@ -249,10 +248,10 @@ var vectorLength = function(vector) {
  * Set orientation of given robot in direction of tile.
  */
 var checkTile = function(robotID, tileX, tileY){
-	console.log('Routing to x=' + tileX + ' y = ' + tileY);
+	console.log('------');
 	// Currently direct line to tile
-	var coordX = robots[robotID].xPrev;
-	var coordY = robots[robotID].yPrev;
+	var coordX = robots[robotID].xAfter;
+	var coordY = robots[robotID].yAfter;
 
 	if (coordX == tileX && coordY == tileY){
 		console.log("Routing to current tile - abort. ");
@@ -263,25 +262,45 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	var orientation = robots[robotID].orientation;
-	var A = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
+
+	// always make this x axis now
+	var A = [1,0];
+	//var A = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
+	console.log('vector A ' + A);
 
 
-	var B = [Math.sin(orientation), Math.cos(orientation)]; // current orientation of robot
+	var B = [tileX, tileY]; // vector for current pos to tile
+	console.log('vector B ' + B);
 
+	// B has to be above A for cross product
+	console.log('Angle to x axis ----');
 
-	// Find angle between current robot orientation and direction to tile
-	// a.b = |a||b| sin(theta)
-	var cos_theta = (A[0]*B[1] - A[1]*B[0])/(vectorLength(A)*vectorLength(B));
+	console.log(Math.asin(A[0]));
+	console.log(Math.asin(B[0]/vectorLength(B)));
 
+	 if (B[1] < 0){
+	 	var temp = A;
+	 	A = B;
+	 	B = temp;
+	 }
+	 console.log(A);
+	 console.log(B);
 
-	var angle = Math.acos(cos_theta);
+	// axb = |a||b|sin(theta)
+	var sin_theta = (A[0]*B[1]-A[1]*B[0])/(vectorLength(B) * vectorLength(A));
+	console.log(sin_theta);
+	var angle = Math.asin(sin_theta);
+	angle = angle - orientation;
 
-	if (angle < 0) {
-		angle = (2*Math.PI) - (angle*-1);
-	}
+	console.log('Angle ' + angle*180/Math.PI);
 
-	console.log('from x=' + coordX + ' ,y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
-	console.log('angle ' + angle*180/Math.PI);
+	// turn clockwise => turn 360 - abs(angle) anticlockwise
+	// if (angle < 0) {
+	// 	angle = (2*Math.PI) + angle;
+	// }
+
+	console.log('From x=' + coordX + ' y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
+	console.log('Angle ' + angle*180/Math.PI);
 
 	// Turn by angle clockwise
 	communication.move(robotID, coordX * tileSize, coordY * tileSize,
@@ -289,11 +308,19 @@ var checkTile = function(robotID, tileX, tileY){
 
 	//Set new orientation of robotID
 	console.log('old orientation ' + robots[robotID].orientation*180/Math.PI);
-	rotateClockwise(robotID, angle); //actually anticlockwise
+
+	getNewOrientation(robotID, angle);
+
+	robots[robotID].xPrev = robots[robotID].xAfter;
+	robots[robotID].yPrev = robots[robotID].yAfter;
+
+	robots[robotID].xAfter = tileX;
+	robots[robotID].yAfter = tileY;
+
 	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
 }
 
-var rotateClockwise = function(robotID, radians) {
+var getNewOrientation = function(robotID, radians) {
 	var currentOrientation = robots[robotID].orientation;
 	robots[robotID].orientation = (currentOrientation + radians) % (2*Math.PI);
 }
@@ -373,9 +400,7 @@ var getGridDimensions = function() {
 
 var startProcessing = function() {
 	startedProcessing = true;
-
 	route.setUp(width); // set up uncheckedTiles lists
-
 	// starts all the connected robots waiting on the
 	// starting ramp.
 	communication.startRobots();
@@ -415,9 +440,10 @@ if (TEST) {
 	exports.length = length;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
+	exports.checkTile = checkTile;
 
 	exports.roundPosition = roundPosition;
-	exports.rotateClockwise = rotateClockwise;
+	exports.getNewOrientation = getNewOrientation;
 	exports.vectorLength = vectorLength;
 
 	var setCoveredToTotalTiles = function() {

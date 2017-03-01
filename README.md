@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-If you are wishing to compile from source, do all the instructions. If you are wishing to flash an mbed with precompiled binary files, skip steps 1 -- 4.
+If you are wishing to compile from source, do all the instructions. If you are wishing to flash an mbed with precompiled binary files, skip steps 1 - 4.
 
 1. Create an account at [ARM online compiler](https://developer.mbed.org/compiler).
 2. Add [development board](https://developer.mbed.org/platforms/mbed-LPC1768/) (on panel on right).
@@ -26,26 +26,27 @@ Detailed instructions per program can be found in READMEs within subdirectories.
 The backend can be set up by compiling and importing the 3pi code into the online ARM compiler.
 
 To install the front end,
-```
-sudo npm install connect serve-static socket.io socket.io-client html express path mocha
-```
+
+> $ sudo npm install connect serve-static socket.io socket.io-client html express path mocha
 
 
 ## Deployment
-The web app is run by
-```
-sudo node server.js
-```
-The robots should initially be placed over the bottom edge of the board, facing left.
+
+The robots should initially be placed over the bottom edge of the board, facing left. They should connect automatically to the server.
+
+The server is run by
+
+> $ sudo node server.js
+
+which hosts the webapp. The webapp can be viewed on http://localhost:80
 
 ## Authors
 (listed in alphabetical order)
 
-* **Lucia Bura** - *Initial work* - [luciabura](https://github.com/luciabura)
+* **Lucia Bura** - *documentation, debugging* - [luciabura](https://github.com/luciabura)
 * **Jamie Davenport** - *Initial work* - [jamienet](https://github.com/jamienet)
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
-<<<<<<< Updated upstream
 * **Kamile Matulenaite** - *Processing robot data, collision prevention, next movement calculation, communication with server and robots, unit testing* - [Kamile](https://github.com/Kamile)
 * **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing* - [j-c-w](https://github.com/j-c-w)
 
@@ -58,5 +59,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * **ARM** for providing the project idea, and for providing the 3pi robots, especially **Ashkan Tousimojarad**, our client and contact.
-* **Nikolas Goldin** and **Chris Styles** for their wonderful libraries for the mbed + Pololu 3pi robots.
+* **Nikolas Goldin** and **Chris Styles** for laying a wonderful framework for creating our own library for the mbed + Pololu 3pi robots.
 *  **Chris Hadley** for providing assistance in the creation of the board.

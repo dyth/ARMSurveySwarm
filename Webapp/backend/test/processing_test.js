@@ -1,4 +1,5 @@
 var processor = require('../processing');
+var coms = require('../communication');
 var route = require('../route');
 var expect = require('chai').expect;
 
@@ -61,10 +62,10 @@ describe('Set Tile with light intensity given x and y positions', function() {
 	});
 });
 
-describe('rotate Clockwise', function() {
-	it('Given orientation to turn clockwise, next orientation is calculated' +
+describe('get new orientation - ', function() {
+	it('given orientation to turn, next orientation is calculated' +
 	' as being between 0 and 2PI', function() {
-	processor.rotateClockwise(0, 3*Math.PI);
+	processor.getNewOrientation(0, 3*Math.PI);
 	expect(processor.robots[0].orientation).at.most(2*Math.PI);
 	});
 });
@@ -78,11 +79,10 @@ describe('Vector Length', function() {
 	});
 });
 
-describe('reset robot', function() {
+describe('Reset robot', function() {
 	it('should reset the robot position after being called', function() {
 		processor.robots[0].xPrev = -1000;
 		processor.robots[0].orientation = 11111;
-
 		processor.resetRobot(0);
 
 		expect(processor.robots[0].xPrev).to.equal(0);
@@ -92,9 +92,7 @@ describe('reset robot', function() {
 	it('should reset change the status of the robot after being called',
 		function() {
 			processor.robots[0].robotStatus = 100;
-
 			processor.robotConnectionLost(0);
-
 			expect(processor.robots[0].robotStatus).to.equal(3);
 	});
 });
@@ -103,8 +101,6 @@ describe('Route robot', function() {
 	it('Check that route does not set robots to recheck current tile', function() {
 		processor.startProcessing();
 		processor.routeRobot(1);
-		console.log('x '+ processor.robots[1].xPrev + processor.robots[1].xAfter +
-	' y ' + processor.robots[1].yPrev + processor.robots[1].yAfter );
 		if (processor.robots[1].xPrev === processor.robots[1].xAfter) {
 			expect(processor.robots[1].yPrev).to.not.equal(processor.robots[1].yAfter);
 		} else if (processor.robots[1].yPrev === processor.robots[1].yAfter) {
@@ -117,12 +113,46 @@ describe('Route robot', function() {
 	});
 });
 
+describe('check tile', function() {
+	it('routes robot to another tile', function() {
+		processor.startProcessing();
+		processor.setRobotStates(2);
+		processor.setGridDimensions({x:10, y:10});
+
+		processor.checkTile(0, 5, 5);
+		processor.checkTile(0, 10, 0);
+		processor.checkTile(0, 0, 0);
+	});
+});
+
 describe('If all tiles have been covered, send stopAll message', function() {
 	it('Robot should receive stopAll message', function() {
 		var currentlyCovered = processor.tilesCovered;
+		processor.setRobotStates(2);
+		processor.setGridDimensions({x:10, y:10});
+		processor.startProcessing();
+
+		var dataReceived;
+		var dataReceived2;
+
+		coms.receiveData("HELLO:1\n", {destroyed: false, write:
+			function(data) {
+				dataReceived = data;
+			}
+		});
+		coms.receiveData("HELLO:2\n", {destroyed: false, write:
+			function(data) {
+				dataReceived2 = data;
+			}
+		});
+
 		processor.setCoveredToTotalTiles();
-		processor.setTiles(3, [{x:64.31, y: 17.32, lightIntensity: 1}]);
-		expect(true).to.be.true; // TODO: check that robots receive STOP
 		processor.tilesCovered = currentlyCovered;
+
+		processor.setTiles(1, [{x:5, y:5, lightIntensity:1}]);
+
+		expect(dataReceived).to.equal('STOP\n');
+		expect(dataReceived2).to.equal('STOP\n');
+
 	});
 });

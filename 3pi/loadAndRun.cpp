@@ -45,6 +45,8 @@ int main() {
     wait(0.5);
     m3pi.sensor_auto_calibrate();
  
+    float totalRight;
+    float totalLeft;
     float right;
     float left;
     float current_pos_of_line = 0.0;
@@ -87,6 +89,15 @@ int main() {
             count = 0;
         }
         s = sum(rotations);
+        
+        totalRight += right;
+        totalLeft += left;
     }
     m3pi.stop();
+    
+    m3pi.cls();
+    m3pi.locate(0,0);
+    m3pi.printf("%f", totalLeft);
+    m3pi.locate(0,1);
+    m3pi.printf("%f", totalRight);
 }

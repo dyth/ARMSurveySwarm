@@ -259,6 +259,7 @@ describe('Add padding', function() {
 		expect(coms.addPadding(1232.0232, 5).length).to.equal(5);
 		expect(coms.addPadding(2354, 5).length).to.equal(5);
 		expect(coms.addPadding(23.1, 5).length).to.equal(5);
+
 	});
 });
 
@@ -266,43 +267,16 @@ describe('Move function sending instructions to robot', function() {
 
 	coms.addRobotByID(3, {destroyed: false, write: function() {}});
 	processor.resetRobot(3);
-	var directions = ['forward', 'backward','left', 'right'];
-	var secondaryDirections = ['forward', 'forward'];
-
-	var durations = ['08750', '07292', '00375', '01088'];
-	var secondaryDurations = ['02500', '07500'];
-
-	// var xPos = [0, 0, 0, 0];
-	// var yPos = [0, 0, 0, 0];
-
 	var robot = coms.getRobotByID(3);
 	console.log(robot);
-
-	it('Robot set to move for 42cm with degree 0 should' +
-		' just send one move forward message for 8.936s', function(){
-		coms.move(3, 0, 0, 0, 42);
-	});
-
-	it('Robot set to move for 35cm with degree 180 should' +
-		' just send one move backwards message for 7.45s', function(){
-		coms.move(3, 0, 0, Math.PI, 35);
-	});
-
-	it('Robot set to move for 12cm with degree 30 should' +
-		' rotate left 0.494s then move forward 2.553s', function(){
-		coms.move(3, 0, 0, Math.PI/6, 12);
-	});
-
-	it('Robot set to move for 36cm with degree 273 should' +
-		' rotate right 1.433s then move forward 7.6596s', function(){
-		coms.move(3, 0, 0, 91*Math.PI/60, 36);
-	});
+	coms.move(3, 0, 0, 0, 42);
+	coms.move(3, 0, 0, Math.PI, 35);
+	coms.move(3, 0, 0, Math.PI/6, 12);
+	coms.move(3, 0, 0, 91*Math.PI/60, 36);
 
 	it('Robot should have received instructions to move', function(done) {
 		var instructionsSent = false;
 		var doneCalled = false;
-		var n = 0;
-		var m = 0;
 		processor.setRobotStates(5);
 		processor.setGridDimensions({x:10, y:10});
 		processor.startProcessing();
@@ -321,7 +295,6 @@ describe('Move function sending instructions to robot', function() {
 				}
 			}
 		});
-		n += 1;
 
 		coms.receiveData("DONE: 3\n",
 			{destroyed: false, write: function(message) {
@@ -333,7 +306,6 @@ describe('Move function sending instructions to robot', function() {
 				}
 			}
 		});
-		m += 1;
 
 		setTimeout(function() {
 			expect(instructionsSent,

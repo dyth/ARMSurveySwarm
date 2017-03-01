@@ -2,13 +2,17 @@
 
 Mainly C++ code that can be flashed into the robots for their communication.
 
+## Library
+
+A fork of Chris Styles's library, but with an added function for returning calibrated values from all five reflectance sensors.
+
 ## Final program
 
 `main.cpp` combines the WiFi module, intensities and odometry together. This program is based on [a sample TCP mbed program](https://developer.mbed.org/teams/ST/code/mbed-os-tcp-server-example/).
 
 Import the above library and replace the `main.cpp` within it to the `main.cpp` in this repository.
 
-Import the [ESP8266 driver](https://developer.mbed.org/teams/ESP8266/code/esp8266-driver/) and a [m3pi library](https://developer.mbed.org/users/ngoldin/code/m3pi_ng/) into the project.
+Import the [ESP8266 driver](https://developer.mbed.org/teams/ESP8266/code/esp8266-driver/), the default `mbed` library and the above libary into the project.
 
 
 ## Calibration of position
