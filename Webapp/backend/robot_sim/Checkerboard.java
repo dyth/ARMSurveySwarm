@@ -97,7 +97,7 @@ public class Checkerboard extends JPanel {
 			// Drw the circle
 			Shape theCircle = new Ellipse2D.Double(
 					x * cellWidth + cellWidth / 2 - robotRadius, 
-					y * cellHeight + cellHeight / 2 - robotRadius, 
+					HEIGHT - y * cellHeight + cellHeight / 2 - robotRadius, 
 					2.0 * robotRadius, 2.0 * robotRadius);
 			g2d.setColor(color);
 			g2d.fill(theCircle);
