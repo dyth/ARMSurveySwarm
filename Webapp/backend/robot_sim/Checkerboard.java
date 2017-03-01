@@ -73,7 +73,7 @@ public class Checkerboard extends JPanel {
 		for (int i = 0; i < colors.length; i ++) {
 
 			for (int j = 0; j < colors[i].length; j ++) {
-				if (colors[i][j] == 1) {
+				if (colors[i][j] == 0) {
 					g2d.setColor(Color.BLACK);
 				} else {
 					g2d.setColor(Color.WHITE);
