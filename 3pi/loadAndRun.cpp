@@ -91,14 +91,6 @@ void setRotations(float left, float right) {
 }
 
 void PID() {
-  
-    m3pi.cls();
-    m3pi.locate(1,0);
-    m3pi.printf("PID");
- 
-    wait(0.5);
-    m3pi.sensor_auto_calibrate();
- 
     float right;
     float left;
     float rightTotal;
@@ -146,20 +138,24 @@ void PID() {
         leftTotal += left;
         rightTotal += right;
     }
-    setRotations(leftTotal, rightTotal);
+    // stop and calibrate sensors
     m3pi.stop();
-    m3pi.cls();
-    m3pi.locate(0,0);
-    m3pi.printf("%s", Convert(leftTotal));
-    m3pi.locate(0,1);
-    m3pi.printf("%s", Convert(rightTotal));
+    setRotations(leftTotal, rightTotal);
 }
 
 int main() {
     wait(0.5);
+    m3pi.sensor_auto_calibrate();
+    
     PID();
     turnClockwise(170);
     turnCounterClockwise(90);
+    
+    PID();
+    turnClockwise(170);
+    turnCounterClockwise(90);
+    
+    goForwards(2000);
+    turnClockwise(180);
     goForwards(2000);
 }
-    
