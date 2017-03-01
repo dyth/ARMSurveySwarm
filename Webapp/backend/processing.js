@@ -262,42 +262,35 @@ var checkTile = function(robotID, tileX, tileY){
 	}
 
 	var orientation = robots[robotID].orientation;
-
-	// always make this x axis now
-	var A = [1,0];
-	//var A = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
+	var A = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
 	console.log('vector A ' + A);
 
 
-	var B = [tileX, tileY]; // vector for current pos to tile
+	var B = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
 	console.log('vector B ' + B);
 
 	// B has to be above A for cross product
+	var xAxis = [1,0];
 	console.log('Angle to x axis ----');
+	console.log(Math.acos(A[0]));
+	console.log(Math.acos(B[0]/vectorLength(B)));
 
-	console.log(Math.asin(A[0]));
-	console.log(Math.asin(B[0]/vectorLength(B)));
-
-	 if (B[1] < 0){
-	 	var temp = A;
-	 	A = B;
-	 	B = temp;
-	 }
-	 console.log(A);
-	 console.log(B);
+	if (Math.acos(B[0]/vectorLength(B)) < 0){
+		var temp = A;
+		A = B;
+		B = temp;
+	}
 
 	// axb = |a||b|sin(theta)
-	var sin_theta = (A[0]*B[1]-A[1]*B[0])/(vectorLength(B) * vectorLength(A));
-	console.log(sin_theta);
+	var sin_theta = (A[0]*B[1]-A[1]*B[0])/(vectorLength(B)*vectorLength(A));
 	var angle = Math.asin(sin_theta);
-	angle = angle - orientation;
 
 	console.log('Angle ' + angle*180/Math.PI);
 
 	// turn clockwise => turn 360 - abs(angle) anticlockwise
-	// if (angle < 0) {
-	// 	angle = (2*Math.PI) + angle;
-	// }
+	if (angle < 0) {
+		angle = (Math.PI) + (angle*-1);
+	}
 
 	console.log('From x=' + coordX + ' y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
 	console.log('Angle ' + angle*180/Math.PI);
@@ -308,7 +301,6 @@ var checkTile = function(robotID, tileX, tileY){
 
 	//Set new orientation of robotID
 	console.log('old orientation ' + robots[robotID].orientation*180/Math.PI);
-
 	getNewOrientation(robotID, angle);
 
 	robots[robotID].xPrev = robots[robotID].xAfter;
