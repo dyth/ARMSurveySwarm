@@ -26,17 +26,19 @@ Detailed instructions per program can be found in READMEs within subdirectories.
 The backend can be set up by compiling and importing the 3pi code into the online ARM compiler.
 
 To install the front end,
-```
-sudo npm install connect serve-static socket.io socket.io-client html express path mocha
-```
+
+> $ sudo npm install connect serve-static socket.io socket.io-client html express path mocha
 
 
 ## Deployment
-The web app is run by
-```
-sudo node server.js
-```
-The robots should initially be placed over the bottom edge of the board, facing left.
+
+The robots should initially be placed over the bottom edge of the board, facing left. They should connect automatically to the server.
+
+The server is run by
+
+> $ sudo node server.js
+
+which hosts the webapp. The webapp can be viewed on http://localhost:80
 
 ## Authors
 (listed in alphabetical order)
