@@ -146,6 +146,7 @@ var setTiles = function(robotID, messages) {
 			setRecalibrationStatus(robotID);
 			return;
 		}
+
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);

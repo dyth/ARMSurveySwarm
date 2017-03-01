@@ -151,8 +151,8 @@ var receiveData = function(data, socket) {
 				return;
 			}
 
-			var x = stringToFloat(values[0])/10;
-			var y = stringToFloat(values[1])/10;
+			var x = stringToFloat(values[0]);
+			var y = stringToFloat(values[1]);
 			var intensity = Math.round(stringToFloat(values[2]));
 
 			if (x === null || y === null || intensity === null) {
