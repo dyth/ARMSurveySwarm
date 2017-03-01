@@ -11,7 +11,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-If you are wishing to compile from source, do all the instructions. If you are wishing to flash an mbed with precompiled binary files, skip steps 1 -- 4.
+If you are wishing to compile from source, do all the instructions. If you are wishing to flash an mbed with precompiled binary files, skip steps 1 - 4.
 
 1. Create an account at [ARM online compiler](https://developer.mbed.org/compiler).
 2. Add [development board](https://developer.mbed.org/platforms/mbed-LPC1768/) (on panel on right).
@@ -41,7 +41,7 @@ The robots should initially be placed over the bottom edge of the board, facing 
 ## Authors
 (listed in alphabetical order)
 
-* **Lucia Bura** - *Initial work* - [luciabura](https://github.com/luciabura)
+* **Lucia Bura** - *documentation, debugging* - [luciabura](https://github.com/luciabura)
 * **Jamie Davenport** - *Initial work* - [jamienet](https://github.com/jamienet)
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
