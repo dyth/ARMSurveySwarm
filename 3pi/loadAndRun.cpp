@@ -24,7 +24,7 @@ void turnCounterClockwise(int degree) {
     // Turn left at half speed
     //m3pi.stop();
     m3pi.left(0.15f);
-    wait(((float) degree) * 3.388f / 360.0f);
+    wait(((float) degree) * 2.853f / 360.0f);
     m3pi.stop();
     wait(0.5f);
 }
@@ -33,7 +33,7 @@ void turnClockwise(int degree) {
     // Turn right at half speed
     //m3pi.stop();
     m3pi.right(0.15f);
-    wait(((float) degree) * 3.388f / 360.0f);
+    wait(((float) degree) * 2.853f / 360.0f);
     m3pi.stop();
     wait(0.5f);
 }
@@ -145,6 +145,12 @@ void PID() {
 
 int main() {
     wait(0.5);
+    m3pi.left(1.0f);
+    wait(1.5f);
+    m3pi.stop();
+    wait(1.0f);
+    m3pi.reset();
+    
     m3pi.sensor_auto_calibrate();
     
     PID();
@@ -159,3 +165,4 @@ int main() {
     turnClockwise(180);
     goForwards(2000);
 }
+    
