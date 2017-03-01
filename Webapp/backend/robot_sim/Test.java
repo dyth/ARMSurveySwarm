@@ -5,7 +5,7 @@ class Test {
 	static int[][] tiles = new int[][]{ {1, 0, 1, 1},
 		{1, 0, 0, 1},
 		{1, 1, 0, 1},
-		{0, 0, 1, 1} };
+		{0, 0, 0, 1} };
 
 	public static final int TILE_SIZE = 10;
 
