@@ -24,6 +24,7 @@ class Robot {
 	BufferedReader in;
 	PrintWriter out;
 
+	MovementListener movementListener;
 
 	public Robot(int id, int[][] board, int tileSize) {
 		this.board = board;
@@ -117,18 +118,26 @@ class Robot {
 			xPos += distance * Math.cos(orientation);
 			yPos += distance * Math.sin(orientation);
 
+
 			// In centimeters. Assume speed = 5000
 			// Robots go 46-48cm/second.
 			System.out.println("(" + id + ") Position is: " + xPos + " " + yPos);
 			System.out.println("(" + id + ") Orientation is: " + orientation);
 
 			// Assume 47 cm/sec + 0.5 sec for rotation
-			float time = 0.5f + distance / 47f;
+			// Add 2 for usability
+			float time = 0.5f + distance / 47f + 2;
 			// Now sleep for that time
 			try {
-				Thread.sleep((long) (time));
+				Thread.sleep((long) (time * 1000));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+
+			// Now that we havve updated the position, call the update position
+			if (movementListener != null) {
+				movementListener.move((int) Math.floor(xPos), 
+						(int) Math.floor(yPos));
 			}
 
 			Intensity[] intensityMeasurements = new Intensity[] {
@@ -162,6 +171,11 @@ class Robot {
 	public void send(String message) {
 		out.write(message);
 		out.flush();
+	}
+
+	public void setMovementListener(MovementListener listener) {
+		System.out.println("Set movement listener called");
+		this.movementListener = listener;
 	}
 
 	public int takeMeasurement() {
