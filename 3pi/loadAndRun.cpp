@@ -47,18 +47,6 @@ void goForwards(int distance) {
     wait(1.0f);
 }
 
-void raster() {
-}
-
-int main() {
-    wait(0.5);
-    //raster();
-    //raster();
-    goForwards(2000);
-    turnCounterClockwise(180);
-    goForwards(2000);
-    //turnClockwise(720);
-}
 
 float sum (float* rotations) {
     // sum up debounce array
@@ -136,8 +124,15 @@ void PID() {
 }
 
 int main() {
-  PID();
-  
-  turnClockwise(170);
+    wait(0.5);
+    //goForwards(2000);
+    //turnCounterClockwise(180);
+    //goForwards(2000);
+    //turnClockwise(720);
+    
+    PID();
+    turnClockwise(168);
+    turnCounterClockwise(45);
+    goForwards(2828);
 }
     
