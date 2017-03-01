@@ -194,7 +194,7 @@ var routeRobot = function(robotID) {
 	//checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
-	server.updateStatus(robotID);
+	setRobotRunning(robotID);;
 }
 
 /*
@@ -324,6 +324,16 @@ var getNewOrientation = function(robotID, radians) {
  */
 var hasStartedProcessing = function() {
 	return startedProcessing;
+}
+
+/*
+ * This sets the robot to running and updates
+ * the corresponding status on the server
+ */
+var setRobotRunning = function(robotID) {
+	robots[robotID].robotStatus = 1;
+
+	sendStatusUpdate(robotID);
 }
 
 /*
