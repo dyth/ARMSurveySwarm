@@ -115,7 +115,7 @@ var receiveData = function(data, socket) {
 			robotMove(idNumber);
 		} else {
 			// No queued moves, ask for new moves from the server
-			console.log("sending new commands");
+			//console.log("sending new commands");
 			processor.routeRobot(idNumber);
 		}
 	} else if (data.substring(0, "INTENSITY:".length) === "INTENSITY:") {
@@ -216,6 +216,7 @@ var stringToNumber = function(string, isFloat) {
  */
 var startRobot_waitingRobots = []
 var startRobot_movementDone = null;
+
 var enqueueRobot = function(robotID) {
 	startRobot_waitingRobots.push(robotID);
 }
@@ -382,12 +383,7 @@ var addPadding = function(number, length) {
 * Function sending instructions for movement to robots and
 * receiving acknowledgements.
 * - robotID is integer ID to send message to
-* - degree in RADIANS as input where conversion rate is
-*   at 0.5 speed, 5.93 seconds for 360 degrees.
-* - distance is distance in cm to destination tile
-*
-* At speed 0.5, robot covers 460-480mm per second
-* Directions forward, back, left, right
+* - distance is distance in mm to destination tile
 */
 var move = function(robotID, xPosCM, yPosCM, orientationRad,
 			radiansRotate, distance) {
@@ -400,7 +396,6 @@ var move = function(robotID, xPosCM, yPosCM, orientationRad,
 	// convert angle to degrees
 	var degreesRotate = radiansRotate * 180 / Math.PI;
 	var degreesOrientation = orientationRad * 180 / Math.PI;
-
 
 	var robotIndex = getRobotIndex(robotID);
 
