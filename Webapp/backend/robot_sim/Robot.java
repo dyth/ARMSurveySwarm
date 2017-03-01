@@ -136,8 +136,8 @@ class Robot {
 
 			// Now that we havve updated the position, call the update position
 			if (movementListener != null) {
-				movementListener.move((int) Math.floor(xPos), 
-						(int) Math.floor(yPos));
+				movementListener.move( Math.round(xPos), 
+						Math.round(yPos));
 			}
 
 			Intensity[] intensityMeasurements = new Intensity[] {
