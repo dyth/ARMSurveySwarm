@@ -27,8 +27,6 @@ float rightRotation;
 
 // positioning is cartesian, a zero orientation is a positive y direction
 float currentOrientation = 0.0f;
-int currentX = 0;
-int currentY = 0;
 
 void halt() {
     // halt robot and allow motors to cool down
@@ -251,12 +249,14 @@ void alignCorner() {
 }
 
 void cycleClockwise(int x, int y) {
+    // go to point (x, y), then find the edge, then find the next corner
     
     // go to point x, y, then face the edge
+    currentOrientation = 0;
     goTo(x, y);
     turnCounterClockwise(currentOrientation + 90);
     
-    // go fowards until edge detected
+    // go forwards until edge detected
     int sensors[5];    
     m3pi.forward(0.5);
     
@@ -270,6 +270,7 @@ void cycleClockwise(int x, int y) {
             halt();
             m3pi.calibrated_sensor(sensors);
             if (sensors[2] < 200) {
+                goForwards(2);
                 turnClockwise(90);
                 break;
             } else {
@@ -282,6 +283,45 @@ void cycleClockwise(int x, int y) {
     // align with corner
     alignCorner();
 }
+
+void cycleClockwise(double degree, double distance) {
+    // go to (degree, distance), then find the edge, then find the next corner
+    
+    // go to point (degree, distance) then face the edge
+    currentOrientation = 0;
+    turnClockwise(degree);
+    goForward(distance);
+    
+    turnCounterClockwise(degree + 90);
+    
+    // go forwards until edge detected
+    int sensors[5];    
+    m3pi.forward(0.5);
+    
+    while(1) {
+        m3pi.calibrated_sensor(sensors);
+        
+        // if black, advance length of tile
+        // if no longer black, then tile detected, keep on advancing
+        // otherwise, edge detected, turn to face new corner
+        if (sensors[2] > 900)  {
+            halt();
+            m3pi.calibrated_sensor(sensors);
+            if (sensors[2] < 200) {
+                goForwards(2);
+                turnClockwise(90);
+                break;
+            } else {
+                goForwards(tileSize);
+                m3pi.forward(0.5);
+            }
+        }
+    }
+    
+    // align with corner
+    alignCorner();
+}
+
 
 int main() {
     // wait until human has left then autocalibrate
