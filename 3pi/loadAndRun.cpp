@@ -14,19 +14,23 @@
 #define I_TERM 0
 #define D_TERM 20
 
+// board size
+#define X 2000
+#define Y 2000
+
 m3pi m3pi;
 // 0.51, 530
 
 float leftRotation;
 float rightRotation;
-int cornerX;
-int cornerY;
+int currentX = 0;
+int currentY = 0;
 
 void turnCounterClockwise(int degree) {
     // Turn left at half speed
     //m3pi.stop();
     m3pi.left(0.15f);
-    wait(((float) degree) * 3.08f / 360.0f);
+    wait(((float) degree) * 2.933f / 360.0f);
     m3pi.stop();
     wait(0.5f);
     m3pi.reset();
@@ -36,24 +40,33 @@ void turnClockwise(int degree) {
     // Turn right at half speed
     //m3pi.stop();
     m3pi.right(0.15f);
-    wait(((float) degree) * 3.08f / 360.0f);
+    wait(((float) degree) * 2.933f / 360.0f);
     m3pi.stop();
     wait(0.5f);
     m3pi.reset();
 }
 
+
 void goForwards(int distance) {
     // goes forward distance mm
+    
+    // bleed energy, pulse, then anneal
+    
     m3pi.forward(0.25f);
-    wait(0.1f);
+    wait(0.2f);
+    
     m3pi.left_motor(0.85f);
     m3pi.right_motor(1.0f);
-    wait(((float) distance) / 100.0f);
+    wait(((float) distance) / 1000.0f);
+    
     m3pi.forward(0.25f);
-    wait(0.1f);
+    wait(0.2f);
+    
     m3pi.stop();
+    wait(0.5f);
     m3pi.reset();
 }
+
 
 float sum (float* rotations) {
     // sum up debounce array
@@ -166,10 +179,19 @@ void levelOutBattery() {
 }
 
 void goTo(int x, int y) {
+    // move to position x, y by first rotating clockwise, then going forwards
     float moveX = (float) x - currentX;
     float moveY = (float) y - currentY;
-    distance = pow(moveX, 2.0f) + pow(moveY, 2.0f);
-    goForwards((int) sqrt(dist));
+    float degree = atan2 (moveX, moveY) * 180.0f / 3.141592654f;
+    turnClockwise(degree);
+    
+    float distance = pow(moveX, 2.0f) + pow(moveY, 2.0f);
+    int travel = (int) sqrt(distance);
+    while (travel > 250) {
+        goForwards(250);
+        travel -= 250;
+    }
+    goForwards(travel);
 }
 
 int main() {
@@ -181,13 +203,10 @@ int main() {
     wait(1.0f);
     m3pi.reset();
     
-    //turnClockwise(3600);
-    //wait(20);
-    
     turnClockwise(100);
     
-    goForwards(25);
-    goForwards(25);
-    goForwards(25);
-    goForwards(25);
+    goForwards(100);
+    
+    //goTo(500, 800);
 }
+    
