@@ -90,10 +90,10 @@ void goForwards(int distance) {
     anneal();
 }
 
-float sum (float* rotations) {
+float sum (float* rotations, int debounce) {
     // return sum of debounce array
     float s = 0.0f;
-    for (int j = 0; j < DEBOUNCE; j++) {
+    for (int j = 0; j < debounce; j++) {
         s += rotations[j];
     }
     return s;
@@ -109,7 +109,7 @@ float limit(float speed, float MIN, float MAX) {
         return speed;
 }
 
-std::string Convert (float number){
+std::string convert (float number){
     // convert a floating point number into a string
     std::ostringstream buff;
     buff<<number;
@@ -135,7 +135,7 @@ void setRotations(float left, float right) {
     m3pi.printf("%f", leftRotation);
 }
 
-void PID(float MIN, float MAX) {
+void PID(float MIN, float MAX, int debounce) {
     // PID line following between the speeds MIN and MAX
     float rightTotal;
     float leftTotal;
@@ -146,8 +146,8 @@ void PID(float MIN, float MAX) {
     int in = 0;
     
     // create array for debouncing and fill it with a starting
-    float rotations[DEBOUNCE];
-    std::fill(rotations, rotations + DEBOUNCE, 1.0f);
+    float rotations[debounce];
+    std::fill(rotations, rotations + debounce, 1.0f);
     int count = 0;
     
     float s = 1.0f;
@@ -181,10 +181,10 @@ void PID(float MIN, float MAX) {
         // do some debouncing
         if (in > 50) {
             rotations[count++] = left;
-            if (count == DEBOUNCE) {
+            if (count == debounce) {
                 count = 0;
             }
-            s = sum(rotations);
+            s = sum(rotations, debounce);
         }
     }
     // stop and calibrate sensors
@@ -245,12 +245,12 @@ void alignCorner() {
     
     // find corner quickly, then align with corner, reverse and then
     // slowly level up until corner is detected
-    PID(0.0, 1.0);
+    PID(0.0, 1.0, 2);
     turnCounterClockwise(10);
     m3pi.backward(0.25f);
-    wait(0.5f);
+    wait(1.0f);
     halt();
-    PID(0.0, 0.25);
+    PID(0.0, 0.25, 4);
     
     //turn to new direction (perpendiculat to the starting position)
     turnClockwise(90);
@@ -303,10 +303,39 @@ int main() {
     wait(0.5);
     m3pi.sensor_auto_calibrate();
     
+    
     alignCorner();
     goTo(500, 800);
     
-    rotate(720);
+    turnCounterClockwise(currentOrientation + 90);
+
+    m3pi.forward(0.9);
     
-    goTo(0, Y - 500);
+    int sensors[5];
+    
+    int debounceLength = 8;
+    
+    float line[debounceLength];
+    int count = 0;
+     
+    m3pi.forward(0.9);
+    
+    while(1) {
+        m3pi.calibrated_sensor(sensors);
+        
+        if (sensors[2] > 900)  {
+            m3pi.stop();
+            wait(1);
+            m3pi.calibrated_sensor(sensors);
+            if (sensors[2] < 200) {
+                break;
+            } else {
+                m3pi.forward(0.9);
+                wait(0.01);
+            }
+        }
+    }
+    
+    turnClockwise(90);
+    
 }
