@@ -5,6 +5,8 @@
  * light intensity: 0 = black, 1 = white.
  *
  */
+
+
 // Call server.updateStatus(robotID, xPosition, yPosition, status)
 // server.updateGrid(x, y), updates the size of the grid.
 // server.updateTile(x, y, value) updates a tile.
@@ -17,18 +19,21 @@ var TEST = true;
 var processingTiles = [];
 var initialTileState = [2,2];
 
-// array order is by ID
-// for the status, it is an index in the array  'states' in state.js
+// Array order is by robot ID.
+// For the status, it is an index in the array  'states' in state.js
 // on the frontend:
-// 	Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3, Recalibrate: 4
+
+// Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3, Recalibrate: 4
 // Orientation in Radians
 var robots = [];
 
 var width = 0;
 var length = 0;
+var tileSize = 0;
+
 var tilesCovered = 0;
 var totalTiles = 0;
-var tileSize = 0;
+
 var startedProcessing = false;
 
 /*
@@ -39,8 +44,8 @@ var startedProcessing = false;
  */
 var createTilesList = function() {
 	totalTiles = width * length;
-	// Increases the number of tiles up to the
-	// width and length.
+
+	// Increases the number of tiles up to the width and length.
 	for(var i = processingTiles.length; i < width; i++){
 		var columns = [];
 
@@ -51,7 +56,7 @@ var createTilesList = function() {
 		}
 
 		for(var j = columns.length; j < length; j++) {
-			// initial tile state is a 6 element list.
+			// initial tile state is a 2 element list for first robot and final state
 			columns.push(initialTileState.slice());
 		}
 
@@ -76,12 +81,13 @@ var addRobotsToList = function(numRobots) {
 			}
 		}
 	}
+	robots_no = robots.length;
 }
 
 
-/* Function to round accurate position to correspond
- * to bottom left corner of tile.
- * Get position in list.
+/*
+ * Function to round position to correspond to bottom left corner of tile.
+ * Gets position in tiles list.
  */
 var roundPosition = function(pos) {
 	if (pos < 0) {
@@ -104,9 +110,8 @@ var resetRobot = function(robotID) {
 var setRecalibrationStatus = function(robotID) {
 	robots[robotID].robotStatus = 4;
 
-
 	sendStatusUpdate(robotID);
-}
+};
 
 var setRobotStatusScanning = function(robotID) {
 	robots[robotID].robotStatus = 1;
@@ -121,7 +126,7 @@ var robotConnectionLost = function(robotID) {
 
 	// id, x,  y, status
 	sendStatusUpdate(robotID);
-}
+};
 
 /*
  * Register communication of tile colour received from robots.
@@ -152,13 +157,13 @@ var setTiles = function(robotID, messages) {
 			setRecalibrationStatus(robotID);
 			return;
 		}
-		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
-		server.updateTile(coordX, coordY, 3); //set to grey
+		var tile = processingTiles[coordX][coordY];
+		tile[robotID] = lightIntensity;
 
-		// if two robots agree on colour and hasn't already been set,
-		// set finalColour
-		if (processingTiles[coordX][coordY][robotID] !== 2) {
+		// if two robots agree on colour and hasn't already been set, set final
+		if (tile[robots.length] === 2) {
+			server.updateTile(coordX, coordY, 3); //set to grey if first traversal
 			twoColoursAgree(coordX, coordY);
 		}
 	}
@@ -175,8 +180,6 @@ var routeRobot = function(robotID) {
 		console.log("unexpected robot " + robotID);
 		return;
 	}
-
-	console.log("routing robot " + robotID);
 
 	// set robots to move to random point in another module
 	// send robotID, last x position, last y position
@@ -232,22 +235,18 @@ var twoColoursAgree = function(coordX, coordY){
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
 		checkTile(robotID, coordX, coordY);
 
-	} else if (((numWhite > numBlack && numWhite >= 2) ||
-		(robots.length < 2 && numWhite <= 1)) &&
-		processingTiles[coordX][coordY] !== 1 &&
-		processingTiles[coordX][coordY] !== 0) {
+	} else if ((numWhite > numBlack && numWhite >= 2) ||
+		(robots.length < 2 && numWhite === 1)) {
 
-		processingTiles[coordX][coordY][5] = 1;
+		processingTiles[coordX][coordY][robots.length] = 1;
 		server.updateTile(coordX, coordY, 1);
 		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
 
-	} else if (((numBlack > numWhite && numBlack >= 2) ||
-		(robots.length < 2 && numBlack <= 1)) &&
-		processingTiles[coordX][coordY] !== 1 &&
-		processingTiles[coordX][coordY] !== 0) {
+	} else if ((numBlack > numWhite && numBlack >= 2) ||
+		(robots.length < 2 && numBlack === 1)) {
 
-		processingTiles[coordX][coordY][5] = 0;
+		processingTiles[coordX][coordY][robots.length] = 0;
 		server.updateTile(coordX, coordY, 0);
 		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
@@ -272,6 +271,7 @@ var checkTile = function(robotID, tileX, tileY){
 		// Add a wait so that the robot calls back to the server
 		// and asks again later.
 		communication.wait(robotID);
+		routeRobot(robotID);
 		return;
 	}
 
