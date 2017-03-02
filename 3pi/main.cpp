@@ -2,7 +2,7 @@
 #include "TCPSocket.h"
 #include "ESP8266Interface.h"
 #include "SocketAddress.h"
-#include "m3pi.h"
+#include "m3pi_ng.h"
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -13,12 +13,12 @@
 #define SSID "private_network152"
 #define PASSWORD "CelesteAqua78"
 
-#define SPEED 0.5f
+#define SPEED 0.25f
 #define DISTANCE_BETWEEN_SAMPLES 20
 
-#define ROBOT_ID 0
-#define DISTANCE_CALIBRATION 400.0f
-#define ROTATION_CALIBRATION (0.5f / 360.0f)
+#define ROBOT_ID 1
+#define DISTANCE_CALIBRATION 265.0f
+#define ROTATION_CALIBRATION (1.02f / 360.0f)
 
 /**
     This program implements the ability to control a Pololu
