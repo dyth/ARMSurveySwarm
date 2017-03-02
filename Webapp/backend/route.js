@@ -56,6 +56,7 @@ var getRandomInt = function(min, max){
  */
 var move = function(robotID) {
 	if (uncheckedTiles.length == 0) {
+    console.log('UNCHECKED TILES IS EMPTY')
 		// Covered all tiles?
 		return {xAfter: -1, yAfter: -1, stopAll: true, wait: false};
 	} else {
@@ -70,7 +71,8 @@ var move = function(robotID) {
 
       if (tilesLeftToTry.length == 0) {
         console.log('No tiles left to try. ');
-        return {xAfter: -1, yAfter: -1, stopAll: false, wait: true};
+        return {xAfter: processing.getRobots()[robotID].xPrev,
+          yAfter: processing.getRobots()[robotID].yPrev, stopAll: false, wait: true};
       }
 
       // remove potential tile from tiles left to try for this robot.

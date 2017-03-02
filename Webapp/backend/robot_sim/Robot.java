@@ -133,7 +133,7 @@ class Robot {
 			float time = 0.5f + distance / 47f;
 			// Now sleep for that time
 			try {
-				Thread.sleep((long) (time * 1000));
+				Thread.sleep((long) (time));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -185,7 +185,7 @@ class Robot {
 	public int takeMeasurement() {
 		int yInd = (int) Math.floor(0.05 + yPos / tileSize);
 		int xInd = (int) Math.floor(0.05 + xPos / tileSize);
-		
+
 		System.out.println("xIndex " + xInd);
 		System.out.println("yIndex " + yInd);
 		int value = board[board.length - 1 - yInd][xInd];
