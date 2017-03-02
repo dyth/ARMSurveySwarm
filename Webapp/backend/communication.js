@@ -23,9 +23,6 @@ var robots = [];
 
 var TEST = true;
 
-// This stores the ID number of the robots.
-var idSeq = 0;
-
 // This stores the number of robots currently connected
 var connectedRobots = 0;
 // This stores the number of robots currently done processing.
@@ -39,7 +36,9 @@ var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
 		// Pass the data on to receive data.
-		receiveData(data);
+		socket.write(JSON.stringify(
+			{type: "MOVE", angle:1.005, distance:0.1113}));
+		receiveData(JSON.parse(data));
 	});
 
 	socket.on('error', function(error) {
@@ -58,16 +57,15 @@ var server = net.createServer(function(socket) {
 	});
 });
 
-server.listen(8000);
+server.listen(9000);
 
 var receiveData = function(data, socket) {
 	console.log(data);
-	if (data.type === "HELLO") {
+	if (data.type === 'HELLO') {
 		if (data.id === undefined) {
-			data.id = idSeq;
-			// increment it so that the next robot can 
-			// connect ok.
-			idSeq ++;
+			console.log('NON-FATAL ERROR -----------------------------');
+			console.log('Expected Robot ID to be set as 'id' field in data');
+			return;
 		}
 		// This is a connection message.
 		// Run the server
@@ -108,6 +106,9 @@ var receiveData = function(data, socket) {
 			return;
 		}
 
+		// Deal with the tile intensities
+		processor.setTiles(robotID, data.intensities);
+
 		// Increment the number  of robots done.
 		robotsDone ++;
 		if (robotsDone === connectedRobots) {
@@ -119,8 +120,6 @@ var receiveData = function(data, socket) {
 			console.log('robots done = ' + robotsDone + ', robots ' + 
 				' connected = ' + connectedRobots);
 		}
-
-		// TODO -- PARSE THE TILE DATA.
 	} else {
 		console.log("NON-FATAL ERROR ------------------------------------");
 		console.log("unknown message " + data);
@@ -128,10 +127,18 @@ var receiveData = function(data, socket) {
 };
 
 var sendInstructions = function() {
-	if(robotsDone !== connectedRobots) {
+	if (robotsDone !== connectedRobots) {
 		console.log("NON-FATAL ERROR -------------------------------------");
 		console.log("Expected all robots to be at corners. Found none");
+		return;
 	}
+
+	if (!processor.hasStartedProcessing()) {
+		console.log("NON-FATAL ERROR -------------------------------------");
+		console.log("Expected processor to have started running");
+		return;
+	}
+
 	robotsDone = 0;
 
 	for (var i = 0; i < robots.length; i ++) {
