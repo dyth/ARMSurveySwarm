@@ -147,7 +147,6 @@ var setTiles = function(robotID, messages) {
 	for (var i = 0; i < messages.length; i++) {
 		coordX = roundPosition(messages[i].x);
 		coordY = roundPosition(messages[i].y);
-		console.log('setting tile at '+ coordX + ', ' + coordY);
 		lightIntensity = messages[i].lightIntensity;
 
 		if (coordX > processingTiles.length - 1 ||
@@ -188,12 +187,9 @@ var routeRobot = function(robotID) {
 	var destination = route.move(robotID);
 	if (destination.stopAll) {
 		stopAll();
-		console.log('stop all called');
 		return;
 	} else if (destination.wait) {
-		//communication.wait(robotID);
 		console.log('robot ' + robotID + ' waiting');
-		//return;
 	}
 
 	checkTile(robotID, destination.xAfter, destination.yAfter);
@@ -226,7 +222,7 @@ var twoColoursAgree = function(coordX, coordY){
 	}
 
 	/*
-	* If equal numbers - delegate another robot to check
+	* If black and white tile numbers equal - delegate another robot to check
 	* If more black then set final to black if not already set
 	* If more white then set final to white if not already set
 	*/
@@ -308,7 +304,6 @@ var checkTile = function(robotID, tileX, tileY){
 
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
-	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
 }
 
 var normaliseAngle = function(angle) {
