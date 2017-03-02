@@ -1,25 +1,25 @@
-Dependencies:
-	runs node. Need to install that.
+__Dependencies:__
+Runs node. Need to install that:
 
-	Then do:
+> sudo apt-get install nodejs
 
-	sudo npm install connect serve-static socket.io socket.io-client html express path mocha istanbul mathjs mongodb
+Then, in the backend directory, do:
 
-	In the backend directory
+> sudo npm install
+ 
 
-Running:
-	After installing that, do:
+__Running:__
+After installing that, do:
 
-	sudo node server.js
+> sudo node server.js
 
-	Also start the database with:
+Also start the database with:
 
-	sudo mongod --dbpath ./data
+> sudo mongod --dbpath ./data
 
-	Then go to:
+Then go to:
 
-	localhost
+> localhost
 
-	To set up the connection to the robots, make a network
-	with SSID "SurveySwarm" and password "NovemberFW11". Network should be
-	WPA2 Personal.
+To set up the robots, install the robot running code (
+see the main README)
