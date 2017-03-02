@@ -267,7 +267,6 @@ var checkTile = function(robotID, tileX, tileY){
 		// Add a wait so that the robot calls back to the server
 		// and asks again later.
 		communication.wait(robotID);
-		routeRobot(robotID);
 		return;
 	}
 
