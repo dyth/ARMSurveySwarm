@@ -2,19 +2,24 @@
   "scripts": {
     "coverage": "sudo ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/_mocha -- --ui bdd -R spec -t 5000",
     "test": "sudo ./node_modules/mocha/bin/mocha"
-  }
+  },
 
   "dependencies": {
-	  "connect": "*",
-	  "server-static": "*",
-	  "socket.io": "*",
-	  "socket.io-client": "*",
-	  "html": "*",
-	  "express": "*",
-	  "path": "*",
-	  "mocha": "*",
-	  "istanbul": "*",
-	  "mathjs": "*",
-	  "mongodb": "*"
-  }
+	  "chai": "3.5.0",
+	  "connect": "3.5.0",
+	  "express": "4.14.1",
+	  "html": "1.0.0",
+	  "istanbul": "0.4.5",
+	  "mathjs": "3.9.3",
+	  "mocha": "3.2.0",
+	  "mongodb": "2.2.24",
+	  "path": "0.12.7",
+	  "serve-static": "1.11.2",
+	  "socket.io": "1.7.2",
+	  "socket.io-client": "1.7.2"
+  },
+
+  "repository": "https://github.com/dyth/ARMSurveySwarm/tree/master/Webapp/backend",
+
+  "license": "MIT"
 }
