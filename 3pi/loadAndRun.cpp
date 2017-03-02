@@ -19,6 +19,7 @@
 #define counterRotation 2.235f
 #define robotMotorLeft 0.9f
 #define robotMotorRight 0.9f
+#define robotSpeed 1.0f
 
 m3pi m3pi;
 
@@ -51,7 +52,7 @@ void goForwards(int distance) {
     // go forwards
     m3pi.left_motor(0.9f);
     m3pi.right_motor(0.9f);
-    wait((float) distance * speed);
+    wait((float) distance * robotSpeed);
     halt();
 }
 
@@ -106,6 +107,7 @@ void PID(float MIN, float MAX) {
     float previous_pos_of_line = 0.0;
     float derivative, proportional, integral = 0;
     float speed = MAX;
+    int in = 0;
     
     // create array for debouncing and fill it with a starting
     float rotations[DEBOUNCE];
@@ -115,6 +117,7 @@ void PID(float MIN, float MAX) {
     float s = 1.0f;
     
     while (s != 0.0f) {
+        in++;
         // Get the position of the line.
         current_pos_of_line = m3pi.line_position();        
         proportional = current_pos_of_line;
@@ -186,7 +189,7 @@ int main() {
     
     PID(0.0, 1.0);
         
-    m3pi.backward(0.25f);
+    m3pi.backward(0.5f);
     wait(0.5f);
     m3pi.stop();
     wait(0.5f);
