@@ -17,6 +17,7 @@ public class Checkerboard extends JPanel {
 		Checkerboard board = new Checkerboard(new int[][] {
 			{1, 0, 1}, {0, 1, 0}, {1, 0, 1}
 		});
+		board.setRobotPosition(0, 2, 2);
 
 		JFrame window = new JFrame("Robots");
 		window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -97,7 +98,8 @@ public class Checkerboard extends JPanel {
 			// Drw the circle
 			Shape theCircle = new Ellipse2D.Double(
 					x * cellWidth + cellWidth / 2 - robotRadius, 
-					HEIGHT - y * cellHeight + cellHeight / 2 - robotRadius, 
+					HEIGHT - (y + 1) * cellHeight + cellHeight / 2 
+					- robotRadius, 
 					2.0 * robotRadius, 2.0 * robotRadius);
 			g2d.setColor(color);
 			g2d.fill(theCircle);
