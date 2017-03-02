@@ -100,7 +100,8 @@ class Robot {
 			// Now get the rest of the directions
 			xPos = (float) Integer.parseInt(sections[1]) / 10;
 			yPos = (float) Integer.parseInt(sections[2]) / 10;
-			orientation = (float) Integer.parseInt(sections[3]) * 
+			// Rotation and orientation are sent as 10s of degrees
+			orientation = (float) Integer.parseInt(sections[3]) / 100 * 
 				(float) Math.PI / 180.0f;
 
 			// Get rid of the next part
@@ -108,7 +109,7 @@ class Robot {
 			// --------Calculation of the rotation and the
 			// --------movement distances.
 			float distance = (float) Integer.parseInt(sections[4]) / 10;
-			float rotation = (float) Integer.parseInt(sections[5]) * 
+			float rotation = (float) Integer.parseInt(sections[5]) / 100 * 
 				(float) Math.PI / 180.0f;
 
 			orientation += rotation;
