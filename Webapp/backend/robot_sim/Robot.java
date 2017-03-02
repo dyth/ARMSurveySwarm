@@ -101,15 +101,14 @@ class Robot {
 			xPos = (float) Integer.parseInt(sections[1]) / 10;
 			yPos = (float) Integer.parseInt(sections[2]) / 10;
 			// Rotation and orientation are sent as 10s of degrees
-			orientation = (float) Integer.parseInt(sections[3]) * 
+			orientation = (float) Integer.parseInt(sections[3]) *
 				(float) Math.PI / (100 * 180.0f);
-
 			// Get rid of the next part
 
 			// --------Calculation of the rotation and the
 			// --------movement distances.
 			float distance = (float) Integer.parseInt(sections[4]) / 10;
-			float rotation = (float) Integer.parseInt(sections[5]) * 
+			float rotation = (float) Integer.parseInt(sections[5]) *
 				(float) Math.PI / (100 * 180.0f);
 
 			orientation += rotation;
@@ -122,8 +121,8 @@ class Robot {
 
 			// In centimeters. Assume speed = 5000
 			// Robots go 46-48cm/second.
-			System.out.println("(" + id + ") Position is: " + xPos + " " + yPos);
-			System.out.println("(" + id + ") Orientation is: " + orientation);
+			System.out.println("(" + id + ") Position is: x=" + xPos + " y=" + yPos);
+			System.out.println("(" + id + ") Orientation is: " + (orientation*180/Math.PI));
 
 			// Assume 47 cm/sec + 0.5 sec for rotation
 			// Add 2 for usability
@@ -137,7 +136,7 @@ class Robot {
 
 			// Now that we havve updated the position, call the update position
 			if (movementListener != null) {
-				movementListener.move( Math.round(xPos), 
+				movementListener.move( Math.round(xPos),
 						Math.round(yPos));
 			}
 

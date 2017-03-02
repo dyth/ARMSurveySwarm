@@ -146,7 +146,6 @@ var setTiles = function(robotID, messages) {
 			setRecalibrationStatus(robotID);
 			return;
 		}
-
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);
@@ -194,7 +193,7 @@ var routeRobot = function(robotID) {
 	//checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
-	setRobotRunning(robotID);;
+	server.updateStatus(robotID);
 }
 
 /*
@@ -249,7 +248,7 @@ var vectorLength = function(vector) {
  * Set orientation of given robot in direction of tile.
  */
 var checkTile = function(robotID, tileX, tileY){
-	console.log('------');
+	console.log('------------');
 	// Currently direct line to tile
 	var coordX = robots[robotID].xAfter;
 	var coordY = robots[robotID].yAfter;
@@ -264,41 +263,27 @@ var checkTile = function(robotID, tileX, tileY){
 
 	var orientation = robots[robotID].orientation;
 	var A = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
-	console.log('vector A ' + A);
 
-
+	//pass over half of tile
 	var B = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
-	console.log('vector B ' + B);
 
-	// B has to be above A for cross product
-	var xAxis = [1,0];
-	console.log('Angle to x axis ----');
-	console.log(Math.acos(A[0]));
-	console.log(Math.acos(B[0]/vectorLength(B)));
+	// normalise vector to get length 1
+	var distance = vectorLength(B);
+	B[0] = B[0]/distance;
+	B[1] = B[1]/distance;
 
-	if (Math.acos(B[0]/vectorLength(B)) < 0){
-		var temp = A;
-		A = B;
-		B = temp;
-	}
+	var angle = Math.atan2(B[1], B[0]) - Math.atan2(A[1], A[0]);
+	console.log('angle ' + angle*180/Math.PI);
 
-	// axb = |a||b|sin(theta)
-	var sin_theta = (A[0]*B[1]-A[1]*B[0])/(vectorLength(B)*vectorLength(A));
-	var angle = Math.asin(sin_theta);
-
-	console.log('Angle ' + angle*180/Math.PI);
-
-	// turn clockwise => turn 360 - abs(angle) anticlockwise
 	if (angle < 0) {
-		angle = (Math.PI) + (angle*-1);
+		angle += 2*Math.PI;
 	}
 
 	console.log('From x=' + coordX + ' y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
-	console.log('Angle ' + angle*180/Math.PI);
 
 	// Turn by angle clockwise
 	communication.move(robotID, coordX * tileSize, coordY * tileSize,
-		orientation, angle, vectorLength(A)*tileSize);
+		orientation, angle, distance*tileSize);
 
 	//Set new orientation of robotID
 	console.log('old orientation ' + robots[robotID].orientation*180/Math.PI);
@@ -309,8 +294,16 @@ var checkTile = function(robotID, tileX, tileY){
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
-
+	console.log('Going to x=' + (coordX*tileSize + Math.cos(robots[robotID].orientation)*distance*tileSize));
+	console.log('Going to y=' + (coordY*tileSize + Math.sin(robots[robotID].orientation)*distance*tileSize));
 	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
+}
+
+var normaliseAngle = function(angle) {
+	if (angle < 0) {
+		angle = 2*Math.PI + angle;
+	}
+	return angle;
 }
 
 var getNewOrientation = function(robotID, radians) {
@@ -324,16 +317,6 @@ var getNewOrientation = function(robotID, radians) {
  */
 var hasStartedProcessing = function() {
 	return startedProcessing;
-}
-
-/*
- * This sets the robot to running and updates
- * the corresponding status on the server
- */
-var setRobotRunning = function(robotID) {
-	robots[robotID].robotStatus = 1;
-
-	sendStatusUpdate(robotID);
 }
 
 /*

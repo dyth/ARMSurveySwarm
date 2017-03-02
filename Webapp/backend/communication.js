@@ -389,13 +389,15 @@ var move = function(robotID, xPosCM, yPosCM, orientationRad,
 			radiansRotate, distance) {
 	var socket = getSocketByID(robotID);
 
+	// convert distances to mm
 	var xPosMM = xPosCM * 10;
 	var yPosMM = yPosCM * 10;
+	distance = distance * 10;
 
-	distance = distance * 10; // convert distances to mm
 	// convert angle to degrees
-	var degreesRotate = radiansRotate * 180 / Math.PI;
-	var degreesOrientation = orientationRad * 180 / Math.PI;
+	// get more significant figures - multiply by 100
+	var degreesRotate = radiansRotate * 100 * 180 / Math.PI;
+	var degreesOrientation = orientationRad * 100 * 180 / Math.PI;
 
 	var robotIndex = getRobotIndex(robotID);
 

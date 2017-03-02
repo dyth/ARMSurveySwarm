@@ -119,9 +119,12 @@ describe('check tile', function() {
 		processor.setRobotStates(2);
 		processor.setGridDimensions({x:10, y:10});
 
-		processor.checkTile(0, 5, 5);
-		processor.checkTile(0, 10, 0);
-		processor.checkTile(0, 0, 0);
+		processor.checkTile(0, 2, 2);
+		processor.checkTile(0, 2, 0);
+		processor.checkTile(0, 0, 0); // angle should be close to 180
+		processor.checkTile(0, 0, 5);
+		processor.checkTile(0, 3, 3);
+		processor.checkTile(0, 3, 4);
 	});
 });
 
