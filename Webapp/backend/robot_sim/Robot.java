@@ -188,7 +188,7 @@ class Robot {
 		
 		System.out.println("xIndex " + xInd);
 		System.out.println("yIndex " + yInd);
-		int value = board[yInd][xInd];
+		int value = board[xInd][board[xInd].length - yInd - 1];
 		System.out.println("value is " + value);
 
 		for (int[] array : board) {
