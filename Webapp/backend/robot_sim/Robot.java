@@ -179,8 +179,8 @@ class Robot {
 	}
 
 	public int takeMeasurement() {
-		return board[(int) Math.floor(0.001 + xPos / tileSize)]
-			[(int) Math.floor(0.001 + yPos / tileSize)];
+		return board[(int) Math.floor(0.05 + xPos / tileSize)]
+			[(int) Math.floor(0.05 + yPos / tileSize)];
 	}
 }
 
