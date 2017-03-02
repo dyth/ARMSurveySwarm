@@ -14,55 +14,49 @@
 #define X 2000
 #define Y 2000
 
+// robot terms
+#define clockwiseRotation 2.235f
+#define counterRotation 2.235f
+#define robotMotorLeft 0.9f
+#define robotMotorRight 0.9f
+
 m3pi m3pi;
-// 0.51, 530
 
 float leftRotation;
 float rightRotation;
 int currentX = 0;
 int currentY = 0;
 
-void turnCounterClockwise(int degree) {
-    // Turn left at half speed
-    //m3pi.stop();
-    m3pi.left(0.15f);
-    wait(((float) degree) * 2.235f / 360.0f);
+void halt() {
     m3pi.stop();
-    wait(0.5f);
+    wait(0.5f);   
+}
+
+void turnCounterClockwise(int degree) {
+    // Turn left at the slowest speed possible for accuracy
+    m3pi.left(0.15f);
+    wait(((float) degree) * counterRotation / 360.0f);
+    halt();
 }
 
 void turnClockwise(int degree) {
-    // Turn right at half speed
-    //m3pi.stop();
-    m3pi.right(0.15f);
-    wait(((float) degree) * 2.235f / 360.0f);
+    // Turn right at the slowset speed possible for accuracy
     m3pi.stop();
-    wait(0.5f);
+    m3pi.right(0.15f);
+    wait(((float) degree) * clockwiseRotation / 360.0f);
+    halt();
 }
-
 
 void goForwards(int distance) {
-    // goes forward distance mm
-    
-    // bleed energy, pulse, then anneal
-    
-    m3pi.forward(0.25f);
-    wait(0.2f);
-    
-    m3pi.left_motor(0.85f);
-    m3pi.right_motor(1.0f);
-    wait(((float) distance) / 1000.0f);
-    
-    m3pi.forward(0.25f);
-    wait(0.2f);
-    
-    m3pi.stop();
-    wait(0.5f);
+    // go forwards
+    m3pi.left_motor(0.9f);
+    m3pi.right_motor(0.9f);
+    wait((float) distance * speed);
+    halt();
 }
 
-
 float sum (float* rotations) {
-    // sum up debounce array
+    // return sum of debounce array
     float s = 0.0f;
     for (int j = 0; j < DEBOUNCE; j++) {
         s += rotations[j];
@@ -71,7 +65,7 @@ float sum (float* rotations) {
 }
 
 float limit(float speed, float MIN, float MAX) {
-    // ensures speed is between MIN amd MAX
+    // ensures MIN < speed < MAX
     if (speed < MIN)
         return MIN;
     else if (speed > MAX)
@@ -81,13 +75,15 @@ float limit(float speed, float MIN, float MAX) {
 }
 
 std::string Convert (float number){
+    // convert a floating point number into a string
     std::ostringstream buff;
     buff<<number;
     return buff.str();   
 }
 
 void setRotations(float left, float right) {
-    // take the values from the line following and automatically calibrate
+    // take integral of robot speeds and calibrate a new speed by altering
+    // the global variable
     if (left > right) {
         rightRotation = 1.0f;
         leftRotation = right / left;
@@ -103,16 +99,13 @@ void setRotations(float left, float right) {
 }
 
 void PID(float MIN, float MAX) {
-    float right;
-    float left;
+    // PID line following between the speeds MIN and MAX
     float rightTotal;
     float leftTotal;
     float current_pos_of_line = 0.0;
     float previous_pos_of_line = 0.0;
-    float derivative,proportional,integral = 0;
-    float power;
+    float derivative, proportional, integral = 0;
     float speed = MAX;
-    int in = 0;
     
     // create array for debouncing and fill it with a starting
     float rotations[DEBOUNCE];
@@ -122,7 +115,6 @@ void PID(float MIN, float MAX) {
     float s = 1.0f;
     
     while (s != 0.0f) {
-        in++;
         // Get the position of the line.
         current_pos_of_line = m3pi.line_position();        
         proportional = current_pos_of_line;
@@ -133,9 +125,9 @@ void PID(float MIN, float MAX) {
         previous_pos_of_line = current_pos_of_line;
         
         // Compute the power and use it to find new speeds
-        power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM));
-        right = speed+power;
-        left  = speed-power;
+        float power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM));
+        float right = speed+power;
+        float left  = speed-power;
         
         // set speed at limits
         left = limit(left, MIN, MAX);
@@ -158,7 +150,7 @@ void PID(float MIN, float MAX) {
     // stop and calibrate sensors
     m3pi.stop();
     setRotations(leftTotal, rightTotal);
-    wait(0.5);
+    halt();
 }
 
 void levelOutBattery() {
@@ -168,8 +160,7 @@ void levelOutBattery() {
     wait(0.1f);
     m3pi.backward(1.0f);
     wait(0.125f);
-    m3pi.stop();
-    wait(0.1f);
+    halt();
 }
 
 void goTo(int x, int y) {
@@ -186,6 +177,7 @@ void goTo(int x, int y) {
         travel -= 250;
     }
     goForwards(travel);
+    halt();
 }
 
 int main() {
@@ -201,11 +193,9 @@ int main() {
     
     PID(0.0, 0.25);
     
+    turnClockwise(90);
     
-    turnClockwise(720);
-    wait(20.0f);
-    
-    goForwards(100);
+    goForwards(1000);
     
     //goTo(500, 800);
 }
