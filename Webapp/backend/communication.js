@@ -15,7 +15,6 @@
 * List of robot dictionaries containing following attributes:
 * robotID
 * socket
-* nextMove
 */
 // NOTE -- Unlike the rest of the application,
 // this array is not indexed by ID.
@@ -24,6 +23,14 @@ var robots = [];
 
 var TEST = true;
 
+// This stores the ID number of the robots.
+var idSeq = 0;
+
+// This stores the number of robots currently connected
+var connectedRobots = 0;
+// This stores the number of robots currently done processing.
+var robotsDone = 0;
+
 net = require('net');
 processor = require('./processing');
 
@@ -31,21 +38,8 @@ var server = net.createServer(function(socket) {
 	var accumulatedData = "";
 
 	socket.on('data', function(data) {
-		// Search the incoming data for the end of line
-		// character.
-		accumulatedData += data.toString();
-
-		var messages = accumulatedData.split('\n');
-		if (messages.length === 1) {
-			// No \n found yet
-			accumulatedData = messages[0];
-		} else {
-			// There have been messages received!
-			for (var i = 0; i < messages.length - 1; i ++) {
-				receiveData(messages[i], socket);
-			}
-			accumulatedData = messages[messages.length - 1];
-		}
+		// Pass the data on to receive data.
+		receiveData(data);
 	});
 
 	socket.on('error', function(error) {
@@ -57,6 +51,8 @@ var server = net.createServer(function(socket) {
 			console.log("Lost ID: " + socket.robotID);
 		}
 
+		connectedRobots --;
+
 		console.log('Connection abruptly terminated');
 		console.log(error);
 	});
@@ -66,191 +62,96 @@ server.listen(8000);
 
 var receiveData = function(data, socket) {
 	console.log(data);
-	if (data.substring(0, "HELLO:".length) === ("HELLO:")) {
-		var id = data.substring("HELLO:".length).trim();
-		var idNumber = stringToNumber(id);
-
-		if (idNumber === null) {
-			return;
+	if (data.type === "HELLO") {
+		if (data.id === undefined) {
+			data.id = idSeq;
+			// increment it so that the next robot can 
+			// connect ok.
+			idSeq ++;
 		}
 		// This is a connection message.
 		// Run the server
-		addRobotByID(idNumber, socket);
+		addRobotByID(data.id, socket);
 		// Also set the robotID in the socket
-		socket.robotID = idNumber;
-		// If the processing has started, then tell the robot
-		// to move down the ramp.
-		// Otherwise it will be started when the server starts.
-		enqueueRobot(idNumber);
-		if (processor.hasStartedProcessing()) {
-			// enqueue the robot and start it if needed
-			startRobots();
-		}
-	} else if (data.substring(0, "RESET:".length) === "RESET:") {
-		// Then reset the robot position and  move the robot
-		var id = data.substring("RESET:".length).trim();
-		var idNumber = stringToNumber(id);
+		socket.robotID = data.id;
 
-		if (idNumber === null) {
+		connectedRobots ++;
+
+		if (!processing.hasStartedProcessing()) {
+			// In this case, the server has not started
+			// processing. So return, because the robots
+			// need the tile size information to start moving.
+			// They will be started the communication.startRobots()
+			// function.
 			return;
 		}
-		processor.resetRobot(idNumber);
-		processor.routeRobot(idNumber);
-	} else if (data.substring(0, "DONE:".length) === "DONE:") {
-		var id = data.substring("DONE:".length).trim();
-		var idNumber = stringToNumber(id);
-		if (idNumber === null) {
-			return;
-		}
+	
+		if (robotsDone === connectedRobots - 1) {
+			// Here we are saying if the robots that are
+			// connected before this one (hence the -1) 
+			// have already finished their moves, then this robot
+			// is good to go too.
+			console.log('AHHH YOU FOUND A CONCURRENCY PROBLEM. IF THIS ' 
+				+ ' HAPPENS REGULARLY SEE YOUR GP IMMEDIATELY');
+		} else {
+			// otherwise, there are still robots moving. This robot
+			// will be routed at the end of their moves.
+			// I expect this case in all except the pathalogical case
 
-		var robot = getRobotByID(idNumber);
+			sendInstructions();
+		}
+	} else if (data.type === "DONE") {
+		var robot = getRobotByID(data.id);
 		if (robot === null) {
 			console.log("NON-FATAL ERROR ------------------------------");
-			console.log("Unknown ID " + idNumber);
+			console.log("Unknown ID " + data.id);
 			return;
 		}
-		if (robot.nextMove) {
-			var robotMove = robot.nextMove;
-			robot.nextMove = null;
-			robotMove(idNumber);
-		} else {
+
+		// Increment the number  of robots done.
+		robotsDone ++;
+		if (robotsDone === connectedRobots) {
 			// No queued moves, ask for new moves from the server
-			//console.log("sending new commands");
-			processor.routeRobot(idNumber);
-		}
-	} else if (data.substring(0, "INTENSITY:".length) === "INTENSITY:") {
-		var intensities = data.substring("INTENSITY:".length).trim();
-		var contents = intensities.split(";");
-
-		var id = stringToNumber(contents[0]);
-		if (id === null) {
-			return;
+			console.log("sending new commands");
+			sendInstructions();
+			
+		} else {
+			console.log('robots done = ' + robotsDone + ', robots ' + 
+				' connected = ' + connectedRobots);
 		}
 
-		// Parse the intensities into  a list and then
-		// return them to the processor.
-		var parsedData = [];
-		for (var i = 1; i < contents.length; i ++) {
-			// String is in the format (X, Y, Intensity)
-			var string = contents[i].trim();
-			// Need to do a lot of verification here because
-			// the server should really not crash
-			if (string.length < 2) {
-				console.log("NON-FATAL ERROR ------------------------------");
-				console.log("Values: " + string + " not long enough");
-				return;
-			}
-			// Remove the ( ):
-			var data = string.substring(1, string.length - 1);
-			// Now split these out with commans:
-			var values = data.split(",");
-			if (values.length !== 3) {
-				console.log("NON-FATAL ERROR ------------------------------");
-				console.log("Expected 3 values, actually got: " + values.length);
-				console.log("Values are: " + values);
-				return;
-			}
-
-			// 10 is the scaling factor to convert from
-			// MM that the robot sends location information
-			// in to CM that the processing module deals with
-			// information in.
-			var x = stringToFloat(values[0]) / 10;
-			var y = stringToFloat(values[1]) / 10;
-			var intensity = Math.round(stringToFloat(values[2]));
-
-			if (x === null || y === null || intensity === null) {
-				console.log("NON-FATAL ERROR ------------------------------");
-				console.log("Expected 3 integers, got none");
-				return;
-			}
-
-			parsedData.push({x:x, y:y, lightIntensity: intensity});
-		}
-
-		processor.setTiles(id, parsedData);
+		// TODO -- PARSE THE TILE DATA.
 	} else {
 		console.log("NON-FATAL ERROR ------------------------------------");
 		console.log("unknown message " + data);
 	}
 };
 
-var stringToFloat = function(string) {
-	return stringToNumber(string, true);
+var sendInstructions = function() {
+	if(robotsDone !== connectedRobots) {
+		console.log("NON-FATAL ERROR -------------------------------------");
+		console.log("Expected all robots to be at corners. Found none");
+	}
+	robotsDone = 0;
+
+	for (var i = 0; i < robots.length; i ++) {
+		if (!robots[i].destroyed) {
+			// Start routing the robot.
+			processor.routeRobot(robots[i].id);
+		}
+	}
 }
 
-var stringToNumber = function(string, isFloat) {
-	if (isFloat === undefined) {
-		isFloat = false;
+var startRobots = function(tileSize) {
+	// This function sends out the START messages to the robots.
+	// These messages contain the tile size.
+	for (var i = 0; i < robots.length; i ++) {
+		robots[i].socket.write({type: "START", tileSize: tileSize});
 	}
 
-	if (isNaN(string)) {
-		// ID isn't a number. Print an error and return
-		console.log("NON-FATAL ERROR ------------------------------");
-		console.log("ID: " + string + " is not a number");
-		return null;
-	}
-
-	var idNumber = Number(string);
-
-	if (idNumber < 0 || idNumber > 100000) {
-		console.log("NON-FATAL ERROR ------------------------------");
-		console.log("Number " + idNumber + " is too big or too small");
-		console.log("Try a number under 100,000 and over 0");
-		return null;
-	}
-
-	if (!isFloat && idNumber % 1 !== 0) {
-		// This is a floating point number
-		console.log("NON-FATAL ERROR ------------------------------");
-		console.log("Number " + idNumber + " should not be floating point");
-		return null;
-	}
-
-	return idNumber;
-}
-
-/*
- * This keeps a list of robots to be started.
- * Upon addition of a robot, if the list is
- * empty, it starts it immediately.
- *
- * Once the robot is clear of the
- * ramp it starts routing.
- */
-var startRobot_waitingRobots = []
-var startRobot_movementDone = null;
-
-var enqueueRobot = function(robotID) {
-	startRobot_waitingRobots.push(robotID);
-}
-
-/*
- * This starts all enqueued robots in the stack.
- */
-var startRobots = function() {
-	console.log('start robot waiting ' + startRobot_waitingRobots.length)
-	if (startRobot_waitingRobots.length === 0) {
-		startRobot_movementDone = null;
-		return;
-	}
-
-	var thisRobot = getSocketByID(startRobot_waitingRobots[0]);
-
-	// Now, send that robot the message.
-	thisRobot.write("START\n");
-	// set the callback as appropriate:
-	startRobot_movementDone = function(thisRobotID) {
-		// remove from the head of the list
-		startRobot_waitingRobots.shift();
-		console.log("starting next robot");
-
-		startRobots();
-
-		// need to send directions to this robot now that
-		// it is off the ramp and the next robot has started
-		// moving
-		processor.routeRobot(thisRobotID);
+	// After that has been sent to each robot, start the movement:
+	for (var i = 0; i < robots.length; i ++) {
+		processor.routeRobot(robots[i].id);
 	}
 }
 
@@ -267,7 +168,7 @@ var addRobotByID = function(robotID, socket) {
 		}
 	}
 	// Otherwise add a new entry into the list.
-	robots.push({id: robotID, socket: socket, nextMove: null});
+	robots.push({id: robotID, socket: socket});
 };
 
 var getRobotIndex = function(robotID) {
@@ -288,7 +189,8 @@ var getRobotIndex = function(robotID) {
 var getRobotByID = function(robotID) {
 	var index = getRobotIndex(robotID);
 
-	if (index === null) { return null;
+	if (index === null) { 
+		return null;
 	} else {
 		return robots[index];
 	}
@@ -321,21 +223,12 @@ var getConnectedRobots = function() {
 	return connections;
 };
 
-/* Messages to Robot */
-var resume = function(robotID) {
-	var socket = getSocketByID(robotID);
-
-	if (socket !== null && !socket.destroyed) {
-		socket.write('RESUME\n');
-	}
-};
-
 var stop = function(robotID) {
 	// Stop a robot from moving
 	var socket = getSocketByID(robotID);
 
 	if (socket !== null && !socket.destroyed) {
-		socket.write('STOP\n');
+		socket.write({type: "STOP"});
 	}
 };
 
@@ -344,7 +237,7 @@ var wait = function(robotID) {
 	var socket = getSocketByID(robotID);
 
 	if (socket !== null && !socket.destroyed){
-		socket.write('WAIT 03000\n');
+		socket.write({type: "WAIT", time: 3000});
 	}
 };
 
@@ -354,34 +247,10 @@ var stopAll = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		// todo, check if socket is open and stop it.
 		if (!robots[i].socket.destroyed) {
-			robots[i].socket.write('STOP\n')
+			robots[i].socket.write({type: "STOP"})
 		}
 	}
 };
-
-
-var addPadding = function(number, length) {
-	number = Math.round(number);
-
-	var negative = false;
-
-	// deal with the negative number case
-	if (number < 0) {
-		number = - number
-		length -= 1;
-		negative = true;
-	}
-
-	var formatted = '' + number;
-	while (formatted.length < length) {
-		formatted = '0' + formatted;
-	}
-
-	if (negative) {
-		formatted = '-' + formatted;
-	}
-	return formatted;
-}
 
 /*
 * Function sending instructions for movement to robots and
@@ -389,42 +258,20 @@ var addPadding = function(number, length) {
 * - robotID is integer ID to send message to
 * - distance is distance in mm to destination tile
 */
-var move = function(robotID, xPosCM, yPosCM, orientationRad,
-			radiansRotate, distance) {
+var move = function(robotID, angle, distance) {
 	var socket = getSocketByID(robotID);
-
-	// convert distances to mm
-	var xPosMM = xPosCM * 10;
-	var yPosMM = yPosCM * 10;
-	distance = distance * 10;
-
-	// convert angle to degrees
-	// get more significant figures - multiply by 100
-	var degreesRotate = radiansRotate * 100 * 180 / Math.PI;
-	var degreesOrientation = orientationRad * 100 * 180 / Math.PI;
-
 	var robotIndex = getRobotIndex(robotID);
 
-	socket.write('INSTRUCTION, ' + Math.round(xPosMM) + ', ' +
-		Math.round(yPosMM) +
-		', ' + Math.round(degreesOrientation) + ', ' +
-		Math.round(distance) + ', ' +
-		Math.round(degreesRotate) + '\n');
-
-	// If the robots are being started, then after the
-	// linear morement is complete we have to send
-	// the next one off the ramp. This triggers a
-	// callback that deals with that.
-	robots[robotIndex].nextMove = startRobot_movementDone;
+	socket.write({ type: 'MOVE', 
+			angle: angle,
+			distance: distance});
 };
 
-exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.move = move;
 exports.wait = wait;
 exports.getConnectedRobots = getConnectedRobots;
-exports.startRobots = startRobots;
 
 if (TEST) {
 	exports.TEST = TEST;
@@ -433,10 +280,6 @@ if (TEST) {
 	exports.getConnectedRobots = getConnectedRobots;
 	exports.robots = robots;
 	exports.receiveData = receiveData;
-	exports.addPadding = addPadding;
 	exports.getRobotIndex = getRobotIndex;
 	exports.getRobotByID = getRobotByID;
-	exports.startRobot_waitingRobots = startRobot_waitingRobots;
-	exports.startRobot_movementDone = startRobot_movementDone;
-	exports.enqueueRobot = enqueueRobot;
 }

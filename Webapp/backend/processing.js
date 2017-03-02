@@ -266,6 +266,7 @@ var checkTile = function(robotID, tileX, tileY){
 		console.log("Routing to current tile - abort. ");
 		// Add a wait so that the robot calls back to the server
 		// and asks again later.
+		// TODO -- this should no longer happen
 		communication.wait(robotID);
 		return;
 	}
@@ -290,6 +291,8 @@ var checkTile = function(robotID, tileX, tileY){
 	console.log('From x=' + coordX + ' y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
 
 	// Turn by angle clockwise
+	// TODO -- communication.move now takes (robotID, angle, distance)
+	// server needs to keep track of location of robot.
 	communication.move(robotID, coordX * tileSize, coordY * tileSize,
 		orientation, angle, distance*tileSize);
 
@@ -334,7 +337,7 @@ var sendStatusUpdate = function(robotID) {
 	var robot = robots[robotID];
 	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
 }
-
+ 
 /*
  * Command from user to resume traversal of robots
  * Sent to communication.js to notify the robots.
@@ -342,6 +345,9 @@ var sendStatusUpdate = function(robotID) {
 var resume = function(robotID) {
 	robots[robotID].robotStatus = 1;
 	sendStatusUpdate(robotID);
+	// TODO -- Talk to Jamie about changing the webapp to remove
+	// the individual resume button. In this new model, resume
+	// is better done by restarting the robot perhaps? 
 	communication.resume(robotID);
 }
 
@@ -396,7 +402,7 @@ var startProcessing = function() {
 	route.setUp(width); // set up uncheckedTiles lists
 	// starts all the connected robots waiting on the
 	// starting ramp.
-	communication.startRobots();
+	communication.startRobots(tileSize);
 }
 
 var getRobots = function() {
