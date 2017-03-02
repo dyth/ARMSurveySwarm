@@ -130,7 +130,7 @@ class Robot {
 
 			// Assume 47 cm/sec + 0.5 sec for rotation
 			// Add 2 for usability
-			float time = 0.5f + distance / 47f + 2;
+			float time = 0.5f + distance / 47f;
 			// Now sleep for that time
 			try {
 				Thread.sleep((long) (time * 1000));
@@ -188,7 +188,7 @@ class Robot {
 		
 		System.out.println("xIndex " + xInd);
 		System.out.println("yIndex " + yInd);
-		int value = board[board.length - xInd - 1][yInd];
+		int value = board[board.length - 1 - yInd][xInd];
 		System.out.println("value is " + value);
 
 		for (int[] array : board) {

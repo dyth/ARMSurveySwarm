@@ -4,8 +4,8 @@ import java.util.*;
 import java.awt.geom.Ellipse2D;
 
 public class Checkerboard extends JPanel {
-	public static final int WIDTH = 800;
-	public static final int HEIGHT = 800;
+	public static final int WIDTH = 600;
+	public static final int HEIGHT = 600;
 	static final long serialVersionUID = 0;
 
 	int[][] colors;
@@ -31,7 +31,7 @@ public class Checkerboard extends JPanel {
 
 	public Checkerboard(int[][] colors) {
 		this.colors = colors;
-		setSize(WIDTH, HEIGHT); 
+		setSize(WIDTH, HEIGHT);
 		setVisible(true);
 
 		robots = new ArrayList<Color>();
@@ -55,7 +55,7 @@ public class Checkerboard extends JPanel {
 			robots.add(randomColor());
 			robotsX.add(0);
 			robotsY.add(0);
-		} 
+		}
 		// update the robot position;
 		robotsX.set(robotID, x);
 		robotsY.set(robotID, y);
@@ -82,7 +82,7 @@ public class Checkerboard extends JPanel {
 					g2d.setColor(Color.WHITE);
 				}
 
-				g2d.fillRect(j * cellWidth, i * cellHeight, 
+				g2d.fillRect(j * cellWidth, i * cellHeight,
 						(j + 1) * cellWidth, (i + 1) * cellHeight);
 			}
 		}
@@ -99,9 +99,9 @@ public class Checkerboard extends JPanel {
 
 			// Drw the circle
 			Shape theCircle = new Ellipse2D.Double(
-					x * cellWidth + cellWidth / 2 - robotRadius, 
-					HEIGHT - (y + 1) * cellHeight + cellHeight / 2 
-					- robotRadius, 
+					x * cellWidth + cellWidth / 2 - robotRadius,
+					HEIGHT - (y + 1) * cellHeight + cellHeight / 2
+					- robotRadius,
 					2.0 * robotRadius, 2.0 * robotRadius);
 			g2d.setColor(color);
 			g2d.fill(theCircle);

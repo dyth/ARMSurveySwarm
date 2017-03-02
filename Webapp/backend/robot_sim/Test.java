@@ -3,7 +3,8 @@ import java.awt.*;
 import java.util.Random;
 
 class Test {
-	static final int TILE_NO = 2;
+	static final int ROBOTS_NO = 5;
+	static final int TILE_NO = 10;
 	public static final int TILE_SIZE = 10;
 	static final Random tileGen = new Random(2);
 
@@ -27,22 +28,26 @@ class Test {
 		window.pack();
 		window.setVisible(true);
 
-		//Thread thread = new Thread(new Runnable() {
-		//@Override
-		//public void run() {
-		Robot r = new Robot(0, tiles, TILE_SIZE);
-		r.setMovementListener(new MovementListener() {
-			public void move(int x, int y) {
-				System.out.println("Board update called");
-				board.setRobotPosition(0, x / TILE_SIZE, y / TILE_SIZE);
-			}
-		});
-		// Note that this call has to be last becausse 
-		// it blocks
-		r.connect("localhost");
-		//}
-		//});
+		// Start a new thread for each robot to run on
+		for (int i = 0; i < ROBOTS_NO; i ++) {
+			final int ID = i;
+			Thread thread = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					Robot r = new Robot(ID, tiles, TILE_SIZE);
+					r.setMovementListener(new MovementListener() {
+						public void move(int x, int y) {
+							System.out.println("Board update called");
+							board.setRobotPosition(0, x / TILE_SIZE, y / TILE_SIZE);
+						}
+					});
+					// Note that this call has to be last becausse
+					// it blocks
+					r.connect("localhost");
+				}
+			});
 
-		// thread.start();
+			thread.start();
+		}
 	}
 }
