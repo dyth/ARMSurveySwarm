@@ -108,6 +108,12 @@ var setRecalibrationStatus = function(robotID) {
 	server.updateStatus(robotID, 0, 0, 4);
 }
 
+var setRobotStatusScanning = function(robotID) {
+	robots[robotID].robotStatus = 1;
+
+	server.updateStatus(robotID);
+};
+
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.
 	console.log("CONNECTION LOST CALLED");
@@ -294,6 +300,11 @@ var checkTile = function(robotID, tileX, tileY){
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
+
+
+	// And set the robot status to moving
+	setRobotStatusScanning(robotID);
+
 	console.log('Going to x=' + (coordX*tileSize + Math.cos(robots[robotID].orientation)*distance*tileSize));
 	console.log('Going to y=' + (coordY*tileSize + Math.sin(robots[robotID].orientation)*distance*tileSize));
 	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
