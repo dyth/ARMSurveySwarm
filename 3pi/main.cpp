@@ -6,7 +6,9 @@
 #include "m3pi.h"
 #include <string>
 
-#define SERVIP "192.168.46.5"
+#define ASIZE(array) (sizeof((array))/sizeof((array[0])))
+
+#define SERVIP "192.168.46.3"
 #define SERVPORT 9000
 #define SSID "private_network152"
 #define PASSWORD "CelesteAqua78"
@@ -38,15 +40,14 @@ MbedJSONValue readAndDecodeInstruction(){
 
 /*
 * Called when a START instruction is received.
-* Robot gets the tile size in mm and an id.
+* Robot gets the tile size in mm.
 */
 void handleStart(MbedJSONValue &instruction){
 
-    // Get the tile size and id
-    int id = instruction["id"].get<int>();
+    // Get the tile size
     double tileSize = instruction["tileSize"].get<double>();
 
-    pc.printf("START(%d, %f)\n", id, tileSize);
+    pc.printf("START(%f)\n", tileSize);
 
 }
 
@@ -82,7 +83,58 @@ void handleWait(MbedJSONValue &instruction){
     // Get the time to wait
     int time = instruction["time"].get<int>();
 
-    pc.printf("WAIT(%d)", time);
+    pc.printf("WAIT(%d)\n", time);
+
+}
+
+/*
+* Initial message sent by the robot to the server
+* Robot sends its id for reference
+*/
+void sendHello(){
+
+    // Create the HELLO message
+    MbedJSONValue message;
+    message["type"] = "HELLO";
+    message["id"] = 0; // TODO: CHANGE THIS
+
+    // Serialize the message
+    string toSend = message.serialize();
+
+    toSend.append("\n");
+
+    // Send the message
+    socket.send(toSend.c_str(), toSend.size());
+
+    pc.printf("SENDING(%s)\n", toSend);
+
+}
+
+/*
+*
+*
+*/
+void sendDone(int intensities[], int count){
+
+    // Create the DONE message
+    MbedJSONValue message;
+    message["type"] = "DONE";
+
+    // Add the intensities
+    // TODO: LOOK INTO SENDING MORE THAN 20 THINGS
+    for(int i = 0; i < count; i++){
+        message["intensities"][i] = intensities[i];
+    }
+
+    // Serialize the message
+    string toSend = message.serialize();
+
+    toSend.append("\n");
+
+    // Send the message
+    socket.send(toSend.c_str(), toSend.size());
+
+    pc.printf("SENDING(%s)\n", toSend);
 
 }
 
@@ -92,10 +144,12 @@ void handleWait(MbedJSONValue &instruction){
 */
 void run(){
 
+    MbedJSONValue instruction;
+
     while(1){
 
         // Get the instruction
-        MbedJSONValue instruction = readAndDecodeInstruction();
+        instruction = readAndDecodeInstruction();
 
         // Handle instruction
         string type = instruction["type"].get<string>();
@@ -103,6 +157,8 @@ void run(){
         if(type.compare("START") == 0) handleStart(instruction);
 
         if(type.compare("MOVE") == 0) handleMove(instruction);
+
+        if(type.compare("WAIT") == 0) handleWait(instruction);
 
         if(type.compare("STOP") == 0) handleStop(instruction);
 
@@ -132,15 +188,11 @@ int main() {
 
     pc.printf("Connected\n");
 
+    // Send the HELLO message
+    sendHello();
+
     // Run the main loop
     run();
-
-    /*// SEND MESSAGE BACK
-    char msg[] = "All Ok";
-    socket.send(msg, sizeof msg);
-
-    // Move
-    robot.forward(1.0f);*/
 
     // Close the socket to return its memory and bring down the network interface
     socket.close();

@@ -36,8 +36,9 @@ var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
 		// Pass the data on to receive data.
-		socket.write(JSON.stringify(
-			{type: "MOVE", angle:1.005, distance:0.1113}));
+
+		console.log(data);
+
 		receiveData(JSON.parse(data));
 	});
 
@@ -64,7 +65,7 @@ var receiveData = function(data, socket) {
 	if (data.type === 'HELLO') {
 		if (data.id === undefined) {
 			console.log('NON-FATAL ERROR -----------------------------');
-			console.log('Expected Robot ID to be set as 'id' field in data');
+			console.log('Expected Robot ID to be set as \'id\' field in data');
 			return;
 		}
 		// This is a connection message.
@@ -145,6 +146,8 @@ var sendInstructions = function() {
 		if (!robots[i].destroyed) {
 			// Start routing the robot.
 			processor.routeRobot(robots[i].id);
+			//var socket = getSocketByID(robots[i].id);
+			//socket.write(JSON.stringify({}))
 		}
 	}
 }
