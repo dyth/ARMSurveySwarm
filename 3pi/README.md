@@ -4,13 +4,9 @@ C++ code to be flashed onto the m3pi robots.
 
 ## Library
 
-A fork of Chris Styles's library, but with an added function for returning an int array[5] of calibrated values from the five reflectance sensors.
+A fork of Chris Styles's library, but with an added function for returning an `int array[5]` of calibrated values from the five reflectance sensors.
 
-This can be done by:
-
-> int sensors[5];
-
-> m3pi.calibrated_sensor (sensors);
+The function is `m3pi.calibrated_sensor(sensors);`, where sensors is an `int array[5]`.
 
 calibrated sensor values are between 0 and 1000.
 
