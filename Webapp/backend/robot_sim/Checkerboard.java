@@ -18,6 +18,8 @@ public class Checkerboard extends JPanel {
 			{1, 0, 1}, {0, 1, 0}, {1, 0, 1}
 		});
 		board.setRobotPosition(0, 2, 2);
+		board.setRobotPosition(1, 0, 0);
+		board.setRobotPosition(2, 0, 2);
 
 		JFrame window = new JFrame("Robots");
 		window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

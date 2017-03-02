@@ -3,9 +3,9 @@ import java.awt.*;
 import java.util.Random;
 
 class Test {
-	static final int TILE_NO = 10;
+	static final int TILE_NO = 2;
 	public static final int TILE_SIZE = 10;
-	static final Random tileGen = new Random(1);
+	static final Random tileGen = new Random(2);
 
 	static int tiles[][] = new int[TILE_NO][TILE_NO];
 

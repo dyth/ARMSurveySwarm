@@ -183,8 +183,12 @@ class Robot {
 	}
 
 	public int takeMeasurement() {
-		int value = board[(int) Math.floor(0.05 + yPos / tileSize)]
-			[(int) Math.floor(0.05 + xPos / tileSize)];
+		int yInd = (int) Math.floor(0.05 + yPos / tileSize);
+		int xInd = (int) Math.floor(0.05 + xPos / tileSize);
+		
+		System.out.println("xIndex " + xInd);
+		System.out.println("yIndex " + yInd);
+		int value = board[yInd][xInd];
 		System.out.println("value is " + value);
 
 		for (int[] array : board) {
