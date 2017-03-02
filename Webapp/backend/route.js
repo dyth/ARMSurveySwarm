@@ -12,25 +12,27 @@ var TEST = true;
 // Each element is dictionary of x, y positions for unchecked tiles
 var uncheckedTiles = [];
 var firstMove = [];
+var turnsWaiting = [];
+var tilesAcross = 0;
 
 var setUp = function(length) {
   uncheckedTiles.length = 0;
   firstMove.length = 0;
+  tilesAcross = length;
 
   for(var i = 0; i < processing.getRobots().length; i++){
     firstMove.push(true);
+    turnsWaiting.push(0);
   }
 	for(var i = 0; i < length; i++){
 		for(var j = 0; j < length; j++) {
 			uncheckedTiles.push({xPos: i, yPos: j});
 		}
 	}
-	//removeTile(0,0); // remove starter Tile - all robots will scan at start
 }
 
 var removeTile = function(coordX, coordY) {
 	var index = -1;
-
 	for (var i = 0; i < uncheckedTiles.length; i ++) {
 		if (uncheckedTiles[i].xPos === coordX
 				&& uncheckedTiles[i].yPos === coordY) {
@@ -55,7 +57,7 @@ var getRandomInt = function(min, max){
  * Choose tile to check next, return x and y positions.
  */
 var move = function(robotID) {
-	if (uncheckedTiles.length == 1) {
+	if (uncheckedTiles.length === 0) {
 		// Covered all tiles, stop all the robots
 		return {xAfter: -1, yAfter: -1, stopAll: true, wait: false};
 	} else {
@@ -68,31 +70,46 @@ var move = function(robotID) {
 
     while (willCollide(robotID, nextX, nextY) && !firstMove[robotID]){
 
-      if (tilesLeftToTry.length == 0) {
-        console.log('No tiles left to try. ');
-        return {xAfter: processing.getRobots()[robotID].xPrev,
-          yAfter: processing.getRobots()[robotID].yPrev, stopAll: false, wait: true};
+      if (tilesLeftToTry.length === 0) {
+        if (turnsWaiting[robotID] > 1) {
+          // just try a random tile
+          nextX = getRandomInt(0, tilesAcross);
+          nextY = getRandomInt(0, tilesAcross);
+
+        } else {
+          console.log('No tiles left to try. ');
+          turnsWaiting[robotID] += 1;
+          return {xAfter: processing.getRobots()[robotID].xPrev,
+            yAfter: processing.getRobots()[robotID].yPrev, stopAll: false, wait: true};
+        }
+      } else {
+
+        // remove potential tile from tiles left to try for this robot.
+        var index = -1;
+
+      	for (var i = 0; i < tilesLeftToTry.length; i ++) {
+      		if (tilesLeftToTry[i].xPos === nextX
+      				&& tilesLeftToTry[i].yPos === nextY) {
+      			index = i;
+      			break;
+      		}
+      	}
+
+      	if (index > -1) {
+      		tilesLeftToTry.splice(index, 1);
+      	}
+
+        tileIndex = getRandomInt(0, uncheckedTiles.length);
+        nextX = uncheckedTiles[tileIndex].xPos;
+        nextY = uncheckedTiles[tileIndex].yPos;
       }
-
-      // remove potential tile from tiles left to try for this robot.
-      var index = -1;
-
-    	for (var i = 0; i < tilesLeftToTry.length; i ++) {
-    		if (tilesLeftToTry[i].xPos === nextX
-    				&& tilesLeftToTry[i].yPos === nextY) {
-    			index = i;
-    			break;
-    		}
-    	}
-
-    	if (index > -1) {
-    		tilesLeftToTry.splice(index, 1);
-    	}
-
-      tileIndex = getRandomInt(0, uncheckedTiles.length);
-      nextX = uncheckedTiles[tileIndex].xPos;
-      nextY = uncheckedTiles[tileIndex].yPos;
     }
+
+
+
+
+
+    turnsWaiting[robotID] = 0;
     firstMove[robotID] = false;
 		return {xAfter: nextX, yAfter: nextY, stopAll: false, wait: false};
 	}
