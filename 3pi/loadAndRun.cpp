@@ -11,8 +11,7 @@
 #define D_TERM 20
 
 // board size
-#define X 2000
-#define Y 2000
+#define tileSize 100
 
 // robot terms
 #define clockwiseRotation 2.235f
@@ -257,51 +256,7 @@ void alignCorner() {
 }
 
 void cycleClockwise() {
-    // manages 4 scans, one for each edge of the board.
-    // position after one cycle should be invariant
-    
-    float turn;
-    
-    // up left
-    alignCorner();
-    currentX = 0;
-    currentY = 0;
-    goTo(500, 800);
-    goTo(0, Y - 100);
-    turnCounterClockwise(currentOrientation);
-    
-    // right along top
-    alignCorner();
-    currentX = 0;
-    currentY = Y;
-    goTo(500, 1500);
-    goTo(X - 100, Y);
-    turn = updateOrientation(currentOrientation + 90.0f);
-    turnCounterClockwise(turn);
-    
-    // down right
-    alignCorner();
-    currentX = X;
-    currentY = Y;
-    goTo(1500, 1800);
-    goTo(X, 100);
-    turn = updateOrientation(currentOrientation + 180.0f);
-    turnCounterClockwise(turn);
-    
-    // left along bottom
-    alignCorner();
-    currentX = X;
-    currentY = 0;
-    goTo(1500, 200);
-    goTo(100, 0);
-    turn = updateOrientation(currentOrientation - 90.0f);
-    turnCounterClockwise(turn);
-}
-
-int main() {
-    // wait until human has left then autocalibrate
-    wait(0.5);
-    m3pi.sensor_auto_calibrate();
+        m3pi.sensor_auto_calibrate();
     
     
     alignCorner();
@@ -318,24 +273,32 @@ int main() {
     float line[debounceLength];
     int count = 0;
      
-    m3pi.forward(0.9);
+    m3pi.forward(0.5);
     
     while(1) {
         m3pi.calibrated_sensor(sensors);
         
         if (sensors[2] > 900)  {
-            m3pi.stop();
-            wait(1);
+            halt();
             m3pi.calibrated_sensor(sensors);
             if (sensors[2] < 200) {
                 break;
             } else {
-                m3pi.forward(0.9);
-                wait(0.01);
+                goForwards(tileSize);
+                m3pi.forward(0.5);
             }
         }
     }
     
     turnClockwise(90);
     
+    alignCorner();
+}
+
+int main() {
+    // wait until human has left then autocalibrate
+    wait(0.5);
+    while (1) {
+        cycleClockwise();
+    }
 }
