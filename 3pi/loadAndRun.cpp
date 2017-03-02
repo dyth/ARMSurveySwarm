@@ -205,6 +205,17 @@ void levelOutBattery() {
     halt();
 }
 
+float updateOrientation(float orientation) {
+    // ensures that orientation is always between 0 and 360 degrees
+    if (orientation > 360.0f) {
+        return orientation - 360.0f;
+    } else if (orientation < 0.0f) {
+        return orientation + 360.0f;
+    } else {
+        return orientation;
+    }
+}
+
 void goTo(int x, int y) {
     // move to position x, y by first rotating clockwise, then going forwards
     
@@ -212,18 +223,21 @@ void goTo(int x, int y) {
     float moveX = (float) x - currentX;
     float moveY = (float) y - currentY;
     float degree = atan2 (moveX, moveY) * 180.0f / 3.141592654f;
+    degree = updateOrientation(degree);
+    float increment = degree - currentOrientation;
     
     // calculate distance to travel
     float distance = pow(moveX, 2.0f) + pow(moveY, 2.0f);
     int travel = (int) sqrt(distance);
     
     // motion
-    turnClockwise(degree);
+    turnClockwise(increment);
     goForwards(travel);
     
     // update position
     currentX = x;
     currentY = y;
+    currentOrientation = degree;
 }
 
 void alignCorner() {
@@ -245,21 +259,43 @@ void alignCorner() {
 void cycleClockwise() {
     // manages 4 scans, one for each edge of the board.
     // position after one cycle should be invariant
+    
+    float turn;
+    
+    // up left
     alignCorner();
     currentX = 0;
     currentY = 0;
+    goTo(500, 800);
+    goTo(0, Y - 100);
+    turnCounterClockwise(currentOrientation);
     
+    // right along top
     alignCorner();
     currentX = 0;
     currentY = Y;
+    goTo(500, 1500);
+    goTo(X - 100, Y);
+    turn = updateOrientation(currentOrientation + 90.0f);
+    turnCounterClockwise(turn);
     
+    // down right
     alignCorner();
     currentX = X;
     currentY = Y;
+    goTo(1500, 1800);
+    goTo(X, 100);
+    turn = updateOrientation(currentOrientation + 180.0f);
+    turnCounterClockwise(turn);
     
+    // left along bottom
     alignCorner();
     currentX = X;
     currentY = 0;
+    goTo(1500, 200);
+    goTo(100, 0);
+    turn = updateOrientation(currentOrientation - 90.0f);
+    turnCounterClockwise(turn);
 }
 
 int main() {
@@ -267,7 +303,10 @@ int main() {
     wait(0.5);
     m3pi.sensor_auto_calibrate();
     
-    alignCorner()
+    alignCorner();
     goTo(500, 800);
-    goTo(0, 1000);
+    
+    rotate(720);
+    
+    goTo(0, Y - 500);
 }

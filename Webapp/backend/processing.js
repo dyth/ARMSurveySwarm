@@ -165,6 +165,7 @@ var setTiles = function(robotID, messages) {
 
 	//check if whole board covered
 	if (tilesCovered >= totalTiles) {
+		console.log('All tiles covered ');
 		communication.stopAll();
 	}
 }
@@ -180,26 +181,19 @@ var routeRobot = function(robotID) {
 	// set robots to move to random point in another module
 	// send robotID, last x position, last y position
 	// move will send back the destination of the robot so can set
-	// xA and yA to xB and yB and set Afters with data received from route.
+	// xPrev and yPrev to xAfter and yAfter with data received from route.
 	var destination = route.move(robotID);
 	if (destination.stopAll) {
 		stopAll();
 		console.log('stop all called');
 		return;
 	} else if (destination.wait) {
-		communication.wait(robotID);
+		//communication.wait(robotID);
 		console.log('robot ' + robotID + ' waiting');
-		return;
+		//return;
 	}
 
-	// robots[robotID].xPrev = robots[robotID].xAfter;
-	// robots[robotID].yPrev = robots[robotID].yAfter;
-	//
-	// robots[robotID].xAfter = destination.xAfter;
-	// robots[robotID].yAfter = destination.yAfter;
-
 	checkTile(robotID, destination.xAfter, destination.yAfter);
-	//checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
 	sendStatusUpdate(robotID);
@@ -219,30 +213,40 @@ var twoColoursAgree = function(coordX, coordY){
 
 	// get robots that haven't been to this tile yet
 	for (var i = 0; i < robots.length; i++){
-		if (tile[i] == 0) {
+		if (tile[i] === 0) {
 			numBlack += 1;
-		} else if (tile[i] == 1) {
+		} else if (tile[i] === 1) {
 			numWhite += 1;
 		} else {
 			potentials.push(i);
 		}
 	}
 
+	/*
+	* If equal numbers - delegate another robot to check
+	* If more black then set final to black if not already set
+	* If more white then set final to white if not already set
+	*/
 	if (numWhite == numBlack) {
 		// potentials are robots other than those that already checked
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
 		checkTile(robotID, coordX, coordY);
 
-	} else if ((numWhite > numBlack && numWhite >= 2) ||
-		(robots.length == 1 && numWhite == 1)) {
+	} else if (((numWhite > numBlack && numWhite >= 2) ||
+		(robots.length < 2 && numWhite <= 1)) &&
+		processingTiles[coordX][coordY] !== 1 &&
+		processingTiles[coordX][coordY] !== 0) {
 
 		processingTiles[coordX][coordY][5] = 1;
 		server.updateTile(coordX, coordY, 1);
 		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
 
-	} else if ((numBlack > numWhite && numBlack >= 2) ||
-		(robots.length == 1 && numBlack == 1)) {
+	} else if (((numBlack > numWhite && numBlack >= 2) ||
+		(robots.length < 2 && numBlack <= 1)) &&
+		processingTiles[coordX][coordY] !== 1 &&
+		processingTiles[coordX][coordY] !== 0) {
+
 		processingTiles[coordX][coordY][5] = 0;
 		server.updateTile(coordX, coordY, 0);
 		route.removeTile(coordX, coordY);
@@ -263,7 +267,7 @@ var checkTile = function(robotID, tileX, tileY){
 	var coordX = robots[robotID].xAfter;
 	var coordY = robots[robotID].yAfter;
 
-	if (coordX == tileX && coordY == tileY){
+	if (coordX === tileX && coordY === tileY){
 		console.log("Routing to current tile - abort. ");
 		// Add a wait so that the robot calls back to the server
 		// and asks again later.
@@ -302,7 +306,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
-	
+
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
 	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
