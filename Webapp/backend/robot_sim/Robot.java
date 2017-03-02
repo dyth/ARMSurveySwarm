@@ -196,12 +196,15 @@ class Intensity {
 		this.value = value;
 	}
 
+	/*
+	 * Values returned from this are in mm
+	 */
 	float getXPos() {
-		return xPos;
+		return xPos * 10;
 	}
 
 	float getYPos() {
-		return yPos;
+		return yPos * 10;
 	}
 
 	int getValue() {
