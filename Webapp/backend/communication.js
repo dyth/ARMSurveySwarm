@@ -151,8 +151,12 @@ var receiveData = function(data, socket) {
 				return;
 			}
 
-			var x = stringToFloat(values[0]);
-			var y = stringToFloat(values[1]);
+			// 10 is the scaling factor to convert from
+			// MM that the robot sends location information
+			// in to CM that the processing module deals with
+			// information in.
+			var x = stringToFloat(values[0]) / 10;
+			var y = stringToFloat(values[1]) / 10;
 			var intensity = Math.round(stringToFloat(values[2]));
 
 			if (x === null || y === null || intensity === null) {
