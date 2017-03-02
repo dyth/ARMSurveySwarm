@@ -8,8 +8,8 @@ A fork of Chris Styles's library, but with an added function for returning an in
 
 This can be done by:
 
-| int sensors[5];
-| m3pi.calibrated_sensor (sensors);
+> int sensors[5];
+> m3pi.calibrated_sensor (sensors);
 
 calibrated sensor values are between 0 and 1000.
 
