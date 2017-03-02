@@ -28,7 +28,6 @@ server.listen(80);
 // they will send updates to all clients connected.
 var updateStatus = function(robotID, x, y, status) {
 	// todo fix this up
-	console.log('position ' + x + ' ' + y);
 	io.emit('sendRobotStatus', {id: robotID, x: x, y: y, status: status});
 };
 
@@ -36,8 +35,9 @@ var updateGrid = function(x, y) {
 	io.emit('sendAreaDimensions', {xDim: x, yDim: y});
 };
 
-var updateTile = function(x, y, tileValue) {;
+var updateTile = function(x, y, tileValue) {
 	io.emit('sendTileData', {x: x, y: y, value: tileValue});
+	// console.log('tile data sent');
 };
 
 io.sockets.on('connection', function(socket) {
