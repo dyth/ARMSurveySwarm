@@ -88,8 +88,8 @@ var roundPosition = function(pos) {
 		return 0;
 	} else if (pos > length * tileSize) {
 		return length;
-	} else {
-		return Math.floor(pos/tileSize);
+	} else  {
+		return Math.floor(pos/tileSize + 0.1);
 	}
 }
 
@@ -142,6 +142,7 @@ var setTiles = function(robotID, messages) {
 	for (var i = 0; i < messages.length; i++) {
 		coordX = roundPosition(messages[i].x);
 		coordY = roundPosition(messages[i].y);
+		console.log('setting tile at '+ coordX + ', ' + coordY);
 		lightIntensity = messages[i].lightIntensity;
 
 		if (coordX > processingTiles.length - 1 ||
@@ -153,14 +154,17 @@ var setTiles = function(robotID, messages) {
 		}
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
-		server.updateTile(coordX, coordY, 3);
+		server.updateTile(coordX, coordY, 3); //set to grey
 
-		// if two robots agree on colour, set finalColour,
-		twoColoursAgree(coordX, coordY);
+		// if two robots agree on colour and hasn't already been set,
+		// set finalColour
+		if (processingTiles[coordX][coordY][robotID] !== 2) {
+			twoColoursAgree(coordX, coordY);
+		}
 	}
 
 	//check if whole board covered
-	if (tilesCovered == totalTiles) {
+	if (tilesCovered >= totalTiles) {
 		communication.stopAll();
 	}
 }
@@ -213,6 +217,7 @@ var twoColoursAgree = function(coordX, coordY){
 	var tile = processingTiles[coordX][coordY];
 	var potentials = [];
 
+	// get robots that haven't been to this tile yet
 	for (var i = 0; i < robots.length; i++){
 		if (tile[i] == 0) {
 			numBlack += 1;
@@ -278,7 +283,6 @@ var checkTile = function(robotID, tileX, tileY){
 	B[1] = B[1]/distance;
 
 	var angle = Math.atan2(B[1], B[0]) - Math.atan2(A[1], A[0]);
-	console.log('angle ' + angle*180/Math.PI);
 
 	if (angle < 0) {
 		angle += 2*Math.PI;
@@ -291,7 +295,6 @@ var checkTile = function(robotID, tileX, tileY){
 		orientation, angle, distance*tileSize);
 
 	//Set new orientation of robotID
-	console.log('old orientation ' + robots[robotID].orientation*180/Math.PI);
 	getNewOrientation(robotID, angle);
 
 	robots[robotID].xPrev = robots[robotID].xAfter;
@@ -299,13 +302,9 @@ var checkTile = function(robotID, tileX, tileY){
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
-
-
+	
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
-
-	console.log('Going to x=' + (coordX*tileSize + Math.cos(robots[robotID].orientation)*distance*tileSize));
-	console.log('Going to y=' + (coordY*tileSize + Math.sin(robots[robotID].orientation)*distance*tileSize));
 	console.log('new orientation ' + robots[robotID].orientation*180/Math.PI);
 }
 
