@@ -5,19 +5,18 @@ import java.util.Random;
 class Test {
 	static final int TILE_NO = 10;
 	public static final int TILE_SIZE = 10;
-	static final Random tileGen = new Random(0);
+	static final Random tileGen = new Random(1);
 
 	static int tiles[][] = new int[TILE_NO][TILE_NO];
 
-	{
+	public static void main(String[] args) {
 		for (int i = 0; i < TILE_NO; i ++) {
 			for (int j = 0; j < TILE_NO; j ++) {
 				tiles[i][j] = tileGen.nextInt(2);
+				System.out.println("Setting tile to " + tiles[i][j]);
 			}
 		}
-	}
 
-	public static void main(String[] args) {
 		final Checkerboard board = new Checkerboard(tiles);
 
 		JFrame window = new JFrame("Robots");
