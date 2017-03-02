@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <sstream>
 
-#define DEBOUNCE 2
+#define DEBOUNCE 4
  
 // PID terms
 #define P_TERM 1
@@ -19,7 +19,7 @@
 #define counterRotation 2.235f
 #define robotMotorLeft 0.9f
 #define robotMotorRight 0.9f
-#define robotSpeed 1.0f
+#define robotDistancePerSecond 470.0f
 
 m3pi m3pi;
 
@@ -48,11 +48,41 @@ void turnClockwise(int degree) {
     halt();
 }
 
+void cadence() {
+    // drive straight for 1 second
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    wait(1);
+}
+
+void anneal() {
+    // anneal movement for 0.25 second
+    m3pi.forward(0.25);
+    wait(0.25);
+}
+
 void goForwards(int distance) {
-    // go forwards
-    m3pi.left_motor(0.9f);
-    m3pi.right_motor(0.9f);
-    wait((float) distance * robotSpeed);
+    // go forwards in cadences of 1 second of bleed move and anneal
+    m3pi.stop();
+    
+    //bleed
+    m3pi.forward(0.25);
+    wait(0.25);
+    
+    //move
+    while (distance > robotDistancePerSecond) {
+        cadence();
+        distance -= robotDistancePerSecond;
+        anneal();
+        halt();
+    }
+    
+    // move remainder of distance
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    wait(((float) distance) / robotDistancePerSecond);
+    anneal();
+    
     halt();
 }
 
@@ -188,11 +218,11 @@ int main() {
     m3pi.sensor_auto_calibrate();
     
     PID(0.0, 1.0);
-        
-    m3pi.backward(0.5f);
-    wait(0.5f);
-    m3pi.stop();
-    wait(0.5f);
+    
+    turnCounterClockwise(10);
+    m3pi.backward(0.25f);
+    wait(1.0f);
+    halt();
     
     PID(0.0, 0.25);
     
