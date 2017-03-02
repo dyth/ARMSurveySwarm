@@ -4,10 +4,6 @@
 #include <sstream>
 
 #define DEBOUNCE 2
-
-// Minimum and maximum motor speeds
-#define MAX 1.0
-#define MIN 0.0
  
 // PID terms
 #define P_TERM 1
@@ -30,20 +26,18 @@ void turnCounterClockwise(int degree) {
     // Turn left at half speed
     //m3pi.stop();
     m3pi.left(0.15f);
-    wait(((float) degree) * 2.933f / 360.0f);
+    wait(((float) degree) * 2.235f / 360.0f);
     m3pi.stop();
     wait(0.5f);
-    m3pi.reset();
 }
 
 void turnClockwise(int degree) {
     // Turn right at half speed
     //m3pi.stop();
     m3pi.right(0.15f);
-    wait(((float) degree) * 2.933f / 360.0f);
+    wait(((float) degree) * 2.235f / 360.0f);
     m3pi.stop();
     wait(0.5f);
-    m3pi.reset();
 }
 
 
@@ -64,7 +58,6 @@ void goForwards(int distance) {
     
     m3pi.stop();
     wait(0.5f);
-    m3pi.reset();
 }
 
 
@@ -77,7 +70,7 @@ float sum (float* rotations) {
     return s;
 }
 
-float limit(float speed) {
+float limit(float speed, float MIN, float MAX) {
     // ensures speed is between MIN amd MAX
     if (speed < MIN)
         return MIN;
@@ -109,7 +102,7 @@ void setRotations(float left, float right) {
     m3pi.printf("%f", leftRotation);
 }
 
-void PID() {
+void PID(float MIN, float MAX) {
     float right;
     float left;
     float rightTotal;
@@ -145,8 +138,8 @@ void PID() {
         left  = speed-power;
         
         // set speed at limits
-        left = limit(left);
-        right = limit(right);
+        left = limit(left, MIN, MAX);
+        right = limit(right, MIN, MAX);
         m3pi.left_motor(left);
         m3pi.right_motor(right);
         
@@ -165,6 +158,7 @@ void PID() {
     // stop and calibrate sensors
     m3pi.stop();
     setRotations(leftTotal, rightTotal);
+    wait(0.5);
 }
 
 void levelOutBattery() {
@@ -198,15 +192,20 @@ int main() {
     wait(0.5);
     m3pi.sensor_auto_calibrate();
     
-    PID();
+    PID(0.0, 1.0);
+        
+    m3pi.backward(0.25f);
+    wait(0.5f);
+    m3pi.stop();
+    wait(0.5f);
     
-    wait(1.0f);
-    m3pi.reset();
+    PID(0.0, 0.25);
     
-    turnClockwise(100);
+    
+    turnClockwise(720);
+    wait(20.0f);
     
     goForwards(100);
     
     //goTo(500, 800);
 }
-    
