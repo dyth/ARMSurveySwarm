@@ -1,400 +1,297 @@
 #include "mbed.h"
-#include "TCPSocket.h"
-#include "ESP8266Interface.h"
-#include "SocketAddress.h"
-#include "m3pi_ng.h"
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+#include "m3pi.h"
+#include <algorithm>
+#include <sstream>
 
-// definitions: IP and port of TCP server to connect to; SSID/password of WiFi network; unique ID of robot
-#define SERVIP "192.168.46.3"
-#define SERVPORT 8000
-#define SSID "private_network152"
-#define PASSWORD "CelesteAqua78"
-
-#define SPEED 0.15f
-#define DISTANCE_BETWEEN_SAMPLES 20
-
-#define ROBOT_ID 1
-#define DISTANCE_CALIBRATION 265.0f
-#define ROTATION_CALIBRATION (1.02f / 360.0f)
-
-/**
-    This program implements the ability to control a Pololu
-    3pi robot over WiFi using TCP sockets. The robot must have an ESP8266 WiFi
-    module, preconfigured to connect to the relevant WiFi network.
-    Authors: Hrutvik Kanabar, David Hui
-    Date: 26/02/2017
-*/
-
-ESP8266Interface wifi(p28, p27);
-SocketAddress server(SERVIP, SERVPORT);
-TCPSocket socket;
-
-m3pi m3pi; // robot
-Serial pc(USBTX, USBRX); // serial connection to PC for debugging/inspection
-
-/***** POSITION: current position of robot and update methods *****/
-float currentX = 0.0; //currentX position in mm
-float currentY = 0.0; //currentY position in mm
-float currentOrientation = 0.0; //currentOrientation in degrees
-
-#define PI 3.14159265
-void updatePosition(float speed, float distance){
-    float orientation = currentOrientation * PI/180.0;
-    if (speed > 0){
-      currentX += distance * cos(orientation);
-      currentY += distance * sin(orientation);
-    } else {
-      currentX -= distance * cos(orientation);
-      currentY -= distance * sin(orientation);
-    }
-}
-
-void updateOrientation(int rotation){
-    currentOrientation += (float)rotation;
-    if (currentOrientation >= 360.0f){
-        currentOrientation -= 360.0f;
-    }
-}
-
-
-/***** MOVEMENT/SAMPLING: moving forward/backward and sending intensity informtion *****/
-// sends lists of x-coordinates, y-coordinates, intensities over TCP
-    // format is: "(x_1,y_1,intensity_1);...;(x_n,y_n,intensity_n)\n"
-    // where each x_i, y_i, intensity_i are formatted: +x.xxx, +y.yyy, +i.iii
-void sendXYIs(float* xs, float* ys, int* intensities, int length){
-    //each entry to send is of format: (+x.xxx,+y.yyy,+i.iii); - 23 chars, then "INTENSITY: #ID;" at beginning
-        // and "\n\0" at end
-    char toSend[13 + (length * 23) + 2     +200]; // final string/list to send
-    memset(toSend, '\0', sizeof(toSend));
-    char preamble[14];
-    memset(preamble, '\0', sizeof(preamble));
-    sprintf(preamble,"INTENSITY: %d",ROBOT_ID);
-    strcat(toSend, preamble);
-    for (int i = 0; i < length; i++){
-        strcat(toSend, ";");
-        
-        char entry[60]; memset(entry, '\0', sizeof(entry)); // single entry to append to list                       24 for entry, 7 for x, y, intensity
-        char x[20]; memset(x, '\0', sizeof(x)); // single x-coordinate to send
-        char y[20]; memset(y, '\0', sizeof(y)); // single y-coordinate to send
-        char intensity[20]; memset(intensity, '\0', sizeof(intensity)); //single intensity to send
-        
-        // dark magic: use sprintf formatting to give correct lenghts and padding
-        // -  option: left-align numbers in field (not really necessary)
-        // +  option: puts sign in front of number, "+" or "-"
-        // 0  option: pads with "0"s instead of " "s
-        // *  option: total length of string, specified by later argument to sprintf (6 in our case)
-        // .* option: precision of floating point string, max no. decimal places (3 in our case)
-        sprintf(x, "%-+0.*f,", 3, xs[i]);     // 6 instead of 7
-        sprintf(y, "%-+0.*f,", 3, ys[i]);
-        sprintf(intensity, "%-+0.*d", 1, intensities[i]);
-        
-        /*
-        sprintf(x, "%-+0*.*f,", 7, 3, xs[i]);     // 6 instead of 7
-        sprintf(y, "%-+0*.*f,", 7, 3, ys[i]);
-        sprintf(intensity, "%-+0*.*f", 7, 3, intensities[i]);
-        */
-        
-        // format brackets, commas, semicolons for each entry
-        strcat(entry, "(");
-        strcat(entry, x);
-//        strcat(entry, ",");
-        strcat(entry, y);
-//        strcat(entry, ",");
-        strcat(entry, intensity);
-        strcat(entry, ")");
-        strcat(toSend, entry); // append to result string
-    }
-    printf("\n");
-    //strcat(toSend, "\nDONE: %d\n", ROBOT_ID);
-    //strcat(toSend, "\nDONE: 0\n");
-    strcat(toSend, "\n"); // append "\n" termination character
-    printf("To send: %s", toSend);
-    
-    int sent = 0;
-    int totalToSend = strlen(toSend);
-   
-    while (sent < totalToSend){
-        int sendNow = (500 < (totalToSend - sent)) ? 500 : (totalToSend - sent);
-        socket.send(toSend + sent, sendNow);
-        sent += sendNow;
-    }
-  //  socket.send(toSend, sizeof(toSend)-1); // send - don't include the "\0" null character
-}
-
-// Minimum and maximum motor speeds
-#define MAX 1.0
-#define MIN 0
-
+#define DEBOUNCE 4
+ 
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
 #define D_TERM 20
 
-void loadingBay() {
-    wait(0.5);
+// board size
+#define tileSize 100
 
-    m3pi.sensor_auto_calibrate();
+// robot terms
+#define clockwiseRotation 2.235f
+#define counterRotation 2.235f
+#define robotMotorLeft 0.5f
+#define robotMotorRight 0.5f
+#define robotDistancePerSecond 470.0f
 
-    float right;
-    float left;
+m3pi m3pi;
+
+float leftRotation;
+float rightRotation;
+
+// positioning is cartesian, a zero orientation is a positive y direction
+float currentOrientation = 0.0f;
+int currentX = 0;
+int currentY = 0;
+
+void halt() {
+    // halt robot and allow motors to cool down
+    m3pi.stop();
+    wait(0.5f);   
+}
+
+void turnCounterClockwise(int degree) {
+    // Turn left at the slowest speed possible for accuracy
+    m3pi.left(0.15f);
+    wait(((float) degree) * counterRotation / 360.0f);
+    halt();
+}
+
+void turnClockwise(int degree) {
+    // Turn right at the slowset speed possible for accuracy
+    m3pi.stop();
+    m3pi.right(0.15f);
+    wait(((float) degree) * clockwiseRotation / 360.0f);
+    halt();
+}
+
+void cadence() {
+    // drive straight for 1 second
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    wait(1);
+}
+
+void anneal() {
+    // anneal movement for 0.25 second
+    m3pi.forward(0.25);
+    wait(0.25);
+    m3pi.backward(0.25);
+    wait(0.25);
+    halt();
+}
+
+void goForwards(int distance) {
+    // go forwards in cadences of 1 second of bleed move and anneal
+    m3pi.stop();
+    
+    //bleed
+    m3pi.forward(0.25);
+    wait(0.25);
+    
+    //move
+    while (distance > robotDistancePerSecond) {
+        cadence();
+        distance -= robotDistancePerSecond;
+        anneal();
+    }
+    
+    // move remainder of distance
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    wait(((float) distance) / robotDistancePerSecond);
+    anneal();
+}
+
+float sum (float* rotations, int debounce) {
+    // return sum of debounce array
+    float s = 0.0f;
+    for (int j = 0; j < debounce; j++) {
+        s += rotations[j];
+    }
+    return s;
+}
+
+float limit(float speed, float MIN, float MAX) {
+    // ensures MIN < speed < MAX
+    if (speed < MIN)
+        return MIN;
+    else if (speed > MAX)
+        return MAX;
+    else
+        return speed;
+}
+
+std::string convert (float number){
+    // convert a floating point number into a string
+    std::ostringstream buff;
+    buff<<number;
+    return buff.str();   
+}
+
+void setRotations(float left, float right) {
+    // take integral of robot speeds and calibrate a new speed by altering
+    // the global variable
+    if (left > right) {
+        rightRotation = 1.0f;
+        leftRotation = right / left;
+    } else {
+        rightRotation = left / right;
+        leftRotation = 1.0f;
+    }
+    
+    // print new speeds on screen
+    m3pi.cls();
+    m3pi.locate(0,0);
+    m3pi.printf("%f", rightRotation);
+    m3pi.locate(0,1);
+    m3pi.printf("%f", leftRotation);
+}
+
+void PID(float MIN, float MAX, int debounce) {
+    // PID line following between the speeds MIN and MAX
+    float rightTotal;
+    float leftTotal;
     float current_pos_of_line = 0.0;
     float previous_pos_of_line = 0.0;
-    float derivative,proportional,integral = 0;
-    float power;
+    float derivative, proportional, integral = 0;
     float speed = MAX;
-
-    int count = 0;
-
-    while (1) {
-        count++;
-
-        // Get the position of the line.
-        current_pos_of_line = m3pi.line_position();
-        proportional = current_pos_of_line;
-
-        // Compute the derivative
-        derivative = current_pos_of_line - previous_pos_of_line;
-
-        // Compute the integral
-        integral += proportional;
-
-        // Remember the last position.
-        previous_pos_of_line = current_pos_of_line;
-
-        // Compute the power
-        power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM)) ;
-
-        // Compute new speeds
-        right = speed+power;
-        left  = speed-power;
-
-        // limit checks
-        if (right < MIN) {
-            right = MIN;
-        } else if (right > MAX) {
-            right = MAX;
-        }
-
-        if (left < MIN) {
-            left = MIN;
-        } else if (left > MAX) {
-            left = MAX;
-        }
-
-        if (count > 20 && (right == MIN || left == MIN)) {
-            break;
-        }
-
-        // set speed
-        m3pi.left_motor(left / 2);
-        m3pi.right_motor(right / 2);
-    }
-}
-
-void rotate(int rotation){
-    if (rotation <= 0 || rotation >= 360){
-        return;
-    } else if (rotation <= 180){
-        m3pi.left(SPEED);
-        wait(((float) rotation) * ROTATION_CALIBRATION);
-    } else { // 180 < rotation < 360
-        m3pi.right(SPEED);
-        wait(((float)(360 - rotation)) * ROTATION_CALIBRATION);
-    }
-    m3pi.stop();
-    updateOrientation(rotation);
-}
-
-void move(int distance){
-    int noSamples = floor((float)distance/(float)DISTANCE_BETWEEN_SAMPLES);
-
-    // lists to store (x, y, intensity) values
-    float xs[noSamples];
-    float ys[noSamples];
-    int intensities[noSamples];
-
-    if (distance <= 0){ // invalid distance
-        return;
-    }
-    printf("void move(int distance):\nNo. samples: %d\n", noSamples);
-    m3pi.forward(SPEED); // start moving
-    for (int i = 0; i < noSamples; i++){
-        float timeBetweenSamples = ((float) DISTANCE_BETWEEN_SAMPLES) / DISTANCE_CALIBRATION;
-        wait(timeBetweenSamples); // wait one time period
-        int sensors[5];
-        m3pi.calibrated_sensor (sensors);
-        if (sensors[2] > 500) {
-            intensities[i] = 0;
-        } else {
-            intensities[i] = 1;
-        }
-        //intensities[i] = ((float)sensors[2])/1000; // poll and store intensity
-        xs[i] = currentX; // store x
-        ys[i] = currentY; // store y
-        printf(".");
-        updatePosition(SPEED, (float) DISTANCE_BETWEEN_SAMPLES); // update robot's current position
-        printf(" ");
-    }
-    float rem = ((float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)) / DISTANCE_CALIBRATION;
-    wait(rem); // wait for remainder of duration
-    updatePosition(SPEED, (float)(distance - DISTANCE_BETWEEN_SAMPLES * noSamples)); // update position one final time
-    m3pi.stop(); // end movement
-    printf("Stopped moving.\n");
-    sendXYIs(xs, ys, intensities, noSamples); // send (x, y, intensity) list over TCP
-}
-
-/***** CONTROL: controlling m3pi *****/
-void tcp_control(){
-    // expect instructions of form <directive> <x> <y> <orientation> <distance> <rotation> <termination>
-    // <distance> an integer in mm; <rotation> an integer in degrees; '\n' for <termination>
-
-    // send hello message on connection
-    char hello[10];
-    sprintf(hello,"HELLO: %d\n",ROBOT_ID);
-    socket.send(hello, sizeof(hello)-1); // don't include "\0" termination character
+    int in = 0;
     
-    char received[256]; // buffer to store received instructions
-
-    while(true) {
-        //ASSUMPTION: INSTRUCTION IS WELL_FORMED, AND IS LESS THAN 256 BYTES
-        memset(received, '\0', sizeof(received));
-        // loop, receiving single bytes of instruction - keep instr_size as counter of no. bytes received
-        int instr_size = 0;
-        char r = '\0';
-        socket.recv(&r, sizeof(char));
-        while (r != '\n'){ //"\n" is termination character for an instruction
-            received[instr_size] = r;
-            instr_size++;
-            socket.recv(&r, sizeof(char));
-        }
-
-        // copy across instruction bytes into a new array
-        char instruction[instr_size+1+10];
-        memset(instruction, '\0', sizeof(instruction)); // ensure final character is '\0'
-        strncpy(instruction, received, instr_size);
+    // create array for debouncing and fill it with a starting
+    float rotations[debounce];
+    std::fill(rotations, rotations + debounce, 1.0f);
+    int count = 0;
+    
+    float s = 1.0f;
+    
+    // loop until debouncing has succeeded
+    while (s != 0.0f) {
+        in++;
+        // Get the position of the line.
+        current_pos_of_line = m3pi.line_position();        
+        proportional = current_pos_of_line;
         
+        // Compute the derivative, integral, remember previous position
+        derivative = current_pos_of_line - previous_pos_of_line;
+        integral += proportional;
+        previous_pos_of_line = current_pos_of_line;
         
-        printf("Received: %s    strlen: %d\nInstruction: %s     strlen: %d  instr_size: %d\n", received, strlen(received), instruction, strlen(instruction), instr_size); //DEBUG
+        // Compute the power and use it to find new speeds
+        float power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM));
+        float right = speed+power;
+        float left  = speed-power;
         
+        // set speed at limits
+        left = limit(left, MIN, MAX);
+        right = limit(right, MIN, MAX);
+        m3pi.left_motor(left);
+        m3pi.right_motor(right);
         
-        // split instruction up into tokens separated by ' ' delimiter
-        char directive[20]; // instruction directive: START, STOP, RESUME, INSTRUCTION
-        memset(directive, '\0', sizeof(directive));
-        const char delim[3] = ", "; // instruction delimiter
-
-        // get the first token
-        char *token;
-        token = strtok(instruction, delim);
-        strcpy(directive, token);
-
-        if (strcmp(directive, "STOP") == 0){
-            // wait for "RESUME\n" command - ASSUMPTION: RESUME is first instruction received after STOP
-            char resume[8];
-            memset(resume, '\0', sizeof(resume)); // ensure final character is '\0'
-            for (int i = 0; i < 7; i++){
-                socket.recv(resume + i, sizeof(char));
+        leftTotal += left;
+        rightTotal += right;
+        
+        // do some debouncing
+        if (in > 50) {
+            rotations[count++] = left;
+            if (count == debounce) {
+                count = 0;
             }
-            if(strcmp(resume, "RESUME\n")==0){
-                continue;
-            } else {
-                // by our assumption, this case should not occur
-            }
-        } else if (strcmp(directive, "RESUME") == 0){ // received a random RESUME instruction
-            continue;
-        } else if (strcmp(directive, "START") == 0){ // received a calibration instruction
-            // call loading bay code
-            //loadingBay();
-            m3pi.sensor_auto_calibrate();
-            // send confirmation of calibration
-            char reset[10];
-            sprintf(reset,"RESET: %d\n",ROBOT_ID);
-            socket.send(reset, sizeof(reset)-1);
-        } else if (strcmp(directive, "WAIT") == 0){ // received a wait instruction
-            // determine time to wait, then wait
-            float waitTime;
-            token = strtok(NULL, delim);
-            waitTime = ((float) atoi(token))/1000.0;
-            wait(waitTime);
-            char done[12];
-            sprintf(done,"DONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done)-1);
-        } else if (strcmp(directive, "INSTRUCTION") == 0){ // we have received a genuine direction for movement
-            // assume that <x> <y> <orientation> <distance> <rotation> directly follow
-            // update currentX, currentY, currentOrientation and determine speed/duration of movement
-            token = strtok(NULL, delim);
-            currentX = (float) atoi(token);
-            token = strtok(NULL, delim);
-            currentY = (float) atoi(token);
-            token = strtok(NULL, delim);
-            currentOrientation = (float) atoi(token);
-            
-            int distance;
-            int rotation;
-            token = strtok(NULL, delim);
-            distance = atoi(token);
-            token = strtok(NULL, delim);
-            rotation = atoi(token);
-            currentOrientation += rotation;
-            
-            printf("x: %f, y: %f, orient: %f, dist: %d, rot: %d\n", currentX, currentY, currentOrientation, distance, rotation);
-            rotate(rotation);
-            printf("Rotation calibration: %f\n", ROTATION_CALIBRATION);
-            printf("Rotated.\n");
-            move(distance);
-            printf("Moved.\n");
-            
-            m3pi.cls();
-            m3pi.locate(0,0);
-            m3pi.printf("%f", currentX);
-            m3pi.locate(4,0);
-            m3pi.printf("%f", currentY);
-            m3pi.locate(0,1);
-            m3pi.printf("%f", currentOrientation);
-                       
-            // send done message
-            char done[9];
-            sprintf(done,"DONE: %d\n",ROBOT_ID);
-            socket.send(done, sizeof(done)-1); // don't include "\0" termination character
-        } else {
-          // not expected - would imply malformed instruction
+            s = sum(rotations, debounce);
         }
-        printf("Executed.\n\n"); //DEBUG
+    }
+    // stop and calibrate sensors
+    m3pi.stop();
+    setRotations(leftTotal, rightTotal);
+    halt();
+}
 
+void levelOutBattery() {
+    // rapid fowards and backwards movement to level out battery charge
+    // ensures that calibration is relatively level
+    m3pi.forward(1.0f);
+    wait(0.125f);
+    m3pi.stop();
+    wait(0.1f);
+    m3pi.backward(1.0f);
+    wait(0.125f);
+    halt();
+}
+
+float updateOrientation(float orientation) {
+    // ensures that orientation is always between 0 and 360 degrees
+    if (orientation > 360.0f) {
+        return orientation - 360.0f;
+    } else if (orientation < 0.0f) {
+        return orientation + 360.0f;
+    } else {
+        return orientation;
     }
 }
 
-/***** MAIN *****/
+void goTo(int x, int y) {
+    // move to position x, y by first rotating clockwise, then going forwards
+    
+    // calculate degree of rotation
+    float degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
+    degree = updateOrientation(degree);
+    float increment = degree - currentOrientation;
+    
+    // calculate distance to travel
+    float distance = pow(x, 2.0f) + pow(x, 2.0f);
+    int travel = (int) sqrt(distance);
+    
+    // motion
+    currentOrientation = degree;
+    
+    turnClockwise(increment);
+    goForwards(travel);
+}
+
+void alignCorner() {
+    // aligns a robot such that it is on the corner, facing the new direction
+    
+    // find corner quickly, then align with corner, reverse and then
+    // slowly level up until corner is detected
+    PID(0.0, 1.0, 2);
+    turnCounterClockwise(10);
+    m3pi.backward(0.25f);
+    wait(1.0f);
+    halt();
+    PID(0.0, 0.25, 4);
+    
+    //turn to new direction (perpendiculat to the starting position)
+    turnClockwise(90);
+}
+
+void cycleClockwise(int x, int y) {
+    
+    // go to point x, y, then face the edge
+    goTo(x, y);
+    turnCounterClockwise(currentOrientation + 90);
+    
+    // go fowards until edge detected
+    int sensors[5];    
+    m3pi.forward(0.5);
+    
+    while(1) {
+        m3pi.calibrated_sensor(sensors);
+        
+        // if black, advance length of tile
+        // if no longer black, then tile detected, keep on advancing
+        // otherwise, edge detected, turn to face new corner
+        if (sensors[2] > 900)  {
+            halt();
+            m3pi.calibrated_sensor(sensors);
+            if (sensors[2] < 200) {
+                turnClockwise(90);
+                break;
+            } else {
+                goForwards(tileSize);
+                m3pi.forward(0.5);
+            }
+        }
+    }
+    
+    // align with corner
+    alignCorner();
+}
+
 int main() {
-    // setup: print greeting messages
-    m3pi.locate(0,1);
-    m3pi.printf("November");
-    printf("\n\n******************************\n");
-    printf("ESP8266 WiFi control\n");
-
-    // Bring up the ESP8266 WiFi connection
-    wifi.connect(SSID, PASSWORD);
-
-    // print connection details to PC for debugging
-    printf("Connected: \n");
-    const char *ip = wifi.get_ip_address();
-    printf("IP address is %s\n", ip ? ip : "No IP");
-    const char *mac = wifi.get_mac_address();
-    printf("MAC address is %s\n", mac ? mac : "No MAC");
-
-    // Establish socket connection
-    socket.open(&wifi);
-    socket.connect(server);
-
-    // Start controller
-    tcp_control();
-
-    // Close the socket to return its memory and bring down the network interface
-    socket.close();
-
-    // Bring down the ESP8266 WiFi connection
-    wifi.disconnect();
-    printf("Done\n");
+    // wait until human has left then autocalibrate
+    wait(0.5);
+    m3pi.sensor_auto_calibrate();
+    alignCorner();
+    
+    // main loop of program
+    while (1) {
+        currentOrientation = 0;
+        cycleClockwise(800, 500);
+    }
 }
