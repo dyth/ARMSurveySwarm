@@ -56,7 +56,7 @@ function addRobotSprite(robotID) {
 /*
 *
 * Adds robot to HTML and colour codes the names
-* 
+*
  */
 function addRobotHTML(robotID) {
 
