@@ -18,6 +18,8 @@ class Robot {
 	float xPos = 0;
 	float yPos = 0;
 
+	boolean stopped;
+
 	int[][] board;
 	int tileSize;
 
@@ -79,7 +81,7 @@ class Robot {
 		if (current.equals("START")) {
 			// There is no loading ramp in this example
 			send("RESET:" + id + "\n");
-		} else if (current.startsWith("WAIT ")) {
+		} else if (!stopped && current.startsWith("WAIT ")) {
 			current = current.substring("WAIT ".length()).trim();
 			long waitTime = Long.parseLong(current.substring(0, 5));
 
@@ -92,9 +94,11 @@ class Robot {
 			send("DONE:" + id + "\n");
 		} else if (current.equals("STOP")) {
 			// stop
+			stopped = true;
 		} else if (current.equals("RESUME")) {
 			// resume
-		} else if (current.startsWith("INSTRUCTION,")) {
+			stopped = false;
+		} else if (!stopped && current.startsWith("INSTRUCTION,")) {
 			String[] sections = current.split(", ");
 
 			// Now get the rest of the directions
