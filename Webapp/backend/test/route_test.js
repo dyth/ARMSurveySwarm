@@ -69,7 +69,7 @@ describe('setUp ', function() {
 	it('should work if setup is called multiple times', function() {
 		routing.setUp(10);
 		routing.setUp(10);
-		expect(routing.uncheckedTiles.length).to.equal(99);
+		expect(routing.uncheckedTiles.length).to.equal(100);
 	});
 
 
@@ -79,7 +79,7 @@ describe('setUp ', function() {
 		routing.setUp(-2);
 		routing.setUp(9);
 
-		expect(routing.uncheckedTiles.length).to.equal(80);
+		expect(routing.uncheckedTiles.length).to.equal(81);
 	});
 });
 
@@ -96,7 +96,7 @@ describe('removeTile ', function() {
 		var tileHead = routing.uncheckedTiles[35];
 		routing.removeTile(tileHead.xPos, tileHead.yPos);
 		expect(routing.uncheckedTiles[35]).to.not.equal(tileHead);
-		expect(routing.uncheckedTiles.length).to.equal(98);
+		expect(routing.uncheckedTiles.length).to.equal(99);
 	});
 });
 
