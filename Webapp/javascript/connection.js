@@ -46,7 +46,7 @@ var socketUpdateArea = function(data) {
 		var newArray = [];
 
 		for (var y = 0; y < newYDim; y ++) {
-			newArray.push(0);
+			newArray.push(1);
 		}
 
 		tiles.push(newArray);

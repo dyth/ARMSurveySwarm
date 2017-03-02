@@ -11,6 +11,7 @@ $(function () {
 
     // Get number of robots
     numRobots = sessionStorage.getItem(KEY_NUM_ROBOTS);
+    console.log(numRobots);
 
     // Perform all module setup
     setupState();

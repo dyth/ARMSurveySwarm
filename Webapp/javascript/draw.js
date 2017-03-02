@@ -122,9 +122,9 @@ function updateCanvas() {
 
             var graphics;
 
-            if(tiles[i][j] == 1)
+            if(tiles[i][j] == 0)
                 graphics = graph.graphics.beginFill("#000");
-            else if(tiles[i][j] == 0)
+            else if(tiles[i][j] == 1)
                 graphics = graph.graphics.beginFill("#fff");
             else
                 graphics = graph.graphics.beginFill("#ccc");

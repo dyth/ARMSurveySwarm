@@ -21,7 +21,7 @@ function displayError(msg) {
 $(function () {
 
 	$("#inputForm").submit(function( event ) {
-
+		
 		var tileSize = $("#inputTileSize").val();
 		var gridSize = $("#inputGridSize").val();
 		var numRobots = $("#inputRobots").val();
