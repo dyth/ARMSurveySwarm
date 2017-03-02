@@ -136,8 +136,8 @@ class Robot {
 
 			// Now that we havve updated the position, call the update position
 			if (movementListener != null) {
-				movementListener.move( Math.round(xPos),
-						Math.round(yPos));
+				movementListener.move((int) Math.floor(xPos + 0.05),
+						(int) Math.floor(yPos + 0.05));
 			}
 
 			Intensity[] intensityMeasurements = new Intensity[] {
@@ -179,8 +179,15 @@ class Robot {
 	}
 
 	public int takeMeasurement() {
-		return board[(int) Math.floor(0.05 + xPos / tileSize)]
-			[(int) Math.floor(0.05 + yPos / tileSize)];
+		int value = board[(int) Math.floor(0.05 + yPos / tileSize)]
+			[(int) Math.floor(0.05 + xPos / tileSize)];
+		System.out.println("value is " + value);
+
+		for (int[] array : board) {
+			System.out.println(Arrays.toString(array));
+		}
+
+		return value;
 	}
 }
 
