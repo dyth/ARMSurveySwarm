@@ -1,13 +1,21 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.Random;
 
 class Test {
-	static int[][] tiles = new int[][]{ {1, 0, 1, 1},
-		{1, 0, 0, 1},
-		{1, 1, 0, 1},
-		{0, 0, 0, 1} };
-
+	static final int TILE_NO = 10;
 	public static final int TILE_SIZE = 10;
+	static final Random tileGen = new Random(0);
+
+	static int tiles[][] = new int[TILE_NO][TILE_NO];
+
+	{
+		for (int i = 0; i < TILE_NO; i ++) {
+			for (int j = 0; j < TILE_NO; j ++) {
+				tiles[i][j] = tileGen.nextInt(2);
+			}
+		}
+	}
 
 	public static void main(String[] args) {
 		final Checkerboard board = new Checkerboard(tiles);
