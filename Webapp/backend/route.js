@@ -25,7 +25,7 @@ var setUp = function(length) {
 			uncheckedTiles.push({xPos: i, yPos: j});
 		}
 	}
-	removeTile(0,0); // remove starter Tile - all robots will scan at start
+	//removeTile(0,0); // remove starter Tile - all robots will scan at start
 }
 
 var removeTile = function(coordX, coordY) {
@@ -55,13 +55,12 @@ var getRandomInt = function(min, max){
  * Choose tile to check next, return x and y positions.
  */
 var move = function(robotID) {
-	if (uncheckedTiles.length == 0) {
-    console.log('UNCHECKED TILES IS EMPTY')
-		// Covered all tiles?
+	if (uncheckedTiles.length == 1) {
+		// Covered all tiles, stop all the robots
 		return {xAfter: -1, yAfter: -1, stopAll: true, wait: false};
 	} else {
 
-    var tilesLeftToTry = uncheckedTiles.slice();
+    var tilesLeftToTry = uncheckedTiles.slice(); // copy unchecked tiles
 
 		var tileIndex = getRandomInt(0, uncheckedTiles.length);
 		var nextX = uncheckedTiles[tileIndex].xPos;

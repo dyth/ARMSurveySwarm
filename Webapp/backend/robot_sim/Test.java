@@ -3,7 +3,7 @@ import java.awt.*;
 import java.util.Random;
 
 class Test {
-	static final int ROBOTS_NO = 2;
+	static final int ROBOTS_NO = 5;
 	static final int TILE_NO = 10;
 	public static final int TILE_SIZE = 10;
 	static final Random tileGen = new Random(2);

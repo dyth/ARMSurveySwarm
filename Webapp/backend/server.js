@@ -36,10 +36,8 @@ var updateGrid = function(x, y) {
 	io.emit('sendAreaDimensions', {xDim: x, yDim: y});
 };
 
-var updateTile = function(x, y, tileValue) {
-	console.log('updating tile ' + x + ' ' + y + ' to ' + tileValue);
+var updateTile = function(x, y, tileValue) {;
 	io.emit('sendTileData', {x: x, y: y, value: tileValue});
-	// console.log('tile data sent');
 };
 
 io.sockets.on('connection', function(socket) {

@@ -133,7 +133,7 @@ class Robot {
 			float time = 0.5f + distance / 47f;
 			// Now sleep for that time
 			try {
-				Thread.sleep((long) (time));
+				Thread.sleep((long) (time * 500));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
