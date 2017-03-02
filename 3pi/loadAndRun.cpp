@@ -11,8 +11,7 @@
 #define D_TERM 20
 
 // board size
-#define X 2000
-#define Y 2000
+#define tileSize 100
 
 // robot terms
 #define clockwiseRotation 2.235f
@@ -90,10 +89,10 @@ void goForwards(int distance) {
     anneal();
 }
 
-float sum (float* rotations) {
+float sum (float* rotations, int debounce) {
     // return sum of debounce array
     float s = 0.0f;
-    for (int j = 0; j < DEBOUNCE; j++) {
+    for (int j = 0; j < debounce; j++) {
         s += rotations[j];
     }
     return s;
@@ -109,7 +108,7 @@ float limit(float speed, float MIN, float MAX) {
         return speed;
 }
 
-std::string Convert (float number){
+std::string convert (float number){
     // convert a floating point number into a string
     std::ostringstream buff;
     buff<<number;
@@ -135,7 +134,7 @@ void setRotations(float left, float right) {
     m3pi.printf("%f", leftRotation);
 }
 
-void PID(float MIN, float MAX) {
+void PID(float MIN, float MAX, int debounce) {
     // PID line following between the speeds MIN and MAX
     float rightTotal;
     float leftTotal;
@@ -146,8 +145,8 @@ void PID(float MIN, float MAX) {
     int in = 0;
     
     // create array for debouncing and fill it with a starting
-    float rotations[DEBOUNCE];
-    std::fill(rotations, rotations + DEBOUNCE, 1.0f);
+    float rotations[debounce];
+    std::fill(rotations, rotations + debounce, 1.0f);
     int count = 0;
     
     float s = 1.0f;
@@ -181,10 +180,10 @@ void PID(float MIN, float MAX) {
         // do some debouncing
         if (in > 50) {
             rotations[count++] = left;
-            if (count == DEBOUNCE) {
+            if (count == debounce) {
                 count = 0;
             }
-            s = sum(rotations);
+            s = sum(rotations, debounce);
         }
     }
     // stop and calibrate sensors
@@ -220,24 +219,19 @@ void goTo(int x, int y) {
     // move to position x, y by first rotating clockwise, then going forwards
     
     // calculate degree of rotation
-    float moveX = (float) x - currentX;
-    float moveY = (float) y - currentY;
-    float degree = atan2 (moveX, moveY) * 180.0f / 3.141592654f;
+    float degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
     degree = updateOrientation(degree);
     float increment = degree - currentOrientation;
     
     // calculate distance to travel
-    float distance = pow(moveX, 2.0f) + pow(moveY, 2.0f);
+    float distance = pow(x, 2.0f) + pow(x, 2.0f);
     int travel = (int) sqrt(distance);
     
     // motion
+    currentOrientation = degree;
+    
     turnClockwise(increment);
     goForwards(travel);
-    
-    // update position
-    currentX = x;
-    currentY = y;
-    currentOrientation = degree;
 }
 
 void alignCorner() {
@@ -245,68 +239,59 @@ void alignCorner() {
     
     // find corner quickly, then align with corner, reverse and then
     // slowly level up until corner is detected
-    PID(0.0, 1.0);
+    PID(0.0, 1.0, 2);
     turnCounterClockwise(10);
     m3pi.backward(0.25f);
-    wait(0.5f);
+    wait(1.0f);
     halt();
-    PID(0.0, 0.25);
+    PID(0.0, 0.25, 4);
     
     //turn to new direction (perpendiculat to the starting position)
     turnClockwise(90);
 }
 
-void cycleClockwise() {
-    // manages 4 scans, one for each edge of the board.
-    // position after one cycle should be invariant
+void cycleClockwise(int x, int y) {
     
-    float turn;
+    // go to point x, y, then face the edge
+    goTo(x, y);
+    turnCounterClockwise(currentOrientation + 90);
     
-    // up left
+    // go fowards until edge detected
+    int sensors[5];    
+    m3pi.forward(0.5);
+    
+    while(1) {
+        m3pi.calibrated_sensor(sensors);
+        
+        // if black, advance length of tile
+        // if no longer black, then tile detected, keep on advancing
+        // otherwise, edge detected, turn to face new corner
+        if (sensors[2] > 900)  {
+            halt();
+            m3pi.calibrated_sensor(sensors);
+            if (sensors[2] < 200) {
+                turnClockwise(90);
+                break;
+            } else {
+                goForwards(tileSize);
+                m3pi.forward(0.5);
+            }
+        }
+    }
+    
+    // align with corner
     alignCorner();
-    currentX = 0;
-    currentY = 0;
-    goTo(500, 800);
-    goTo(0, Y - 100);
-    turnCounterClockwise(currentOrientation);
-    
-    // right along top
-    alignCorner();
-    currentX = 0;
-    currentY = Y;
-    goTo(500, 1500);
-    goTo(X - 100, Y);
-    turn = updateOrientation(currentOrientation + 90.0f);
-    turnCounterClockwise(turn);
-    
-    // down right
-    alignCorner();
-    currentX = X;
-    currentY = Y;
-    goTo(1500, 1800);
-    goTo(X, 100);
-    turn = updateOrientation(currentOrientation + 180.0f);
-    turnCounterClockwise(turn);
-    
-    // left along bottom
-    alignCorner();
-    currentX = X;
-    currentY = 0;
-    goTo(1500, 200);
-    goTo(100, 0);
-    turn = updateOrientation(currentOrientation - 90.0f);
-    turnCounterClockwise(turn);
 }
 
 int main() {
     // wait until human has left then autocalibrate
     wait(0.5);
     m3pi.sensor_auto_calibrate();
-    
     alignCorner();
-    goTo(500, 800);
     
-    rotate(720);
-    
-    goTo(0, Y - 500);
+    // main loop of program
+    while (1) {
+        currentOrientation = 0;
+        cycleClockwise(800, 500);
+    }
 }
