@@ -13,7 +13,7 @@
 #define SSID "private_network152"
 #define PASSWORD "CelesteAqua78"
 
-#define SPEED 0.25f
+#define SPEED 0.15f
 #define DISTANCE_BETWEEN_SAMPLES 20
 
 #define ROBOT_ID 1
