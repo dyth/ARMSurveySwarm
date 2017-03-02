@@ -98,30 +98,29 @@ var resetRobot = function(robotID) {
 		xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2}
 
 	// id, x,  y, status
-	server.updateStatus(robotID, 0, 0, 1);
+	sendStatusUpdate(robotID);
 }
 
 var setRecalibrationStatus = function(robotID) {
 	robots[robotID].robotStatus = 4;
 
 
-	server.updateStatus(robotID, 0, 0, 4);
+	sendStatusUpdate(robotID);
 }
 
 var setRobotStatusScanning = function(robotID) {
 	robots[robotID].robotStatus = 1;
 
-	server.updateStatus(robotID);
+	sendStatusUpdate(robotID);
 };
 
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.
 	console.log("CONNECTION LOST CALLED");
 	robots[robotID].robotStatus = 3;
-	var robot = robots[robotID];
 
 	// id, x,  y, status
-	server.updateStatus(robotID, robot.x, robot.y, robot.robotStatus);
+	sendStatusUpdate(robotID);
 }
 
 /*
@@ -155,7 +154,7 @@ var setTiles = function(robotID, messages) {
 		processingTiles[coordX][coordY][robotID] = lightIntensity;
 
 		server.updateTile(coordX, coordY, 3);
-		server.updateStatus(robotID, coordX, coordY, robots[robotID].robotStatus);
+
 		// if two robots agree on colour, set finalColour,
 		twoColoursAgree(coordX, coordY);
 	}
@@ -199,7 +198,7 @@ var routeRobot = function(robotID) {
 	//checkTile(robotID, robots[robotID].xAfter, robots[robotID].yAfter);
 
 	// Update the position of the robot in the webserver.
-	server.updateStatus(robotID);
+	sendStatusUpdate(robotID);
 }
 
 /*
@@ -336,7 +335,7 @@ var hasStartedProcessing = function() {
  */
 var sendStatusUpdate = function(robotID) {
 	var robot = robots[robotID];
-	server.updateStatus(robotID, robot.xPrev, robot.yPrev, robot.robotStatus);
+	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
 }
 
 /*
