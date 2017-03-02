@@ -17,18 +17,22 @@
 // robot terms
 #define clockwiseRotation 2.235f
 #define counterRotation 2.235f
-#define robotMotorLeft 0.9f
-#define robotMotorRight 0.9f
+#define robotMotorLeft 0.5f
+#define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
 
 m3pi m3pi;
 
 float leftRotation;
 float rightRotation;
+
+// positioning is cartesian, a zero orientation is a positive y direction
+float currentOrientation = 0.0f;
 int currentX = 0;
 int currentY = 0;
 
 void halt() {
+    // halt robot and allow motors to cool down
     m3pi.stop();
     wait(0.5f);   
 }
@@ -59,6 +63,9 @@ void anneal() {
     // anneal movement for 0.25 second
     m3pi.forward(0.25);
     wait(0.25);
+    m3pi.backward(0.25);
+    wait(0.25);
+    halt();
 }
 
 void goForwards(int distance) {
@@ -74,7 +81,6 @@ void goForwards(int distance) {
         cadence();
         distance -= robotDistancePerSecond;
         anneal();
-        halt();
     }
     
     // move remainder of distance
@@ -82,8 +88,6 @@ void goForwards(int distance) {
     m3pi.right_motor(robotMotorRight);
     wait(((float) distance) / robotDistancePerSecond);
     anneal();
-    
-    halt();
 }
 
 float sum (float* rotations) {
@@ -118,10 +122,12 @@ void setRotations(float left, float right) {
     if (left > right) {
         rightRotation = 1.0f;
         leftRotation = right / left;
-     } else {
+    } else {
         rightRotation = left / right;
         leftRotation = 1.0f;
     }
+    
+    // print new speeds on screen
     m3pi.cls();
     m3pi.locate(0,0);
     m3pi.printf("%f", rightRotation);
@@ -146,6 +152,7 @@ void PID(float MIN, float MAX) {
     
     float s = 1.0f;
     
+    // loop until debouncing has succeeded
     while (s != 0.0f) {
         in++;
         // Get the position of the line.
@@ -187,6 +194,8 @@ void PID(float MIN, float MAX) {
 }
 
 void levelOutBattery() {
+    // rapid fowards and backwards movement to level out battery charge
+    // ensures that calibration is relatively level
     m3pi.forward(1.0f);
     wait(0.125f);
     m3pi.stop();
@@ -198,37 +207,67 @@ void levelOutBattery() {
 
 void goTo(int x, int y) {
     // move to position x, y by first rotating clockwise, then going forwards
+    
+    // calculate degree of rotation
     float moveX = (float) x - currentX;
     float moveY = (float) y - currentY;
     float degree = atan2 (moveX, moveY) * 180.0f / 3.141592654f;
-    turnClockwise(degree);
     
+    // calculate distance to travel
     float distance = pow(moveX, 2.0f) + pow(moveY, 2.0f);
     int travel = (int) sqrt(distance);
-    while (travel > 250) {
-        goForwards(250);
-        travel -= 250;
-    }
+    
+    // motion
+    turnClockwise(degree);
     goForwards(travel);
+    
+    // update position
+    currentX = x;
+    currentY = y;
+}
+
+void alignCorner() {
+    // aligns a robot such that it is on the corner, facing the new direction
+    
+    // find corner quickly, then align with corner, reverse and then
+    // slowly level up until corner is detected
+    PID(0.0, 1.0);
+    turnCounterClockwise(10);
+    m3pi.backward(0.25f);
+    wait(0.5f);
     halt();
+    PID(0.0, 0.25);
+    
+    //turn to new direction (perpendiculat to the starting position)
+    turnClockwise(90);
+}
+
+void cycleClockwise() {
+    // manages 4 scans, one for each edge of the board.
+    // position after one cycle should be invariant
+    alignCorner();
+    currentX = 0;
+    currentY = 0;
+    
+    alignCorner();
+    currentX = 0;
+    currentY = Y;
+    
+    alignCorner();
+    currentX = X;
+    currentY = Y;
+    
+    alignCorner();
+    currentX = X;
+    currentY = 0;
 }
 
 int main() {
+    // wait until human has left then autocalibrate
     wait(0.5);
     m3pi.sensor_auto_calibrate();
     
-    PID(0.0, 1.0);
-    
-    turnCounterClockwise(10);
-    m3pi.backward(0.25f);
-    wait(1.0f);
-    halt();
-    
-    PID(0.0, 0.25);
-    
-    turnClockwise(90);
-    
-    goForwards(1000);
-    
-    //goTo(500, 800);
+    alignCorner()
+    goTo(500, 800);
+    goTo(0, 1000);
 }
