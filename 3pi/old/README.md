@@ -1,12 +1,16 @@
 # 3pi robot code
 
-Mainly C++ code that can be flashed into the robots for their communication.
+This contains old code which are no longer in use. C++ code that can be flashed into the robots for their communication.
 
 ## Library
 
 A fork of Chris Styles's library, but with an added function for returning calibrated values from all five reflectance sensors.
 
-## Final program
+## Main
+
+`loadAndRun.cpp` is the first working version which combines the calibration of robots by the loading bay with motion to a tile.
+
+It utilises the above library of functions.
 
 `main.cpp` combines the WiFi module, intensities and odometry together. This program is based on [a sample TCP mbed program](https://developer.mbed.org/teams/ST/code/mbed-os-tcp-server-example/).
 
