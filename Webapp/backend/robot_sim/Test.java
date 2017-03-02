@@ -3,7 +3,7 @@ import java.awt.*;
 import java.util.Random;
 
 class Test {
-	static final int ROBOTS_NO = 5;
+	static final int ROBOTS_NO = 2;
 	static final int TILE_NO = 10;
 	public static final int TILE_SIZE = 10;
 	static final Random tileGen = new Random(2);
@@ -37,8 +37,7 @@ class Test {
 					Robot r = new Robot(ID, tiles, TILE_SIZE);
 					r.setMovementListener(new MovementListener() {
 						public void move(int x, int y) {
-							System.out.println("Board update called");
-							board.setRobotPosition(0, x / TILE_SIZE, y / TILE_SIZE);
+							board.setRobotPosition(ID, x / TILE_SIZE, y / TILE_SIZE);
 						}
 					});
 					// Note that this call has to be last becausse
