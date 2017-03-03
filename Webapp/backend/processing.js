@@ -182,7 +182,7 @@ var setTiles = function(robotID, intensities) {
 
 		// if two robots agree on colour and hasn't already been set, set final
 		if (tile[robots.length] === 2) {
-			server.updateTile(coordX, coordY, 3); //set to grey if first traversal
+			server.updateTile(roundedX, roundedY, 3); //set to grey if first traversal
 			twoColoursAgree(roundedX, roundedY);
 		}
 
