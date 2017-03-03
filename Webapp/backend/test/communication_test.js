@@ -236,33 +236,6 @@ describe('stop, resume and stopAll', function() {
 	});
 });
 
-describe('Add padding', function() {
-	it('should pad a number out to N digits and preserve equality', function() {
-		// Checking length properties
-		expect(coms.addPadding(1, 10).length).to.equal(10);
-		expect(coms.addPadding(5, 2).length).to.equal(2);
-		expect(coms.addPadding(-5, 3).length).to.equal(3);
-		expect(coms.addPadding(12345, 5).length).to.equal(5);
-
-		// checking preservation properties
-		expect(Number(coms.addPadding(5, 2))).to.equal(5);
-		expect(Number(coms.addPadding(-5, 4))).to.equal(-5);
-	});
-
-	it('should round floating point numbers', function() {
-		expect(Number(coms.addPadding(1/3, 10))).to.equal(0);
-		expect(Number(coms.addPadding(2/3, 1))).to.equal(1);
-		expect(coms.addPadding(23.1, 3)).to.equal("023");
-	});
-
-	it('maximum length should be 5 regardless of input', function() {
-		expect(coms.addPadding(1232.0232, 5).length).to.equal(5);
-		expect(coms.addPadding(2354, 5).length).to.equal(5);
-		expect(coms.addPadding(23.1, 5).length).to.equal(5);
-
-	});
-});
-
 describe('Move function sending instructions to robot', function() {
 
 	coms.addRobotByID(3, {destroyed: false, write: function() {}});
