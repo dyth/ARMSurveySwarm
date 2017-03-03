@@ -280,7 +280,7 @@ var stopAll = function() {
 * Function sending instructions for movement to robots and
 * receiving acknowledgements.
 * - robotID is integer ID to send message to
-* - angle is in degrees clockwise from where robot is facing
+* - angle is in radians clockwise from where robot is facing
 * - distance is distance in mm to destination tile
 */
 var move = function(robotID, angle, distanceMM) {
@@ -289,7 +289,8 @@ var move = function(robotID, angle, distanceMM) {
 
 	var degrees = angle * 180.0 / Math.PI;
 
-	if (degrees === undefined || angle distanceMM === undefined) {
+	if (degrees === NaN || distanceMM === NaN ||
+		degrees === undefined || distanceMM === undefined) {
 		console.log("NON-FATAL ERROR---------------------------");
 		console.log("Some inputs are undefined, angle = " + degrees + 
 			", distance = " + distanceMM);
@@ -303,8 +304,13 @@ var move = function(robotID, angle, distanceMM) {
 	}
 
 	socket.write(JSON.stringify({ type: 'MOVE',
+<<<<<<< HEAD
 			angle: degrees,
 			distance: distanceMM}));
+=======
+			angle: degrees.toFixed(3),
+			distance: distanceMM.toFixed(3)}));
+>>>>>>> 7cdcb08babb15066d3c41e8c9eaffc039d6df614
 };
 
 exports.stop = stop;
