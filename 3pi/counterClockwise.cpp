@@ -23,7 +23,7 @@ m3pi m3pi;
 void halt() {
     // halt robot and allow motors to cool down
     m3pi.stop();
-    wait(1.0f);   
+    wait(1.5f);   
 }
 
 void turnCounterClockwise(int degree) {
@@ -115,10 +115,8 @@ float limit(float speed, float MIN, float MAX) {
         return speed;
 }
 
-void PIDFast() {
+void PIDFast(float MIN, float MAX, int iteration) {
     // PID line following between the speeds MIN and MAX
-    float MIN = 0.0f;
-    float MAX = 1.0f;
     float rightTotal;
     float leftTotal;
     float current_pos_of_line = 0.0;
@@ -128,7 +126,7 @@ void PIDFast() {
     int count = 0;
     
     // loop until debouncing has succeeded
-    while (count++ < 500) {
+    while (count++ < iteration) {
         // Get the position of the line.
         current_pos_of_line = m3pi.line_position();        
         proportional = current_pos_of_line;
@@ -219,10 +217,10 @@ void alignCorner() {
     // slowly level up until corner is detected
     
     //turn to new direction (perpendicular to the starting position)
-    PIDFast();
-    PID(0.0, 0.25, 2);
-    
-    turnClockwise(90);
+    PIDFast(0.0f, 1.0f, 500);
+    PID(0.0, 0.5, 2);
+    PIDFast(-0.5f, 0.5f, 200);
+    //turnClockwise(80);
 }
 
 void findLine(float speed) {
@@ -231,15 +229,17 @@ void findLine(float speed) {
     int sensors[5];
     
     while(1) {
-        m3pi.forward(0.15);
+        m3pi.forward(-0.15);
         m3pi.calibrated_sensor(sensors);
     
         // if black, advance length of tile
         // if no longer black, then tile detected, keep on advancing
         // otherwise, edge detected, turn to face new corner
         if (sensors[2] > 900)  {
-            wait(0.4f);
-            //break;
+            halt();
+            turnClockwise(90);
+            //wait(0.4f);
+            break;
             m3pi.calibrated_sensor(sensors);
             if (sensors[2] < 900) {
                 halt();
@@ -261,7 +261,7 @@ void cycleClockwise(double degree, double distance) {
     goForwards((double) distance);
     turnClockwise((float) 270.0f - degree);
     
-    //goForwards((distance * sin(degree * 3.141592654f / 180.0f)) - 200.0f);
+    goForwards((distance * sin(degree * 3.141592654f / 180.0f)) + 50.0f);
         
     // go forwards until edge detected
     findLine(0.5f);
@@ -287,7 +287,7 @@ int main() {
         
         double distance = (double) pow(x, 2.0f) + pow(y, 2.0f);
         double travel = (double) sqrt(distance);
-        float degree = atan2 ((float) y, (float) x) * 180.0f / 3.141592654f;
+        float degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
         
         cycleClockwise(degree, travel);
     }
