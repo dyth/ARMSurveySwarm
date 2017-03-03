@@ -23,7 +23,7 @@ var initialTileState = [2];
 // For the status, it is an index in the array  'states' in state.js
 // on the frontend:
 
-// Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3, Recalibrate: 4
+// Waiting: 0, Scanning:  1, Stopped: 2 
 var robots = [];
 
 var width = 0;
@@ -96,32 +96,23 @@ var roundPosition = function(pos) {
 	}
 }
 
-var resetRobot = function(robotID) {
-	robots[robotID] = {id: robotID, xPrev: 0, yPrev: 0,
-		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2}
-
-	// id, x,  y, status
-	sendStatusUpdate(robotID);
-}
-
-var setRecalibrationStatus = function(robotID) {
-	robots[robotID].robotStatus = 4;
-
-	sendStatusUpdate(robotID);
-};
-
 var setRobotStatusScanning = function(robotID) {
 	robots[robotID].robotStatus = 1;
 
 	sendStatusUpdate(robotID);
 };
 
+var setRobotStatusWaiting = function(robotID) {
+	robots[robotID].robotStatus = 0;
+
+	sendStatusUpdate(robotID);
+}
+
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.
-	console.log("CONNECTION LOST CALLED");
-	robots[robotID].robotStatus = 3;
+	console.log("CONNECTION LOST");
+	robots[robotID].robotStatus = 2;
 
-	// id, x,  y, status
 	sendStatusUpdate(robotID);
 };
 
@@ -132,9 +123,6 @@ var robotConnectionLost = function(robotID) {
  * and ending positiong to interpolate the locations of the intensities.
  */
 var setTiles = function(robotID, intensities) {
-
-	console.log('\n** SET TILES ** ('+robotID+', ['+intensities+'])');
-
 	if (!startedProcessing) {
 		// If the processing hasn't started then
 		// all the state below hasn't been defined yet.
@@ -295,50 +283,6 @@ var checkTile = function(robotID, tileX, tileY){
 }
 
 /*
-* Get robot that is in given quadrant that will be routed to tile that
-* needs to be re-checked
-*/
-var getRobotByQuadrant = function(quadrantNo) {
-	var index = -1;
-
-	for (var i = 0; i < robots.length; i++) {
-		if (robots[i].quadrant === quadrantNo) {
-			index = i;
-		}
-	}
-
-	return index;
-}
-
-var getQuadrant = function(coordX, coordY) {
-  if (coordX < Math.round(length/2)) {
-
-    if (coordY < Math.round(length/2)) {
-      return 0;
-    } else {
-      return 1;
-    }
-
-  } else {
-
-    if (coordY < Math.round(length/2)) {
-      return 3;
-    } else {
-      return 2;
-    }
-
-  }
-}
-
-/*
- * This tells callers whether the processor
- * has started mapping or not yet
- */
-var hasStartedProcessing = function() {
-	return startedProcessing;
-}
-
-/*
  * This unpacks the dictionary for the robot status and sends it on to the
  * server
  */
@@ -348,25 +292,12 @@ var sendStatusUpdate = function(robotID) {
 }
 
 /*
- * Command from user to resume traversal of robots
- * Sent to communication.js to notify the robots.
- */
-var resume = function(robotID) {
-	robots[robotID].robotStatus = 1;
-	sendStatusUpdate(robotID);
-	// TODO -- Talk to Jamie about changing the webapp to remove
-	// the individual resume button. In this new model, resume
-	// is better done by restarting the robot perhaps?
-	// communication.resume(robotID);
-}
-
-/*
  * Command from user to stop the traversal of one robot
  */
 var stop = function(robotID) {
 	robots[robotID].robotStatus = 2;
 	sendStatusUpdate(robotID);
-	communication.stop(robotID);
+	communication.sendStop(robotID);
 }
 
 /*
@@ -376,19 +307,15 @@ var stopAll = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		robots[i].robotStatus = 2;
 		sendStatusUpdate(i);
+		communication.sendStop(i);
 	}
-	communication.stopAll();
 }
 
 /*
- * Get user input of tile size
+ * Set user input of tile size
  */
 var setTileSize = function(size) {
 	tileSize = size;
-}
-
-var getTileSize = function() {
-	return tileSize;
 }
 
 var setGridDimensions = function(sizes) {
@@ -404,18 +331,16 @@ var getGridDimensions = function() {
 var startProcessing = function() {
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
-	// starts all the connected robots waiting on the
-	// starting ramp.
-	communication.startRobots(tileSize);
+	
+	for (var i = 0; i < robots.length; i ++) {
+		// This sends the start message to the robots.
+		communication.sendStart(i, tileSize);
+	}
+
+	// TODO -- CALL A ROUTE FUNCTION HERE 
 }
 
-var getRobots = function() {
-	return robots;
-}
-
-exports.hasStartedProcessing = hasStartedProcessing;
 exports.setTileSize = setTileSize;
-exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
 exports.addRobotToList = addRobotToList;
@@ -425,11 +350,7 @@ exports.stopAll = stopAll;
 exports.setTiles = setTiles;
 exports.startProcessing = startProcessing;
 exports.routeRobot = routeRobot;
-exports.getRobots = getRobots;
-exports.resetRobot = resetRobot;
 exports.robotConnectionLost = robotConnectionLost;
-exports.getQuadrant = getQuadrant;
-
 
 
 /*
