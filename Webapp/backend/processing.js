@@ -27,7 +27,7 @@ var initialTileState = [2];
 var robots = [];
 
 var width = 0;
-var length = 0;
+var height = 0;
 var tileSize = 0;
 
 var tilesCovered = 0;
@@ -42,9 +42,9 @@ var startedProcessing = false;
  * if they are already defined.
  */
 var createTilesList = function() {
-	totalTiles = width * length;
+	totalTiles = width * height;
 
-	// Increases the number of tiles up to the width and length.
+	// Increases the number of tiles up to the width and height.
 	for(var i = processingTiles.length; i < width; i++){
 		var columns = [];
 
@@ -88,8 +88,8 @@ var addRobotsToList = function(numRobots) {
 var roundPosition = function(pos) {
 	if (pos < 0) {
 		return 0;
-	} else if (pos > length) {
-		return length;
+	} else if (pos > height) {
+		return height;
 	} else  {
 		return Math.floor(pos + 0.1);
 	}
@@ -186,11 +186,11 @@ var getNextCorner = function(quadrantNo) {
 		case 0:
 			return {orientation: Math.PI/2, x: 0, y: 0};
 		case 1:
-			return {orientation: 0, x: 0, y: length - 1};
+			return {orientation: 0, x: 0, y: height - 1};
 		case 2:
-			return {orientation: -Math.PI/2, x: length - 1, y: length - 1};
+			return {orientation: -Math.PI/2, x: height - 1, y: height - 1};
 		case 3:
-			return {orientation: Math.PI, x: length - 1, y: 0};
+			return {orientation: Math.PI, x: height - 1, y: 0};
 	}
 }
 
@@ -198,7 +198,7 @@ var routeRobot = function(robotID) {
 
 	console.log("\n** ROUTE ROBOT ** ("+robotID+")");
 
-	if (robotID >= robots.length) {
+	if (robotID >= robots.height) {
 		console.log("unexpected robot " + robotID);
 		return;
 	}
@@ -274,7 +274,7 @@ var checkTile = function(robotID, tileX, tileY){
 	// Turn by angle (0 to pi) clockwise
 	// communication.move now takes (robotID, angle, distance)
 	// Server needs to keep track of location of robot.
-	communication.move(robotID, angle, distance*tileSize);
+	communication.sendMove(robotID, angle, distance*tileSize);
 
 
 	// get next corner to be xPrev
@@ -399,17 +399,12 @@ var getTileSize = function() {
 
 var setGridDimensions = function(sizes) {
 	width = sizes.x;
-	length = sizes.y;
+	height = sizes.y;
 	createTilesList();
 }
 
-var setRobotStates = function(numRobots) {
-	// This adds up to `numRobots` robots
-	addRobotsToList(numRobots);
-}
-
 var getGridDimensions = function() {
-	return {x: width, y: length};
+	return {x: width, y: height};
 }
 
 var startProcessing = function() {
@@ -429,8 +424,7 @@ exports.setTileSize = setTileSize;
 exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
-exports.setRobotStates = setRobotStates;
-exports.addRobotsToList = addRobotsToList;
+exports.addRobotToList = addRobotToList;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
@@ -452,7 +446,7 @@ if (TEST) {
 	exports.initialTileState = initialTileState;
 	exports.robots = robots;
 	exports.width = width;
-	exports.length = length;
+	exports.height = height;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
 	exports.checkTile = checkTile;

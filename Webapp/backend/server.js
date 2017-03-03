@@ -79,7 +79,9 @@ io.sockets.on('connection', function(socket) {
 		// READY?
 		processor.setGridDimensions({x: numTiles, y: numTiles});
 		// SET?
-		processor.setRobotStates(input.numRobots);
+		for (var i = 0; i < numRobots; i ++) {
+			processor.addRobotToList(i);
+		}
 		// GO!!
 		processor.startProcessing();
 	});

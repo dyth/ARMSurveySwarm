@@ -124,6 +124,9 @@ var sendMove = function(robotID, angle, distanceMM) {
 		console.log("ERROR(sendMove/communication.js): Null Socket");
 		return;
 	}
+
+	// toFixed converts the floating point numbers into fixed point 
+	// representations of themselves.
 	socket.write(JSON.stringify({ type: 'MOVE',
 			angle: degrees.toFixed(3),
 			distance: distanceMM.toFixed(3)}));
