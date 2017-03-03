@@ -36,17 +36,27 @@ var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
 		// Pass the data on to receive data.
-
 		console.log(data);
+		var jsonData;
 
-		receiveData(JSON.parse(data));
+		try {
+			jsonData = JSON.parse(data);
+		} catch(err) {
+			console.log('NON-FATAL ERROR ---------------------------');
+			console.log('Unexpected data: ' + data);
+			console.log(err);
+			console.log('Data should be formatted as a JSON string');
+			return;
+		}
+
+		parseData(jsonData);
 	});
 
 	socket.on('error', function(error) {
 		if (socket.robotID) {
 			// If the robot ID was put in the socket, then
 			// we can use this to trigger an error message. Otherwise
-			// the robot didn't get to the HELLO:n stage.
+			// the robot didn't get to the HELLO stage
 			processor.robotConnectionLost(socket.robotID);
 			console.log("Lost ID: " + socket.robotID);
 		}
@@ -146,8 +156,6 @@ var sendInstructions = function() {
 		if (!robots[i].destroyed) {
 			// Start routing the robot.
 			processor.routeRobot(robots[i].id);
-			//var socket = getSocketByID(robots[i].id);
-			//socket.write(JSON.stringify({}))
 		}
 	}
 }
@@ -156,7 +164,7 @@ var startRobots = function(tileSize) {
 	// This function sends out the START messages to the robots.
 	// These messages contain the tile size.
 	for (var i = 0; i < robots.length; i ++) {
-		robots[i].socket.write({type: "START", tileSize: tileSize});
+		robots[i].socket.write(JSON.stringify({type: "START", tileSize: tileSize}));
 	}
 
 	// After that has been sent to each robot, start the movement:
@@ -178,7 +186,7 @@ var addRobotByID = function(robotID, socket) {
 		}
 	}
 	// Otherwise add a new entry into the list.
-	robots.push({id: robotID, socket: socket});
+	robots.push(JSON.stringify({id: robotID, socket: socket}));
 };
 
 var getRobotIndex = function(robotID) {
@@ -238,7 +246,7 @@ var stop = function(robotID) {
 	var socket = getSocketByID(robotID);
 
 	if (socket !== null && !socket.destroyed) {
-		socket.write({type: "STOP"});
+		socket.write(JSON.stringify({type: "STOP"}));
 	}
 };
 
@@ -247,7 +255,7 @@ var wait = function(robotID) {
 	var socket = getSocketByID(robotID);
 
 	if (socket !== null && !socket.destroyed){
-		socket.write({type: "WAIT", time: 3000});
+		socket.write(JSON.stringify({type: "WAIT", time: 3000}));
 	}
 };
 
