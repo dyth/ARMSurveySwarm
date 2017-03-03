@@ -152,10 +152,10 @@ var setTiles = function(robotID, intensities) {
 	// Update tile table for current position
 	// Get x, y, light intensity, add to processing tiles
 	// Set new position of robot
-	var coordX = robot.xBefore;
-	var coordY = robot.yBefore;
-	var delta = Math.pow(Math.pow(robot.xBefore - robot.xAfter, 2) + 
-		Math.pow(robot.yBefore - robot.yAfter, 2), 0.5);
+	var coordX = robot.xPrev;
+	var coordY = robot.yPrev;
+	var delta = Math.pow(Math.pow(robot.xPrev - robot.xAfter, 2) + 
+		Math.pow(robot.yPrev - robot.yAfter, 2), 0.5);
 	var angle = robot.orientation;
 
 	for (var i = 0; i < intensities.length; i++) {
@@ -193,13 +193,13 @@ var setTiles = function(robotID, intensities) {
 var getNextCorner = function(quadrantNo) {
 	switch (quadrantNo) {
 		case 0:
-			return {xPrev: 0, yPrev: 0};
+			return {x: 0, y: 0};
 		case 1:
-			return {xPrev: 0, yPrev: length - 1};
+			return {x: 0, y: length - 1};
 		case 2:
-			return {xPrev: length - 1, yPrev: length - 1};
+			return {x: length - 1, y: length - 1};
 		case 3:
-			return {xPrev: length - 1, yPrev: 0};
+			return {x: length - 1, y: 0};
 	}
 }
 
@@ -293,15 +293,6 @@ var checkTile = function(robotID, tileX, tileY){
 	var cornerX = robots[robotID].xPrev;
 	var cornerY = robots[robotID].yPrev;
 
-	// if (coordX === tileX && coordY === tileY){
-	// 	console.log("Routing to current tile - abort. ");
-	// 	// Add a wait so that the robot calls back to the server
-	// 	// and asks again later.
-	// 	// TODO -- this should no longer happen (though could route to corner?)
-	// 	communication.wait(robotID);
-	// 	return;
-	// }
-
 	// [opp, adj]
 	var vectorToTile = [tileX - cornerX, tileY - cornerY];
 	console.log(vectorToTile[0]);
@@ -321,8 +312,8 @@ var checkTile = function(robotID, tileX, tileY){
 	// get next corner to be xPrev
 	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4 
 	var nextCorner = getNextCorner(robots[robotID].quadrant);
-	robots[robotID].xPrev = nextCorner.xAfter;
-	robots[robotID].yPrev = robots[robotID].yAfter;
+	robots[robotID].xPrev = nextCorner.x;
+	robots[robotID].yPrev = nextCorenr.y;
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
