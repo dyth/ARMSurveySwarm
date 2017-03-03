@@ -179,8 +179,8 @@ var setTiles = function(robotID, intensities) {
 		}
 
 		//  Now, update the coordinates
-		coordX += delta * Math.cos(orientation);
-		coordY += delta * Math.sin(orientation);
+		coordX += delta * Math.cos(angle);
+		coordY += delta * Math.sin(angle);
 	}
 
 	//check if whole board covered
@@ -317,6 +317,8 @@ var checkTile = function(robotID, tileX, tileY){
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
+
+	robots[robotID].orientation = angle;
 
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
