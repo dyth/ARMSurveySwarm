@@ -34,12 +34,11 @@ var setUp = function(length) {
 
 	for(var i = 0; i < tilesAcross; i++) {
 		for(var j = 0; j < tilesAcross; j++) {
-			uncheckedTiles[processing.getQuadrant(i, j)].push({xPos: i, yPos: j});
+			uncheckedTiles[getQuadrant(i, j)].push({xPos: i, yPos: j});
 		}
 	}
 }
 
-<<<<<<< HEAD
 var getQuadrant = function(coordX, coordY) {
 	if (coordX < Math.round(tilesAcross/2)) {
 
@@ -60,18 +59,12 @@ var getQuadrant = function(coordX, coordY) {
 	}
 }
 
-=======
->>>>>>> 09102eb34b9fae51803f0fef114c8b422ebd9c16
 /*
  * Remove tile from quadrant for given coordinates
  */
 var removeTile = function(coordX, coordY) {
 	var index = -1;
-<<<<<<< HEAD
 	var quadrantNo = getQuadrant(coordX, coordY);
-=======
-  var quadrantNo = processing.getQuadrant(coordX, coordY);
->>>>>>> 09102eb34b9fae51803f0fef114c8b422ebd9c16
 	for (var i = 0; i < uncheckedTiles[quadrantNo].length; i ++) {
 		if (uncheckedTiles[quadrantNo][i].xPos === coordX
 			&& uncheckedTiles[quadrantNo][i].yPos === coordY) {
