@@ -55,7 +55,7 @@ var createTilesList = function() {
 		}
 
 		for(var j = columns.length; j < length; j++) {
-			// initial tile state is a 2 element 
+			// initial tile state is a 2 element
 			// list for first robot and final state
 			columns.push(initialTileState.slice());
 		}
@@ -87,10 +87,8 @@ var addRobotsToList = function(numRobots) {
 				processingTiles[j][k].push(2);
 			}
 		}
-
 	}
 }
-
 
 /*
  * Function to round position to correspond to bottom left corner of tile.
@@ -243,18 +241,6 @@ var twoColoursAgree = function(coordX, coordY){
 	var numWhite = 0;
 	var numBlack = 0;
 	var tile = processingTiles[coordX][coordY];
-	var potentials = [];
-
-	// get robots that haven't been to this tile yet
-	for (var i = 0; i < robots.length; i++){
-		if (tile[i] === 0) {
-			numBlack += 1;
-		} else if (tile[i] === 1) {
-			numWhite += 1;
-		} else {
-			potentials.push(i);
-		}
-	}
 
 	/*
 	* If black and white tile numbers equal - delegate another robot to check
@@ -263,14 +249,18 @@ var twoColoursAgree = function(coordX, coordY){
 	*/
 	if (numWhite == numBlack) {
 		// potentials are robots other than those that already checked
-		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
-		// TODO -- robot in correct quadrant for x,y needs to be routed to this tile
+		//var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+
+		// Route robot that is going to be in the quadrant
+		// required to get to this tile
+		var quadrantNo = getQuadrant(coordX, coordY);
+		var robotID = getRobotByQuadrant(quadrantNo);
 		checkTile(robotID, coordX, coordY);
 
 	} else if ((numWhite > numBlack && numWhite >= 2) ||
 		(robots.length < 2 && numWhite === 1)) {
 
-		processingTiles[coordX][coordY][robots.length] = 1;
+		tile[robots.length] = 1;
 		server.updateTile(coordX, coordY, 1);
 		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
@@ -278,7 +268,7 @@ var twoColoursAgree = function(coordX, coordY){
 	} else if ((numBlack > numWhite && numBlack >= 2) ||
 		(robots.length < 2 && numBlack === 1)) {
 
-		processingTiles[coordX][coordY][robots.length] = 0;
+		tile[robots.length] = 0;
 		server.updateTile(coordX, coordY, 0);
 		route.removeTile(coordX, coordY);
 		tilesCovered += 1;
@@ -302,7 +292,7 @@ var checkTile = function(robotID, tileX, tileY){
 	var cornerY = robots[robotID].yPrev;
 
 	// [opp, adj]
-	var vectorToTile = [tileX - cornerX, tileY - cornerY];
+	var vectorToTile = [Math.abs(tileX - cornerX), Math.abs(tileY - cornerY)];
 	console.log(vectorToTile[0]);
 	console.log(vectorToTile[1]);
 	var angle = Math.atan(vectorToTile[0]/vectorToTile[1])
@@ -318,7 +308,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 
 	// get next corner to be xPrev
-	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4 
+	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4
 	var nextCorner = getNextCorner(robots[robotID].quadrant);
 	robots[robotID].xPrev = nextCorner.x;
 	robots[robotID].yPrev = nextCorner.y;
@@ -330,6 +320,42 @@ var checkTile = function(robotID, tileX, tileY){
 
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
+}
+
+/*
+* Get robot that is in given quadrant that will be routed to tile that
+* needs to be re-checked
+*/
+var getRobotByQuadrant = function(quadrantNo) {
+	var index = -1;
+
+	for (var i = 0; i < robots.length; i++) {
+		if (robots[i].quadrant === quadrantNo) {
+			index = i;
+		}
+	}
+
+	return index;
+}
+
+var getQuadrant = function(coordX, coordY) {
+  if (coordX < Math.round(length/2)) {
+
+    if (coordY < Math.round(length/2)) {
+      return 0;
+    } else {
+      return 1;
+    }
+
+  } else {
+
+    if (coordY < Math.round(length/2)) {
+      return 3;
+    } else {
+      return 2;
+    }
+
+  }
 }
 
 /*
@@ -436,6 +462,7 @@ exports.routeRobot = routeRobot;
 exports.getRobots = getRobots;
 exports.resetRobot = resetRobot;
 exports.robotConnectionLost = robotConnectionLost;
+exports.getQuadrant = getQuadrant;
 
 /*
  * Unit testing

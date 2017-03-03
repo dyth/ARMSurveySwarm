@@ -33,9 +33,7 @@ describe('Set Tile with light intensity given x and y positions', function() {
 		processor.setRobotStates(5);
 		processor.setGridDimensions({x: 10, y: 10});
 		processor.startProcessing();
-		processor.setTiles(0, [{x: 10.12, y: 45.31, lightIntensity: 1},
-													 {x: 0, y: 0, lightIntensity: 0},
-												   {x: 34.52, y: 78.23, lightIntensity: 1}]);
+		processor.setTiles(0, [0,1,0,1,0,1]);
 		expect(1).to.equal(processor.processingTiles[1][4][0]);
 		expect(0).to.equal(processor.processingTiles[0][0][0]);
 		expect(1).to.equal(processor.processingTiles[3][7][0]);
@@ -65,14 +63,6 @@ describe('Set Tile with light intensity given x and y positions', function() {
 describe('setTiles function', function() {
 	it('should interpolate the points given', function() {
 
-	});
-});
-
-describe('get new orientation - ', function() {
-	it('given orientation to turn, next orientation is calculated' +
-	' as being between 0 and 2PI', function() {
-	processor.getNewOrientation(0, 3*Math.PI);
-	expect(processor.robots[0].orientation).at.most(2*Math.PI);
 	});
 });
 

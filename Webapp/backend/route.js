@@ -3,10 +3,12 @@
  * Kamile
  * Routing algorithm to calculate next destination,
  * avoiding collisions
+ * Rewritten 02/02/2017, now routing robots to one of four quadrants reachable
+ * only from correct starting corner. This eliminates the need for collisions
+ * prevention algorithms and requires that an uncheckedTiles list be stored
+ * for each quadrant.
  */
-
 var processing = require('./processing');
-var math = require('mathjs');
 var TEST = true;
 
 // Each element is dictionary of x, y positions for unchecked tiles
@@ -32,11 +34,12 @@ var setUp = function(length) {
 
 	for(var i = 0; i < tilesAcross; i++) {
 		for(var j = 0; j < tilesAcross; j++) {
-			uncheckedTiles[getQuadrant(i, j)].push({xPos: i, yPos: j});
+			uncheckedTiles[processing.getQuadrant(i, j)].push({xPos: i, yPos: j});
 		}
 	}
 }
 
+<<<<<<< HEAD
 var getQuadrant = function(coordX, coordY) {
 	if (coordX < Math.round(tilesAcross/2)) {
 
@@ -57,12 +60,18 @@ var getQuadrant = function(coordX, coordY) {
 	}
 }
 
+=======
+>>>>>>> 09102eb34b9fae51803f0fef114c8b422ebd9c16
 /*
  * Remove tile from quadrant for given coordinates
  */
 var removeTile = function(coordX, coordY) {
 	var index = -1;
+<<<<<<< HEAD
 	var quadrantNo = getQuadrant(coordX, coordY);
+=======
+  var quadrantNo = processing.getQuadrant(coordX, coordY);
+>>>>>>> 09102eb34b9fae51803f0fef114c8b422ebd9c16
 	for (var i = 0; i < uncheckedTiles[quadrantNo].length; i ++) {
 		if (uncheckedTiles[quadrantNo][i].xPos === coordX
 			&& uncheckedTiles[quadrantNo][i].yPos === coordY) {

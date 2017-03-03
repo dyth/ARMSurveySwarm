@@ -67,8 +67,8 @@ describe('wait message', function() {
 			});
 
 			client.on('data', function(data) {
-				expect(data.toString()).to.equal('{"type":"WAIT", "time":3000}');
-				done()
+				expect(data.toString()).to.equal('{"type":"WAIT","time":3000}');
+				done();
 			});
 
 			setTimeout(function() {
@@ -83,7 +83,7 @@ describe('robot list management', function() {
 		coms.addRobotByID(0, {destroyed: false, write: function() {}});
 		coms.addRobotByID(4, {destroyed: false, write: function() {}});
 
-		expect(coms.robots.length).to.equal(5); // NOTE added another in move test
+		expect(coms.robots.length).to.equal(4);
 		expect(coms.robots[1].socket.destroyed).to.equal(false);
 	});
 
@@ -214,7 +214,7 @@ describe('stop, resume and stopAll', function() {
 	// 	expect(dataReceived).to.equal('RESUME\n');
 	// });
 
-	it('stop all should sent out some STOP\n messages', function() {
+	it('stop all should send out some STOP\n messages', function() {
 		coms.stopAll();
 		expect(dataReceived).to.equal('STOP\n');
 		expect(dataReceived2).to.equal('STOP\n');
