@@ -3,13 +3,15 @@ var coms = require('../communication.js');
 var processor = require('../processing.js');
 var net = require('net');
 
+var CONNECTION_PORT = 9000;
+
 describe('should be in test mode', function() {
 	expect(coms.TEST).to.equal(true);
 });
 
 describe('opening a connection to the TCP socket', function() {
 	it('should work from localhost', function(done) {
-		net.connect({port:8000}, function() {
+		net.connect({port:9000}, function() {
 			done();
 		});
 	});
@@ -17,29 +19,10 @@ describe('opening a connection to the TCP socket', function() {
 	it('should work from another host', function(done) {
 		require('dns').lookup(require('os').hostname(),
 			function (err, add, fam) {
-				net.connect({port: 8000, host: add}, function() {
+				net.connect({port: 9000, host: add}, function() {
 					done();
 				});
 			});
-	});
-});
-
-describe('start robots', function() {
-	it('add new robots to the queue if processing has not started',
-		function() {
-			coms.addRobotByID(1, {destroyed:false, write: function(){}});
-			coms.addRobotByID(3, {destroyed:false, write: function(){}});
-			coms.addRobotByID(4, {destroyed:false, write: function(){}});
-
-			coms.enqueueRobot(1);
-			coms.enqueueRobot(2);
-			coms.enqueueRobot(4);
-
-			expect(coms.startRobot_waitingRobots.length).to.equal(3);
-	});
-
-	it('should send START messages sequentially', function() {
-		// TODO
 	});
 });
 
@@ -59,7 +42,7 @@ describe('Test tcp server', function() {
 	var client;
 
 	it('should accept a connection', function(done) {
-		client = net.connect({port: 8000}, function() {
+		client = net.connect({port: 9000}, function() {
 			expect(true, 'client did not connect').to.be.true;
 
 			// send some data to the server. We expect it to only parse
@@ -71,7 +54,7 @@ describe('Test tcp server', function() {
 	});
 
 	it('should accept two messages at once', function(done) {
-		client.write('HELLO:2\nDONE:2\n');
+		client.write('{"type": "HELLO"}{"type": "HELLO"}');
 		done();
 	});
 });
@@ -79,17 +62,18 @@ describe('Test tcp server', function() {
 describe('wait message', function() {
 	it('should send out a wait message to the connected (specified) client',
 		function(done) {
-			var client = net.connect({port:8000}, function() {
-				client.write("HELLO:1\n");
+			var client = net.connect({port:9000}, function() {
+				client.write('{"type":"HELLO", "id":1}');
 			});
 
 			client.on('data', function(data) {
-				expect(data.toString()).to.equal('WAIT 03000\n');
+				expect(data.toString()).to.equal('{"type":"WAIT", "time":3000}');
 				done()
 			});
 
 			setTimeout(function() {
 				coms.wait(1);
+				console.log("ROBOTS" + coms.robots);
 			}, 100);
 	});
 });
