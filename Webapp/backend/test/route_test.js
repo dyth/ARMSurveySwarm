@@ -5,9 +5,9 @@ var processing = require('../processing.js');
 describe('Test move call to route', function() {
 	it('should return new x/y co-ordinates in a dictionary ' +
 			' with keys xAfter, yAfter', function() {
-
+		routing.setUp(10);
 		var results = routing.move(0,0);
-		if (results.stopAll === false && results.wait === false) {
+		if (results.stopAll === false) {
 			expect(results.xAfter).to.be.at.least(0);
 			expect(results.yAfter).to.be.at.least(0);
 		} else {
@@ -84,7 +84,6 @@ describe('removeTile ', function() {
 
 	it('should work regardless of index chosen', function() {
 		routing.setUp(10);
-		console.log(routing.uncheckedTiles);
 		var tileHead = routing.uncheckedTiles[0][16];
 		routing.removeTile(tileHead.xPos, tileHead.yPos);
 		expect(routing.uncheckedTiles[0][16]).to.not.equal(tileHead);

@@ -94,13 +94,13 @@ var receiveData = function(data, socket) {
 			// function.
 			return;
 		}
-	
+
 		if (robotsDone === connectedRobots - 1) {
 			// Here we are saying if the robots that are
-			// connected before this one (hence the -1) 
+			// connected before this one (hence the -1)
 			// have already finished their moves, then this robot
 			// is good to go too.
-			console.log('AHHH YOU FOUND A CONCURRENCY PROBLEM. IF THIS ' 
+			console.log('AHHH YOU FOUND A CONCURRENCY PROBLEM. IF THIS '
 				+ ' HAPPENS REGULARLY SEE YOUR GP IMMEDIATELY');
 		} else {
 			// otherwise, there are still robots moving. This robot
@@ -126,9 +126,9 @@ var receiveData = function(data, socket) {
 			// No queued moves, ask for new moves from the server
 			console.log("sending new commands");
 			sendInstructions();
-			
+
 		} else {
-			console.log('robots done = ' + robotsDone + ', robots ' + 
+			console.log('robots done = ' + robotsDone + ', robots ' +
 				' connected = ' + connectedRobots);
 		}
 	} else {
@@ -207,7 +207,7 @@ var getRobotIndex = function(robotID) {
 var getRobotByID = function(robotID) {
 	var index = getRobotIndex(robotID);
 
-	if (index === null) { 
+	if (index === null) {
 		return null;
 	} else {
 		return robots[index];
@@ -274,13 +274,14 @@ var stopAll = function() {
 * Function sending instructions for movement to robots and
 * receiving acknowledgements.
 * - robotID is integer ID to send message to
+* - angle is in degrees clockwise from where robot is facing
 * - distance is distance in mm to destination tile
 */
 var move = function(robotID, angle, distance) {
 	var socket = getSocketByID(robotID);
 	var robotIndex = getRobotIndex(robotID);
 
-	socket.write({ type: 'MOVE', 
+	socket.write({ type: 'MOVE',
 			angle: angle,
 			distance: distance});
 };
@@ -300,4 +301,5 @@ if (TEST) {
 	exports.receiveData = receiveData;
 	exports.getRobotIndex = getRobotIndex;
 	exports.getRobotByID = getRobotByID;
+	exports.startRobots = startRobots;
 }
