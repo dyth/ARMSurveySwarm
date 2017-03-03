@@ -63,6 +63,15 @@ void cadence() {
     halt();
 }
 
+void anneal() {
+    // anneal movement for 0.25 second
+    m3pi.forward(0.25);
+    wait(0.25);
+    m3pi.backward(0.25);
+    wait(0.25);
+    halt();
+}
+
 void goForwards(int distance) {
     // go forwards in cadences of 1 second of bleed move and anneal
     m3pi.stop();
@@ -229,6 +238,16 @@ void findLine(float speed) {
         if (sensors[2] > 900)  {
             halt();
             turnClockwise(90);
+            //wait(0.4f);
+            break;
+            m3pi.calibrated_sensor(sensors);
+            if (sensors[2] < 900) {
+                halt();
+                turnClockwise(90);
+                break;
+            } else {
+                wait(0.85f);
+            }
         }
     }
     
