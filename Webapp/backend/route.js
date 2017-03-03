@@ -89,7 +89,7 @@ var removeTile = function(coordX, coordY) {
  * Returns random integer between min and max.
  */
 var getRandomInt = function(min, max){
-	return Math.floor((Math.random() * max) + min);
+	return Math.floor((Math.random() * (max-min)) + min);
 }
 
 var allTilesCovered = function() {
