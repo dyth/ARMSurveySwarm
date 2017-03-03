@@ -75,7 +75,7 @@ io.sockets.on('connection', function(socket) {
 		console.log("Robots: " + input.numRobots);
 
 		// ready?
-		processor.setTileSize(input.tileSize);
+		processor.setTileSize(Number(input.tileSize));
 		// READY?
 		processor.setGridDimensions({x: numTiles, y: numTiles});
 		// SET?
