@@ -344,7 +344,6 @@ exports.setTileSize = setTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
 exports.addRobotToList = addRobotToList;
-exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
 exports.setTiles = setTiles;

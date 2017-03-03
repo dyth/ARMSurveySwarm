@@ -58,13 +58,6 @@ io.sockets.on('connection', function(socket) {
 		socket.emit('stopAllCalled');
 	});
 
-	socket.on('resume', function(robot) {
-		processor.resume(robot.id);
-
-		// For testing purposes only.
-		socket.emit('resumeCalled');
-	});
-
 	socket.on('startRobots', function(input) {
 		// console.log("tile size " + input.tileSize.toString());
 		// console.log("grid size " + input.gridSize.toString());
