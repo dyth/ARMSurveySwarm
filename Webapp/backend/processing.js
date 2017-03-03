@@ -313,6 +313,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 
 	// get next corner to be xPrev
+	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4 
 	var nextCorner = getNextCorner(robots[robotID].quadrant);
 	robots[robotID].xPrev = nextCorner.xAfter;
 	robots[robotID].yPrev = robots[robotID].yAfter;
