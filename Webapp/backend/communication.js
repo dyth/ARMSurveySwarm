@@ -36,10 +36,7 @@ var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
 		// Pass the data on to receive data.
-
-		console.log(data);
-
-		receiveData(JSON.parse(data));
+		receiveData(JSON.parse(data), socket);
 	});
 
 	socket.on('error', function(error) {
@@ -76,7 +73,7 @@ var receiveData = function(data, socket) {
 
 		connectedRobots ++;
 
-		if (!processing.hasStartedProcessing()) {
+		if (!processor.hasStartedProcessing()) {
 			// In this case, the server has not started
 			// processing. So return, because the robots
 			// need the tile size information to start moving.
@@ -99,8 +96,12 @@ var receiveData = function(data, socket) {
 
 			sendInstructions();
 		}
-	} else if (data.type === "DONE") {
-		var robot = getRobotByID(data.id);
+	}
+	else if (data.type === "DONE") {
+
+		var robotID = socket.robotID;
+
+		var robot = getRobotByID(robotID);
 		if (robot === null) {
 			console.log("NON-FATAL ERROR ------------------------------");
 			console.log("Unknown ID " + data.id);
@@ -121,7 +122,8 @@ var receiveData = function(data, socket) {
 			console.log('robots done = ' + robotsDone + ', robots ' +
 				' connected = ' + connectedRobots);
 		}
-	} else {
+	}
+	else {
 		console.log("NON-FATAL ERROR ------------------------------------");
 		console.log("unknown message " + data);
 	}
@@ -146,6 +148,7 @@ var sendInstructions = function() {
 		if (!robots[i].destroyed) {
 			// Start routing the robot.
 			processor.routeRobot(robots[i].id);
+
 			//var socket = getSocketByID(robots[i].id);
 			//socket.write(JSON.stringify({}))
 		}
@@ -156,7 +159,8 @@ var startRobots = function(tileSize) {
 	// This function sends out the START messages to the robots.
 	// These messages contain the tile size.
 	for (var i = 0; i < robots.length; i ++) {
-		robots[i].socket.write({type: "START", tileSize: tileSize});
+		var socket = getSocketByID(robots[i].id);
+		socket.write(JSON.stringify({type: "START", tileSize: tileSize}));
 	}
 
 	// After that has been sent to each robot, start the movement:
@@ -273,9 +277,9 @@ var move = function(robotID, angle, distance) {
 	var socket = getSocketByID(robotID);
 	var robotIndex = getRobotIndex(robotID);
 
-	socket.write({ type: 'MOVE',
+	socket.write(JSON.stringify({ type: 'MOVE',
 			angle: angle,
-			distance: distance});
+			distance: distance}));
 };
 
 exports.stop = stop;
