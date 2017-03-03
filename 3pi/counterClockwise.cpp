@@ -42,10 +42,26 @@ void turnClockwise(int degree) {
 }
 
 void cadence() {
-    // drive straight for 1 second
+    // drive straight for 1 second whilst sampling twice per tile size
+    
+    // define constants and varibles for sampling
+    int intensities[samples];
+    int sensors[5]
+    int samples = (int) floor(470.0f / ((float) tileSize / 2.0f));
+    
+    // move forward for remainder
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
-    wait(1);
+    wait(470.0f % (((float) tileSize) / 2.0f));
+    
+    // sample twice per tile size
+    for (int i = 0; i < samples); i++) {
+        m3pi.calibrated_sensor(sensors);
+        intensities[i] = sensors[2];
+    }
+    halt();
+    
+    return intensities;// duh, fix this 
 }
 
 void anneal() {
@@ -159,16 +175,12 @@ void alignCorner() {
     
     // find corner quickly, then align with corner, reverse and then
     // slowly level up until corner is detected
-    PID(0.0, 0.5, 8);
-    /*
-    turnCounterClockwise(15);
-    m3pi.backward(0.25f);
-    wait(1.0f);
-    halt();
-    */
-    //PID(0.0, 0.25, 4);
     
     //turn to new direction (perpendicular to the starting position)
+    PID(0.0, 0.5, 8);
+    for (int i = 0; i < 4; i++) {
+        m3pi.leftMotor(-1.0f);
+    }
     turnClockwise(90);
 }
 
