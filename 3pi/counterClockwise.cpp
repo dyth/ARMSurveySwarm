@@ -236,15 +236,15 @@ void findLine(float speed) {
         // if no longer black, then tile detected, keep on advancing
         // otherwise, edge detected, turn to face new corner
         if (sensors[2] > 900)  {
-            //wait(0.5f);
-            break;
+            wait(0.125f);
+            //break;
             m3pi.calibrated_sensor(sensors);
             if (sensors[2] < 900) {
                 halt();
                 turnClockwise(90);
                 break;
             } else {
-                wait(2.0f);
+                wait(0.2f);
             }
         }
     }
@@ -259,10 +259,10 @@ void cycleClockwise(double degree, double distance) {
     goForwards((double) distance);
     turnCounterClockwise((float) degree + 90.0f);
     
-    goForwards(500.0f - 200.0f);
+    //goForwards(500.0f - 200.0f);
         
     // go forwards until edge detected
-    findLine(0.25f);
+    findLine(0.5f);
     
     // recalibrate and align with corner
     m3pi.sensor_auto_calibrate();
