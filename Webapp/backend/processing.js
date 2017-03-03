@@ -55,7 +55,8 @@ var createTilesList = function() {
 		}
 
 		for(var j = columns.length; j < length; j++) {
-			// initial tile state is a 2 element list for first robot and final state
+			// initial tile state is a 2 element 
+			// list for first robot and final state
 			columns.push(initialTileState.slice());
 		}
 
@@ -136,28 +137,29 @@ var robotConnectionLost = function(robotID) {
 
 /*
  * Register communication of tile colour received from robots.
+ *
+ * Tiles is just a list of intensities. We use the robot start
+ * and ending positiong to interpolate the locations of the intensities.
  */
-var setTiles = function(robotID, messages) {
+var setTiles = function(robotID, intensities) {
 	if (!startedProcessing) {
 		// If the processing hasn't started then
 		// all the state below hasn't been defined yet.
 		return;
 	}
+	var robot = robots[robotID];
 
-	// TODO -- Update tile table for intensities for positions interpolated between
-	// prev and after coordinates
+	// Update tile table for current position
+	// Get x, y, light intensity, add to processing tiles
+	// Set new position of robot
+	var coordX = robot.xBefore;
+	var coordY = robot.yBefore;
+	var delta = Math.pow(Math.pow(robot.xBefore - robot.xAfter, 2) + 
+		Math.pow(robot.yBefore - robot.yAfter, 2), 0.5);
+	var angle = robot.orientation;
 
-
-
-
-	// Set new position of robot to be next clockwise corner
-	var coordX = 0;
-	var coordY = 0;
-	var lightIntensity = 0;
-	for (var i = 0; i < messages.length; i++) {
-		coordX = roundPosition(messages[i].x);
-		coordY = roundPosition(messages[i].y);
-		lightIntensity = messages[i].lightIntensity;
+	for (var i = 0; i < intensities.length; i++) {
+		var thisIntensity = intensities[i];
 
 		if (coordX > processingTiles.length - 1 ||
 				coordY > processingTiles[coordX].length - 1) {
@@ -167,7 +169,7 @@ var setTiles = function(robotID, messages) {
 			return;
 		}
 
-		var tile = processingTiles[coordX][coordY];
+		var tile = processingTiles[roundPosition(coordX)][roundPosition(coordY)];
 		tile[robotID] = lightIntensity;
 
 		// if two robots agree on colour and hasn't already been set, set final
@@ -175,6 +177,10 @@ var setTiles = function(robotID, messages) {
 			server.updateTile(coordX, coordY, 3); //set to grey if first traversal
 			twoColoursAgree(coordX, coordY);
 		}
+
+		//  Now, update the coordinates
+		coordX += delta * Math.cos(orientation);
+		coordY += delta * Math.sin(orientation);
 	}
 
 	//check if whole board covered

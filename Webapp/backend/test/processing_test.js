@@ -62,6 +62,19 @@ describe('Set Tile with light intensity given x and y positions', function() {
 	});
 });
 
+describe('setTiles function', function() {
+	it('should interpolate the points given', function() {
+
+	});
+});
+
+describe('get new orientation - ', function() {
+	it('given orientation to turn, next orientation is calculated' +
+	' as being between 0 and 2PI', function() {
+	processor.getNewOrientation(0, 3*Math.PI);
+	expect(processor.robots[0].orientation).at.most(2*Math.PI);
+	});
+});
 
 describe('Vector Length', function() {
 	it('Given a vector [1,1], length returned should be 1', function() {
