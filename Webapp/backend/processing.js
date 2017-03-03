@@ -193,7 +193,7 @@ var setTiles = function(robotID, intensities) {
 var getNextCorner = function(quadrantNo) {
 	switch (quadrantNo) {
 		case 0:
-			return {xPrev: 0, yPrev: 0};;
+			return {xPrev: 0, yPrev: 0};
 		case 1:
 			return {xPrev: 0, yPrev: length - 1};
 		case 2:

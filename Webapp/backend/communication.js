@@ -192,7 +192,7 @@ var addRobotByID = function(robotID, socket) {
 		}
 	}
 	// Otherwise add a new entry into the list.
-	robots.push(JSON.stringify({id: robotID, socket: socket}));
+	robots.push({id: robotID, socket: socket});
 };
 
 var getRobotIndex = function(robotID) {
@@ -271,7 +271,7 @@ var stopAll = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		// todo, check if socket is open and stop it.
 		if (!robots[i].socket.destroyed) {
-			robots[i].socket.write({type: "STOP"})
+			robots[i].socket.write(JSON.stringify({type: "STOP"}));
 		}
 	}
 };
