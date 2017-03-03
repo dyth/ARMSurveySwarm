@@ -287,7 +287,14 @@ var move = function(robotID, angle, distanceMM) {
 	var socket = getSocketByID(robotID);
 	var robotIndex = getRobotIndex(robotID);
 
-	var radians = angle * 180.0 / Math.PI;
+	var degrees = angle * 180.0 / Math.PI;
+
+	if (degrees === undefined || angle distanceMM === undefined) {
+		console.log("NON-FATAL ERROR---------------------------");
+		console.log("Some inputs are undefined, angle = " + degrees + 
+			", distance = " + distanceMM);
+		return;
+	}
 
 	if (socket === null) {
 		console.log("NON-FATAL ERROR-------------------------");
@@ -296,7 +303,7 @@ var move = function(robotID, angle, distanceMM) {
 	}
 
 	socket.write(JSON.stringify({ type: 'MOVE',
-			angle: radians,
+			angle: degrees,
 			distance: distanceMM}));
 };
 
