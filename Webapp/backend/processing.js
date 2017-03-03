@@ -78,7 +78,7 @@ var addRobotsToList = function(numRobots) {
 	for(var i = robots.length; i < numRobots; i++) {
 
 		robots.push({id: i, xPrev: 0, yPrev: 0,
-			 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2 });
+			 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 });
 
 		initialTileState.push(2);
 
@@ -154,28 +154,36 @@ var setTiles = function(robotID, intensities) {
 	// Set new position of robot
 	var coordX = robot.xPrev;
 	var coordY = robot.yPrev;
-	var delta = Math.pow(Math.pow(robot.xPrev - robot.xAfter, 2) + 
-		Math.pow(robot.yPrev - robot.yAfter, 2), 0.5);
+	var delta = Math.pow(Math.pow(robot.xPrev - robot.xAfter, 2) +
+		Math.pow(robot.yPrev - robot.yAfter, 2), 0.5) / intensities.length;
 	var angle = robot.orientation;
 
+	console.log("TEST " + angle);
+
 	for (var i = 0; i < intensities.length; i++) {
+
+		console.log("TEST " + coordX);
+
 		var thisIntensity = intensities[i];
 
-		if (coordX > processingTiles.length - 1 ||
-				coordY > processingTiles[coordX].length - 1) {
+		var roundedX = roundPosition(coordX);
+		var roundedY = roundPosition(coordY);
+
+		if (roundedX > processingTiles.length - 1 ||
+			roundedY > processingTiles[roundedX].length - 1) {
 			console.log("NON FATAL ERROR -------------------------------");
 			console.log("robot off grid");
 			setRecalibrationStatus(robotID);
 			return;
 		}
 
-		var tile = processingTiles[roundPosition(coordX)][roundPosition(coordY)];
+		var tile = processingTiles[roundedX][roundedY];
 		tile[robotID] = thisIntensity;
 
 		// if two robots agree on colour and hasn't already been set, set final
 		if (tile[robots.length] === 2) {
 			server.updateTile(coordX, coordY, 3); //set to grey if first traversal
-			twoColoursAgree(coordX, coordY);
+			twoColoursAgree(roundedX, roundedY);
 		}
 
 		//  Now, update the coordinates
