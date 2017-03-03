@@ -61,7 +61,7 @@ var receiveData = function(data, socket) {
 		socket.id = robotID;
 
 		// Add the robot to the processor
-		processor.addRobotsToList(robotID);
+		processor.addRobotToList(robotID);
 
 	}
 	else if(data.type === 'DONE'){
@@ -135,20 +135,12 @@ var sendMove = function(robotID, angle, distanceMM) {
 
 server.listen(9000);
 
-exports.stop = stop;
-exports.stopAll = stopAll;
-exports.move = move;
-exports.wait = wait;
-exports.getConnectedRobots = getConnectedRobots;
+exports.sendStart = sendStart;
+exports.sendStop = sendStop;
+exports.sendMove = sendMove;
 
 if (TEST) {
 	exports.TEST = TEST;
-	exports.addRobotByID = addRobotByID;
-	exports.getSocketByID = getSocketByID;
-	exports.getConnectedRobots = getConnectedRobots;
 	exports.robots = robots;
 	exports.receiveData = receiveData;
-	exports.getRobotIndex = getRobotIndex;
-	exports.getRobotByID = getRobotByID;
-	exports.startRobots = startRobots;
 }
