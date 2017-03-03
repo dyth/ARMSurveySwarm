@@ -17,7 +17,7 @@ var route = require('./route');
 var TEST = true;
 
 var processingTiles = [];
-var initialTileState = [2,2];
+var initialTileState = [2];
 
 // Array order is by robot ID.
 // For the status, it is an index in the array  'states' in state.js
@@ -76,17 +76,8 @@ var addRobotsToList = function(numRobots) {
 	// xPrev/yPrev will be out of bounds of the tiles array since we will not
 	// always be in the bottom left hand corner now
 	for(var i = robots.length; i < numRobots; i++) {
-
 		robots.push({id: i, xPrev: 0, yPrev: 0,
-			 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 });
-
-		initialTileState.push(2);
-
-		for (var j = 0; j < processingTiles.length; j++) {
-			for (var k = 0; k < processingTiles[j].length; k++) {
-				processingTiles[j][k].push(2);
-			}
-		}
+		 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 });
 	}
 }
 
@@ -159,7 +150,6 @@ var setTiles = function(robotID, intensities) {
 	console.log("TEST " + angle);
 
 	for (var i = 0; i < intensities.length; i++) {
-
 		console.log("TEST " + coordX);
 
 		var thisIntensity = intensities[i];
@@ -175,14 +165,10 @@ var setTiles = function(robotID, intensities) {
 			return;
 		}
 
-		var tile = processingTiles[roundedX][roundedY];
-		tile[robotID] = thisIntensity;
-
-		// if two robots agree on colour and hasn't already been set, set final
-		if (tile[robots.length] === 2) {
-			server.updateTile(roundedX, roundedY, 3); //set to grey if first traversal
-			twoColoursAgree(roundedX, roundedY);
-		}
+		processingTiles[roundedX][roundedY].push(thisIntensity);
+		// This updates the accepted value for the tile and sends
+		// it on to the server.
+		tileUpdate(roundedX, roundedY);
 
 		//  Now, update the coordinates
 		coordX += delta * Math.cos(angle);
@@ -232,46 +218,28 @@ var routeRobot = function(robotID) {
 }
 
 /*
- * At least two robots need to agree on colour for the final colour to be set,
- * which is then sent to the webapp.
- * If two robots disagree, delegate another robot to re-check the tile.
+ * This updates the accepted tile value as appropriate
  */
-var twoColoursAgree = function(coordX, coordY){
-
-	var numWhite = 0;
-	var numBlack = 0;
+var tileUpdate = function(coordX, coordY){
 	var tile = processingTiles[coordX][coordY];
 
-	/*
-	* If black and white tile numbers equal - delegate another robot to check
-	* If more black then set final to black if not already set
-	* If more white then set final to white if not already set
-	*/
-	if (numWhite == numBlack) {
-		// potentials are robots other than those that already checked
-		//var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+	// Recalculate the processing tiles[0] value.
+	var whiteCount = 0;
+	var blackCount = 0;
+	for (var i = 1; i < tile.length; i ++) {
+		if (tiles[i] === 0) {
+			blackCount ++;
+		} else {
+			whiteCount ++;
+		}
+	}
 
-		// Route robot that is going to be in the quadrant
-		// required to get to this tile
-		var quadrantNo = getQuadrant(coordX, coordY);
-		var robotID = getRobotByQuadrant(quadrantNo);
-		checkTile(robotID, coordX, coordY);
-
-	} else if ((numWhite > numBlack && numWhite >= 2) ||
-		(robots.length < 2 && numWhite === 1)) {
-
-		tile[robots.length] = 1;
-		server.updateTile(coordX, coordY, 1);
-		route.removeTile(coordX, coordY);
-		tilesCovered += 1;
-
-	} else if ((numBlack > numWhite && numBlack >= 2) ||
-		(robots.length < 2 && numBlack === 1)) {
-
-		tile[robots.length] = 0;
-		server.updateTile(coordX, coordY, 0);
-		route.removeTile(coordX, coordY);
-		tilesCovered += 1;
+	// This sets the default value
+	// The >= value means that white is the default
+	if (whiteCount >= blackCount) {
+		tiles[0] = 1;
+	} else {
+		tiles[0] = 0;
 	}
 }
 
@@ -310,6 +278,7 @@ var checkTile = function(robotID, tileX, tileY){
 	// get next corner to be xPrev
 	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4
 	var nextCorner = getNextCorner(robots[robotID].quadrant);
+
 	robots[robotID].xPrev = nextCorner.x;
 	robots[robotID].yPrev = nextCorner.y;
 
