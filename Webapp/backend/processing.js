@@ -99,10 +99,10 @@ var addRobotsToList = function(numRobots) {
 var roundPosition = function(pos) {
 	if (pos < 0) {
 		return 0;
-	} else if (pos > length * tileSize) {
+	} else if (pos > length) {
 		return length;
 	} else  {
-		return Math.floor(pos/tileSize + 0.1);
+		return Math.floor(pos + 0.1);
 	}
 }
 
