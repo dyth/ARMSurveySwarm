@@ -170,7 +170,7 @@ var setTiles = function(robotID, intensities) {
 		}
 
 		var tile = processingTiles[roundPosition(coordX)][roundPosition(coordY)];
-		tile[robotID] = lightIntensity;
+		tile[robotID] = thisIntensity;
 
 		// if two robots agree on colour and hasn't already been set, set final
 		if (tile[robots.length] === 2) {
@@ -313,7 +313,7 @@ var checkTile = function(robotID, tileX, tileY){
 	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4 
 	var nextCorner = getNextCorner(robots[robotID].quadrant);
 	robots[robotID].xPrev = nextCorner.x;
-	robots[robotID].yPrev = nextCorenr.y;
+	robots[robotID].yPrev = nextCorner.y;
 
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
