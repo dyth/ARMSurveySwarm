@@ -283,12 +283,11 @@ var stopAll = function() {
 * - angle is in degrees clockwise from where robot is facing
 * - distance is distance in mm to destination tile
 */
-var move = function(robotID, angle, distanceCM) {
+var move = function(robotID, angle, distanceMM) {
 	var socket = getSocketByID(robotID);
 	var robotIndex = getRobotIndex(robotID);
 
 	var radians = angle * 180.0 / Math.PI;
-	var distanceMM = distanceCM;
 
 	if (socket === null) {
 		console.log("NON-FATAL ERROR-------------------------");
