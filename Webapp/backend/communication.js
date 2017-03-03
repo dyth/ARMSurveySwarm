@@ -292,7 +292,7 @@ var move = function(robotID, angle, distanceMM) {
 	if (degrees === NaN || distanceMM === NaN ||
 		degrees === undefined || distanceMM === undefined) {
 		console.log("NON-FATAL ERROR---------------------------");
-		console.log("Some inputs are undefined, angle = " + degrees + 
+		console.log("Some inputs are undefined, angle = " + degrees +
 			", distance = " + distanceMM);
 		return;
 	}
@@ -304,13 +304,8 @@ var move = function(robotID, angle, distanceMM) {
 	}
 
 	socket.write(JSON.stringify({ type: 'MOVE',
-<<<<<<< HEAD
-			angle: degrees,
-			distance: distanceMM}));
-=======
 			angle: degrees.toFixed(3),
 			distance: distanceMM.toFixed(3)}));
->>>>>>> 7cdcb08babb15066d3c41e8c9eaffc039d6df614
 };
 
 exports.stop = stop;
