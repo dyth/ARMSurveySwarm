@@ -68,16 +68,17 @@ var createTilesList = function() {
 	}
 }
 
-var addRobotsToList = function(numRobots) {
-	// This creates the list up to the point of the robotID.
-	// i.e. add robots to the list to accomdate more stuff being added
-
+/*
+* Adds a robot to the list
+* Called in communication.js
+ */
+var addRobotToList = function(robotID) {
 	// Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
 	// xPrev/yPrev will be out of bounds of the tiles array since we will not
 	// always be in the bottom left hand corner now
 	for(var i = robots.length; i < numRobots; i++) {
-		robots.push({id: i, xPrev: 0, yPrev: 0,
-		 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 });
+		robots[robotID] = {id: i, xPrev: 0, yPrev: 0,
+		 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 };
 	}
 }
 
@@ -278,18 +279,11 @@ var checkTile = function(robotID, tileX, tileY){
 
 
 	// get next corner to be xPrev
-<<<<<<< HEAD
 	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4
 	var nextCorner = getNextCorner(robots[robotID].quadrant);
 
 	robots[robotID].xPrev = nextCorner.x;
 	robots[robotID].yPrev = nextCorner.y;
-=======
-	robot.quadrant = (robot.quadrant + 1) % 4
-	var nextCorner = getNextCorner(robot.quadrant);
-	robot.xPrev = nextCorner.x;
-	robot.yPrev = nextCorner.y;
->>>>>>> 3216a40d2d76f63b6008f5329e290d97e22d1767
 
 	robot.xAfter = tileX;
 	robot.yAfter = tileY;
@@ -403,11 +397,6 @@ var setGridDimensions = function(sizes) {
 	createTilesList();
 }
 
-var setRobotStates = function(numRobots) {
-	// This adds up to `numRobots` robots
-	addRobotsToList(numRobots);
-}
-
 var getGridDimensions = function() {
 	return {x: width, y: length};
 }
@@ -430,7 +419,7 @@ exports.getTileSize = getTileSize;
 exports.setGridDimensions = setGridDimensions;
 exports.getGridDimensions = getGridDimensions;
 exports.setRobotStates = setRobotStates;
-exports.addRobotsToList = addRobotsToList;
+exports.addRobotToList = addRobotToList;
 exports.resume = resume;
 exports.stop = stop;
 exports.stopAll = stopAll;
@@ -441,6 +430,8 @@ exports.getRobots = getRobots;
 exports.resetRobot = resetRobot;
 exports.robotConnectionLost = robotConnectionLost;
 exports.getQuadrant = getQuadrant;
+
+
 
 /*
  * Unit testing

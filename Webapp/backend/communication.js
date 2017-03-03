@@ -61,7 +61,7 @@ var receiveData = function(data, socket) {
 		socket.id = robotID;
 
 		// Add the robot to the processor
-		processor.addRobotsToList(robotID);
+		processor.addRobotToList(robotID);
 
 	}
 	else if(data.type === 'DONE'){
