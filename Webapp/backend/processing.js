@@ -24,7 +24,6 @@ var initialTileState = [2,2];
 // on the frontend:
 
 // Calibrating: 0, Scanning:  1, Stopped: 2, Disconnected: 3, Recalibrate: 4
-// Orientation in Radians
 var robots = [];
 
 var width = 0;
@@ -71,17 +70,24 @@ var createTilesList = function() {
 var addRobotsToList = function(numRobots) {
 	// This creates the list up to the point of the robotID.
 	// i.e. add robots to the list to accomdate more stuff being added
+
+	// Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
+	// xPrev/yPrev will be out of bounds of the tiles array since we will not
+	// always be in the bottom left hand corner now
 	for(var i = robots.length; i < numRobots; i++) {
-		robots.push({id: i, xPrev: 0,yPrev: 0,
-			 xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2 });
+
+		robots.push({id: i, xPrev: 0, yPrev: 0,
+			 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2 });
+
 		initialTileState.push(2);
+
 		for (var j = 0; j < processingTiles.length; j++) {
 			for (var k = 0; k < processingTiles[j].length; k++) {
 				processingTiles[j][k].push(2);
 			}
 		}
+
 	}
-	robots_no = robots.length;
 }
 
 
@@ -100,8 +106,8 @@ var roundPosition = function(pos) {
 }
 
 var resetRobot = function(robotID) {
-	robots[robotID] = {id: robotID, xPrev: 0,yPrev: 0,
-		xAfter: 0, yAfter: 0, orientation: 0, robotStatus: 2}
+	robots[robotID] = {id: robotID, xPrev: 0, yPrev: 0,
+		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2}
 
 	// id, x,  y, status
 	sendStatusUpdate(robotID);
@@ -138,9 +144,13 @@ var setTiles = function(robotID, messages) {
 		return;
 	}
 
-	// Update tile table for current position
-	// Get x, y, light intensity, add to processing tiles
-	// Set new position of robot
+	// TODO -- Update tile table for intensities for positions interpolated between
+	// prev and after coordinates
+
+
+
+
+	// Set new position of robot to be next clockwise corner
 	var coordX = 0;
 	var coordY = 0;
 	var lightIntensity = 0;
@@ -174,24 +184,35 @@ var setTiles = function(robotID, messages) {
 	}
 }
 
+var getNextCorner = function(quadrantNo) {
+	switch (quadrantNo) {
+		case 0:
+			return {xPrev: 0, yPrev: 0};;
+		case 1:
+			return {xPrev: 0, yPrev: length - 1};
+		case 2:
+			return {xPrev: length - 1, yPrev: length - 1};
+		case 3:
+			return {xPrev: length - 1, yPrev: 0};
+	}
+}
+
 var routeRobot = function(robotID) {
 	if (robotID >= robots.length) {
 		console.log("unexpected robot " + robotID);
 		return;
 	}
 
-	// set robots to move to random point in another module
-	// send robotID, last x position, last y position
+	// set robots to move to random point within quadrant another module
+	// send robotID, and current quadrant corner
 	// move will send back the destination of the robot so can set
 	// xPrev and yPrev to xAfter and yAfter with data received from route.
-	var destination = route.move(robotID);
+	var destination = route.move(robotID, robots[robotID].quadrant);
+	console.log('routing from quadrant '+ robots[robotID].quadrant);
 	if (destination.stopAll) {
 		stopAll();
 		return;
-	} else if (destination.wait) {
-		console.log('robot ' + robotID + ' waiting');
 	}
-
 	checkTile(robotID, destination.xAfter, destination.yAfter);
 
 	// Update the position of the robot in the webserver.
@@ -229,6 +250,7 @@ var twoColoursAgree = function(coordX, coordY){
 	if (numWhite == numBlack) {
 		// potentials are robots other than those that already checked
 		var robotID = potentials[Math.floor(Math.random() * potentials.length)];
+		// TODO -- robot in correct quadrant for x,y needs to be routed to this tile
 		checkTile(robotID, coordX, coordY);
 
 	} else if ((numWhite > numBlack && numWhite >= 2) ||
@@ -258,48 +280,41 @@ var vectorLength = function(vector) {
  */
 var checkTile = function(robotID, tileX, tileY){
 	console.log('------------');
-	// Currently direct line to tile
-	var coordX = robots[robotID].xAfter;
-	var coordY = robots[robotID].yAfter;
+	// Prev always stores starting corner, we interpolate between this and
+	// tileX, tile Y. After checkTile returns, robots will store the new corner
+	// as prev but the tile just travelled to in after.
+	console.log(robots[robotID]);
+	var cornerX = robots[robotID].xPrev;
+	var cornerY = robots[robotID].yPrev;
 
-	if (coordX === tileX && coordY === tileY){
-		console.log("Routing to current tile - abort. ");
-		// Add a wait so that the robot calls back to the server
-		// and asks again later.
-		// TODO -- this should no longer happen
-		communication.wait(robotID);
-		return;
-	}
+	// if (coordX === tileX && coordY === tileY){
+	// 	console.log("Routing to current tile - abort. ");
+	// 	// Add a wait so that the robot calls back to the server
+	// 	// and asks again later.
+	// 	// TODO -- this should no longer happen (though could route to corner?)
+	// 	communication.wait(robotID);
+	// 	return;
+	// }
 
-	var orientation = robots[robotID].orientation;
-	var A = [Math.cos(orientation), Math.sin(orientation)]; // current orientation of robot
+	// [opp, adj]
+	var vectorToTile = [tileX - cornerX, tileY - cornerY];
+	console.log(vectorToTile[0]);
+	console.log(vectorToTile[1]);
+	var angle = Math.atan(vectorToTile[0]/vectorToTile[1])
+	var distance = vectorLength(vectorToTile);
 
-	//pass over half of tile
-	var B = [tileX - coordX, tileY - coordY]; // vector for current pos to tile
+	console.log('From x=' + cornerX + ' y='+ cornerY
+	+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' + angle*180/Math.PI);
 
-	// normalise vector to get length 1
-	var distance = vectorLength(B);
-	B[0] = B[0]/distance;
-	B[1] = B[1]/distance;
+	// Turn by angle (0 to pi) clockwise
+	// communication.move now takes (robotID, angle, distance)
+	// Server needs to keep track of location of robot.
+	communication.move(robotID, angle, distance*tileSize);
 
-	var angle = Math.atan2(B[1], B[0]) - Math.atan2(A[1], A[0]);
 
-	if (angle < 0) {
-		angle += 2*Math.PI;
-	}
-
-	console.log('From x=' + coordX + ' y='+ coordY + ' going to x=' + tileX +' y=' + tileY);
-
-	// Turn by angle clockwise
-	// TODO -- communication.move now takes (robotID, angle, distance)
-	// server needs to keep track of location of robot.
-	communication.move(robotID, coordX * tileSize, coordY * tileSize,
-		orientation, angle, distance*tileSize);
-
-	//Set new orientation of robotID
-	getNewOrientation(robotID, angle);
-
-	robots[robotID].xPrev = robots[robotID].xAfter;
+	// get next corner to be xPrev
+	var nextCorner = getNextCorner(robots[robotID].quadrant);
+	robots[robotID].xPrev = nextCorner.xAfter;
 	robots[robotID].yPrev = robots[robotID].yAfter;
 
 	robots[robotID].xAfter = tileX;
@@ -307,18 +322,6 @@ var checkTile = function(robotID, tileX, tileY){
 
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
-}
-
-var normaliseAngle = function(angle) {
-	if (angle < 0) {
-		angle = 2*Math.PI + angle;
-	}
-	return angle;
-}
-
-var getNewOrientation = function(robotID, radians) {
-	var currentOrientation = robots[robotID].orientation;
-	robots[robotID].orientation = (currentOrientation + radians) % (2*Math.PI);
 }
 
 /*
@@ -337,7 +340,7 @@ var sendStatusUpdate = function(robotID) {
 	var robot = robots[robotID];
 	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
 }
- 
+
 /*
  * Command from user to resume traversal of robots
  * Sent to communication.js to notify the robots.
@@ -347,8 +350,8 @@ var resume = function(robotID) {
 	sendStatusUpdate(robotID);
 	// TODO -- Talk to Jamie about changing the webapp to remove
 	// the individual resume button. In this new model, resume
-	// is better done by restarting the robot perhaps? 
-	communication.resume(robotID);
+	// is better done by restarting the robot perhaps?
+	// communication.resume(robotID);
 }
 
 /*
@@ -442,7 +445,6 @@ if (TEST) {
 	exports.checkTile = checkTile;
 
 	exports.roundPosition = roundPosition;
-	exports.getNewOrientation = getNewOrientation;
 	exports.vectorLength = vectorLength;
 
 	var setCoveredToTotalTiles = function() {
