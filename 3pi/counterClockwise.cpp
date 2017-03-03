@@ -2,8 +2,6 @@
 #include "m3pi.h"
 #include <algorithm>
 #include <sstream>
-
-#define DEBOUNCE 4
  
 // PID terms
 #define P_TERM 1
@@ -101,8 +99,9 @@ float limit(float speed, float MIN, float MAX) {
 }
 
 void PID(float MIN, float MAX, int debounce) {
-    
     // PID line following between the speeds MIN and MAX
+    float rightTotal;
+    float leftTotal;
     float current_pos_of_line = 0.0;
     float previous_pos_of_line = 0.0;
     float derivative, proportional, integral = 0;
@@ -139,6 +138,9 @@ void PID(float MIN, float MAX, int debounce) {
         m3pi.left_motor(left);
         m3pi.right_motor(right);
         
+        leftTotal += left;
+        rightTotal += right;
+        
         // do some debouncing
         if (in > 50) {
             rotations[count++] = left;
@@ -157,30 +159,26 @@ void alignCorner() {
     
     // find corner quickly, then align with corner, reverse and then
     // slowly level up until corner is detected
-    PID(0.0, 1.0, 2);
-    turnCounterClockwise(10);
+    PID(0.0, 0.5, 8);
+    /*
+    turnCounterClockwise(15);
     m3pi.backward(0.25f);
     wait(1.0f);
     halt();
-    PID(0.0, 0.25, 4);
+    */
+    //PID(0.0, 0.25, 4);
     
-    //turn to new direction (perpendiculat to the starting position)
+    //turn to new direction (perpendicular to the starting position)
     turnClockwise(90);
 }
 
-void cycleClockwise(double degree, double distance) {
-    // go to (degree, distance), then find the edge, then find the next corner
-    
-    // go to point (degree, distance) then face the edge
-    turnClockwise((float) degree);
-    goForwards((float) distance);
-    
-    turnCounterClockwise((float) degree + 90.0);
-    
-    // go forwards until edge detected
-    int sensors[5];    
-    m3pi.forward(0.5);
-    
+void findLine(float speed) {
+	// go forwards until line is found
+	
+	m3pi.forward(speed);
+	
+	int sensors[5];
+	
     while(1) {
         m3pi.calibrated_sensor(sensors);
         
@@ -190,30 +188,55 @@ void cycleClockwise(double degree, double distance) {
         if (sensors[2] > 900)  {
             halt();
             m3pi.calibrated_sensor(sensors);
-            if (sensors[2] < 200) {
-                goForwards(2);
+            if (sensors[2] < 900) {
+                m3pi.left_motor(robotMotorLeft);
+                m3pi.right_motor(robotMotorRight);
+                wait(((float) 50.0f) / robotDistancePerSecond);
+                halt();
                 turnClockwise(90);
                 break;
             } else {
-                goForwards(tileSize);
-                m3pi.forward(0.5);
+                m3pi.left_motor(robotMotorLeft);
+                m3pi.right_motor(robotMotorRight);
+                wait(((float) tileSize - 10.0f) / robotDistancePerSecond);
+                halt();
+                m3pi.forward(speed);
             }
         }
     }
+	
+}
+
+void cycleClockwise(double degree, double distance) {
+    // go to point (x, y), then find the edge, then find the next corner
     
-    // align with corner
+    // go to point (degree, distance) then face the edge
+    turnClockwise((float) degree);
+    
+    // go forwards until edge detected
+    fineLine(0.5);
+    
+    // recalibrate and align with corner
+    m3pi.sensor_auto_calibrate();
     alignCorner();
 }
 
 
 int main() {
     // wait until human has left then autocalibrate
+    m3pi.reset();
     wait(0.5);
     m3pi.sensor_auto_calibrate();
     alignCorner();
     
     // main loop of program
     while (1) {
-        cycleClockwise(800, 500);
+		x = 800;
+		y = 500;
+		
+		double distance = (double) pow(x, 2.0f) + pow(x, 2.0f);
+		double travel = (double) sqrt(distance);
+		
+        cycleClockwise(distance, travel);
     }
 }
