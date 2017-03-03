@@ -193,13 +193,13 @@ var setTiles = function(robotID, intensities) {
 var getNextCorner = function(quadrantNo) {
 	switch (quadrantNo) {
 		case 0:
-			return {x: 0, y: 0};
+			return {orientation: Math.PI/2, x: 0, y: 0};
 		case 1:
-			return {x: 0, y: length - 1};
+			return {orientation: 0, x: 0, y: length - 1};
 		case 2:
-			return {x: length - 1, y: length - 1};
+			return {orientation: -Math.PI/2, x: length - 1, y: length - 1};
 		case 3:
-			return {x: length - 1, y: 0};
+			return {orientation: Math.PI, x: length - 1, y: 0};
 	}
 }
 
@@ -318,7 +318,7 @@ var checkTile = function(robotID, tileX, tileY){
 	robots[robotID].xAfter = tileX;
 	robots[robotID].yAfter = tileY;
 
-	robots[robotID].orientation = angle;
+	robots[robotID].orientation = nextCorner.orientation + angle;
 
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
