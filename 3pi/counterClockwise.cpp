@@ -10,10 +10,10 @@
 
 // board size
 #define tileSize 100
+#define boardSize 2000
 
 // robot terms
-#define clockwiseRotation 2.483f
-#define counterRotation 2.235f
+#define rotation 2.493f
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
@@ -23,13 +23,13 @@ m3pi m3pi;
 void halt() {
     // halt robot and allow motors to cool down
     m3pi.stop();
-    wait(1.5f);   
+    wait(2.0f);   
 }
 
 void turnCounterClockwise(int degree) {
     // Turn left at the slowest speed possible for accuracy
     m3pi.left(0.15f);
-    wait(((float) degree) * counterRotation / 360.0f);
+    wait(((float) degree) * rotation / 360.0f);
     halt();
 }
 
@@ -37,7 +37,7 @@ void turnClockwise(int degree) {
     // Turn right at the slowset speed possible for accuracy
     m3pi.stop();
     m3pi.right(0.15f);
-    wait(((float) degree) * clockwiseRotation / 360.0f);
+    wait(((float) degree) * rotation / 360.0f);
     halt();
 }
 
@@ -60,15 +60,6 @@ void cadence() {
         wait(1.0f / (float) samples);
         intensities[i] = sensors[2];
     }
-    halt();
-}
-
-void anneal() {
-    // anneal movement for 0.25 second
-    m3pi.forward(0.25);
-    wait(0.25);
-    m3pi.backward(0.25);
-    wait(0.25);
     halt();
 }
 
@@ -210,14 +201,14 @@ void PID(float MIN, float MAX, int debounce) {
     halt();
 }
 
-void alignCorner() {
+void alignCorner(int distance) {
     // aligns a robot such that it is on the corner, facing the new direction
     
     // find corner quickly, then align with corner, reverse and then
     // slowly level up until corner is detected
     
     //turn to new direction (perpendicular to the starting position)
-    PIDFast(0.0f, 1.0f, 500);
+    PIDFast(0.0f, 1.0f, distance);
     PID(0.0, 0.5, 2);
     PIDFast(-0.5f, 0.5f, 200);
     //turnClockwise(80);
@@ -238,16 +229,6 @@ void findLine(float speed) {
         if (sensors[2] > 900)  {
             halt();
             turnClockwise(90);
-            //wait(0.4f);
-            break;
-            m3pi.calibrated_sensor(sensors);
-            if (sensors[2] < 900) {
-                halt();
-                turnClockwise(90);
-                break;
-            } else {
-                wait(0.85f);
-            }
         }
     }
     
@@ -259,7 +240,7 @@ void cycleClockwise(double degree, double distance) {
     // go to point (degree, distance) then face the edge
     turnClockwise((float) degree);
     goForwards((double) distance);
-    turnClockwise((float) 270.0f - degree);
+    turnCounterClockwise((float) degree + 90.0f);
     
     goForwards((distance * sin(degree * 3.141592654f / 180.0f)) + 50.0f);
         
@@ -268,7 +249,7 @@ void cycleClockwise(double degree, double distance) {
     
     // recalibrate and align with corner
     m3pi.sensor_auto_calibrate();
-    alignCorner();
+    alignCorner(boardSize - 200 - (int) (distance * cos(degree * 3.141592654f / 180.0f)));
 }
 
 
@@ -278,7 +259,7 @@ int main() {
     wait(0.5);
     
     m3pi.sensor_auto_calibrate();
-    alignCorner();
+    alignCorner(500);
     
     // main loop of program
     while (1) {
