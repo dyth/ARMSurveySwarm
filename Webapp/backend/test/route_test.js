@@ -5,9 +5,9 @@ var processing = require('../processing.js');
 describe('Test move call to route', function() {
 	it('should return new x/y co-ordinates in a dictionary ' +
 			' with keys xAfter, yAfter', function() {
-
-		var results = routing.move(0);
-		if (results.stopAll === false && results.wait === false) {
+		routing.setUp(10);
+		var results = routing.move(0,0);
+		if (results.stopAll === false) {
 			expect(results.xAfter).to.be.at.least(0);
 			expect(results.yAfter).to.be.at.least(0);
 		} else {
@@ -19,7 +19,7 @@ describe('Test move call to route', function() {
 	it('should respond with actual results once the processing has started',
 		function() {
 			routing.setUp(10);
-			var results = routing.move(0);
+			var results = routing.move(0,0);
 			expect(results.stopAll).to.be.false;
 			expect(results.xAfter).to.be.at.least(0);
 			expect(results.yAfter).to.be.at.least(0);
@@ -37,30 +37,15 @@ describe('Test move call to route', function() {
 	it('robots should not route to same tile ', function() {
 		routing.setUp(10);
 		var robots = processing.getRobots().slice();
-		var results = routing.move(1);
+		var results = routing.move(1,1);
 		var sameTile = (robots[1].xPrev === results.xAfter &&
 			robots[1].yPrev === results.yAfter);
 		expect(sameTile).to.be.false;
 
 		//now not first move so can collide
-		results = routing.move(1);
+		results = routing.move(1,1);
 		sameTile = (robots[1].xPrev === results.xAfter &&
 			robots[1].yPrev === results.yAfter);
-		expect(sameTile).to.be.false;
-	});
-
-	it('check for collisions ', function() {
-		routing.setUp(10);
-		var robots = processing.getRobots().slice();
-		var results = routing.move(2);
-		var sameTile = (robots[2].xPrev === results.xAfter &&
-			robots[2].yPrev === results.yAfter);
-		expect(sameTile).to.be.false;
-
-		//now not first move so can collide
-		results = routing.move(2);
-		sameTile = (robots[2].xPrev === results.xAfter &&
-			robots[2].yPrev === results.yAfter);
 		expect(sameTile).to.be.false;
 	});
 });
@@ -69,7 +54,10 @@ describe('setUp ', function() {
 	it('should work if setup is called multiple times', function() {
 		routing.setUp(10);
 		routing.setUp(10);
-		expect(routing.uncheckedTiles.length).to.equal(100);
+		expect(routing.uncheckedTiles[0].length
+			+ routing.uncheckedTiles[1].length
+			+ routing.uncheckedTiles[2].length
+			+ routing.uncheckedTiles[3].length).to.equal(100);
 	});
 
 
@@ -78,33 +66,27 @@ describe('setUp ', function() {
 		routing.setUp(0);
 		routing.setUp(-2);
 		routing.setUp(9);
-
-		expect(routing.uncheckedTiles.length).to.equal(81);
+		expect(routing.uncheckedTiles[0].length
+			+ routing.uncheckedTiles[1].length
+			+ routing.uncheckedTiles[2].length
+			+ routing.uncheckedTiles[3].length).to.equal(81);
 	});
 });
 
 describe('removeTile ', function() {
 	it('should remove tiles', function() {
 		routing.setUp(10);
-		var tileHead = routing.uncheckedTiles[0];
+		// remove tile from first quadrant
+		var tileHead = routing.uncheckedTiles[0][0];
 		routing.removeTile(tileHead.xPos, tileHead.yPos);
 		expect(routing.uncheckedTiles[0]).to.not.equal(tileHead);
 	});
 
 	it('should work regardless of index chosen', function() {
 		routing.setUp(10);
-		var tileHead = routing.uncheckedTiles[35];
+		var tileHead = routing.uncheckedTiles[0][16];
 		routing.removeTile(tileHead.xPos, tileHead.yPos);
-		expect(routing.uncheckedTiles[35]).to.not.equal(tileHead);
-		expect(routing.uncheckedTiles.length).to.equal(99);
+		expect(routing.uncheckedTiles[0][16]).to.not.equal(tileHead);
+		expect(routing.uncheckedTiles[0].length).to.equal(24);
 	});
-});
-
-describe('willCollide', function() {
-		it('Return true when trying to route to same tile', function() {
-			routing.setUp(10);
-			// when 2 isn't set it is going one step in x direction
-			expect(routing.willCollide(4, 0, 0)).to.be.true;
-		});
-
 });

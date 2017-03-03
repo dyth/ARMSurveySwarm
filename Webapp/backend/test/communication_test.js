@@ -3,13 +3,15 @@ var coms = require('../communication.js');
 var processor = require('../processing.js');
 var net = require('net');
 
+var CONNECTION_PORT = 9000;
+
 describe('should be in test mode', function() {
 	expect(coms.TEST).to.equal(true);
 });
 
 describe('opening a connection to the TCP socket', function() {
 	it('should work from localhost', function(done) {
-		net.connect({port:8000}, function() {
+		net.connect({port:9000}, function() {
 			done();
 		});
 	});
@@ -17,29 +19,10 @@ describe('opening a connection to the TCP socket', function() {
 	it('should work from another host', function(done) {
 		require('dns').lookup(require('os').hostname(),
 			function (err, add, fam) {
-				net.connect({port: 8000, host: add}, function() {
+				net.connect({port: 9000, host: add}, function() {
 					done();
 				});
 			});
-	});
-});
-
-describe('start robots', function() {
-	it('add new robots to the queue if processing has not started',
-		function() {
-			coms.addRobotByID(1, {destroyed:false, write: function(){}});
-			coms.addRobotByID(3, {destroyed:false, write: function(){}});
-			coms.addRobotByID(4, {destroyed:false, write: function(){}});
-
-			coms.enqueueRobot(1);
-			coms.enqueueRobot(2);
-			coms.enqueueRobot(4);
-
-			expect(coms.startRobot_waitingRobots.length).to.equal(3);
-	});
-
-	it('should send START messages sequentially', function() {
-		// TODO
 	});
 });
 
@@ -59,7 +42,7 @@ describe('Test tcp server', function() {
 	var client;
 
 	it('should accept a connection', function(done) {
-		client = net.connect({port: 8000}, function() {
+		client = net.connect({port: 9000}, function() {
 			expect(true, 'client did not connect').to.be.true;
 
 			// send some data to the server. We expect it to only parse
@@ -71,7 +54,7 @@ describe('Test tcp server', function() {
 	});
 
 	it('should accept two messages at once', function(done) {
-		client.write('HELLO:2\nDONE:2\n');
+		client.write('{"type": "HELLO"}{"type": "HELLO"}');
 		done();
 	});
 });
@@ -79,17 +62,18 @@ describe('Test tcp server', function() {
 describe('wait message', function() {
 	it('should send out a wait message to the connected (specified) client',
 		function(done) {
-			var client = net.connect({port:8000}, function() {
-				client.write("HELLO:1\n");
+			var client = net.connect({port:9000}, function() {
+				client.write('{"type":"HELLO", "id":1}');
 			});
 
 			client.on('data', function(data) {
-				expect(data.toString()).to.equal('WAIT 03000\n');
+				expect(data.toString()).to.equal('{"type":"WAIT", "time":3000}');
 				done()
 			});
 
 			setTimeout(function() {
 				coms.wait(1);
+				console.log("ROBOTS" + coms.robots);
 			}, 100);
 	});
 });
@@ -129,11 +113,12 @@ describe('receiveData', function() {
 			expect(socket.test).to.equal(100);
 	});
 
-	it('RESET message should reset the position and orientation of '
-		+ ' the robot', function() {
-			processor.robots[1].orientation = 120;
+	it('RESET message should reset the position of the robot', function() {
+			processor.robots[1].xPrev = 0;
+			processor.robots[1].yPrev = 0;
 			coms.receiveData('RESET:1');
-			expect(processor.robots[1].orientation).to.equal(0);
+			expect(processor.robots[1].xPrev).to.equal(0);
+			expect(processor.robots[1].yPrev).to.equal(0);
 	});
 
 	it('should work when DONE messages are sent', function() {
@@ -224,42 +209,15 @@ describe('stop, resume and stopAll', function() {
 		expect(dataReceived).to.equal('STOP\n');
 	});
 
-	it('resume should send out a RESUME\n message', function() {
-		coms.resume(1);
-		expect(dataReceived).to.equal('RESUME\n');
-	});
+	// it('resume should send out a RESUME\n message', function() {
+	// 	coms.resume(1);
+	// 	expect(dataReceived).to.equal('RESUME\n');
+	// });
 
 	it('stop all should sent out some STOP\n messages', function() {
 		coms.stopAll();
 		expect(dataReceived).to.equal('STOP\n');
 		expect(dataReceived2).to.equal('STOP\n');
-	});
-});
-
-describe('Add padding', function() {
-	it('should pad a number out to N digits and preserve equality', function() {
-		// Checking length properties
-		expect(coms.addPadding(1, 10).length).to.equal(10);
-		expect(coms.addPadding(5, 2).length).to.equal(2);
-		expect(coms.addPadding(-5, 3).length).to.equal(3);
-		expect(coms.addPadding(12345, 5).length).to.equal(5);
-
-		// checking preservation properties
-		expect(Number(coms.addPadding(5, 2))).to.equal(5);
-		expect(Number(coms.addPadding(-5, 4))).to.equal(-5);
-	});
-
-	it('should round floating point numbers', function() {
-		expect(Number(coms.addPadding(1/3, 10))).to.equal(0);
-		expect(Number(coms.addPadding(2/3, 1))).to.equal(1);
-		expect(coms.addPadding(23.1, 3)).to.equal("023");
-	});
-
-	it('maximum length should be 5 regardless of input', function() {
-		expect(coms.addPadding(1232.0232, 5).length).to.equal(5);
-		expect(coms.addPadding(2354, 5).length).to.equal(5);
-		expect(coms.addPadding(23.1, 5).length).to.equal(5);
-
 	});
 });
 
@@ -269,10 +227,10 @@ describe('Move function sending instructions to robot', function() {
 	processor.resetRobot(3);
 	var robot = coms.getRobotByID(3);
 	console.log(robot);
-	coms.move(3, 0, 0, 0, 42);
-	coms.move(3, 0, 0, Math.PI, 35);
-	coms.move(3, 0, 0, Math.PI/6, 12);
-	coms.move(3, 0, 0, 91*Math.PI/60, 36);
+	coms.move(3, 0, 42);
+	coms.move(3, Math.PI/3, 35);
+	coms.move(3, Math.PI/6, 12);
+	coms.move(3, Math.PI/60, 36);
 
 	it('Robot should have received instructions to move', function(done) {
 		var instructionsSent = false;

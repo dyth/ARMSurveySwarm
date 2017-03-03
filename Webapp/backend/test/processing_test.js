@@ -62,6 +62,12 @@ describe('Set Tile with light intensity given x and y positions', function() {
 	});
 });
 
+describe('setTiles function', function() {
+	it('should interpolate the points given', function() {
+
+	});
+});
+
 describe('get new orientation - ', function() {
 	it('given orientation to turn, next orientation is calculated' +
 	' as being between 0 and 2PI', function() {
@@ -82,11 +88,9 @@ describe('Vector Length', function() {
 describe('Reset robot', function() {
 	it('should reset the robot position after being called', function() {
 		processor.robots[0].xPrev = -1000;
-		processor.robots[0].orientation = 11111;
 		processor.resetRobot(0);
 
 		expect(processor.robots[0].xPrev).to.equal(0);
-		expect(processor.robots[0].orientation).to.equal(0);
 	});
 
 	it('should reset change the status of the robot after being called',
@@ -100,7 +104,7 @@ describe('Reset robot', function() {
 describe('Route robot', function() {
 	it('Check that route does not set robots to recheck current tile', function() {
 		processor.startProcessing();
-		processor.routeRobot(1);
+		processor.routeRobot(1, 0);
 		if (processor.robots[1].xPrev === processor.robots[1].xAfter) {
 			expect(processor.robots[1].yPrev).to.not.equal(processor.robots[1].yAfter);
 		} else if (processor.robots[1].yPrev === processor.robots[1].yAfter) {
@@ -109,7 +113,7 @@ describe('Route robot', function() {
 	});
 
 	it('Should not route robot with unexpected index', function() {
-		processor.routeRobot(6);
+		processor.routeRobot(6, 0);
 	});
 });
 
@@ -119,12 +123,8 @@ describe('check tile', function() {
 		processor.setRobotStates(2);
 		processor.setGridDimensions({x:10, y:10});
 
-		processor.checkTile(0, 2, 2);
-		processor.checkTile(0, 2, 0);
-		processor.checkTile(0, 0, 0); // angle should be close to 180
-		processor.checkTile(0, 0, 5);
-		processor.checkTile(0, 3, 3);
-		processor.checkTile(0, 3, 4);
+		// /processor.checkTile(0, 2, 2);
+
 	});
 });
 

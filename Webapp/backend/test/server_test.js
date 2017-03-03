@@ -155,7 +155,7 @@ describe('start processing message', function(done) {
 	it('sending startRobots should result in the system being started',
 		function() {
 			client.emit('startRobots', {tileSize: 1, gridSize: 1,
-					numRobots: 10});
+					numRobots: 5});
 
 			setTimeout(function() {
 				expect(processor.startedProcessing).to.be.true;
