@@ -290,8 +290,14 @@ var move = function(robotID, angle, distanceCM) {
 	var radians = angle * 180.0 / Math.PI;
 	var distanceMM = distanceCM;
 
+	if (socket === null) {
+		console.log("NON-FATAL ERROR-------------------------");
+		console.log("unexpected ID " + robotID);
+		return;
+	}
+
 	socket.write(JSON.stringify({ type: 'MOVE',
-			angle: randians,
+			angle: radians,
 			distance: distanceMM}));
 };
 
