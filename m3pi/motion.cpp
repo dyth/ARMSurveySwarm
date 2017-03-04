@@ -260,7 +260,7 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (degree, distance) then face the edge
 
     // turn the degree, then go forwards and sample the forward
-    turnClockwise(360 + degree + robotTurningCorrection);
+    turnClockwise(degree + robotTurningCorrection);
     goForwards(distance, samples, cadenceNumber, vectorIntensities);
     turnClockwise(270 - degree);
 
