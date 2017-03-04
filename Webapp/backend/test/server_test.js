@@ -55,16 +55,14 @@ describe('Calling updateStatus', function() {
 			var newClient = io.connect(socketURL, options);
 
 			newClient.on('sendRobotStatus', function(data) {
-				if (data.status === 2) {
+				if (data.id === 2) {
 					receivedData1.push(data);
 				} else {
 					receivedData2.push(data);
 				}
 
-				if (receivedData1.length === NUM
-					&& receivedData2.length === NUM) {
-					done();
-				}
+				console.log(receivedData1.length);
+				console.log(receivedData2.length);
 			});
 
 			newClient.on('connect', function() {
@@ -75,7 +73,6 @@ describe('Calling updateStatus', function() {
 					// run the broadcasts.
 					server.updateStatus(2, 10, 5, 'running');
 					server.updateStatus(3, 2, 6, 'stopped');
-
 				}
 			});
 
@@ -91,7 +88,7 @@ describe('Calling updateStatus', function() {
 				NUM.toString() + "\n").to.equal(NUM);
 
 			for (var i = 0; i < receivedData1.length; i ++) {
-				expect(receivedData1[i].id).to.equal(1);
+				expect(receivedData1[i].id).to.equal(2);
 				expect(receivedData1[i].x).to.equal(10);
 				expect(receivedData1[i].y).to.equal(5);
 				expect(receivedData1[i].status).to.equal('running');
@@ -100,9 +97,15 @@ describe('Calling updateStatus', function() {
 			for (var i = 0; i < receivedData2.length; i ++) {
 				expect(receivedData2[i].id).to.equal(3);
 				expect(receivedData2[i].x).to.equal(2);
-				expect(receivedData2[i].y).to.equal(1);
+				expect(receivedData2[i].y).to.equal(6);
 				expect(receivedData2[i].status).to.equal('stopped');
 			}
+
+			while (clients.length) {
+				clients.pop().disconnect();
+			}
+
+			done();
 		}, 600);
 	});
 });
@@ -113,7 +116,6 @@ describe('Stop Function Test', function() {
 		var connected = false;
 		var stop = false;
 		var resume = false;
-		var stopAll = false;
 
 		client.on('connect', function(data) {
 			client.emit('stop', {id: 1});
@@ -123,10 +125,6 @@ describe('Stop Function Test', function() {
 		client.on('stopCalled', function(data) {
 			stop = true;
 			client.emit('resume', {id: 1});
-		});
-
-		client.on('stopAllCalled', function(data) {
-			stopAll = true;
 			done();
 		});
 
@@ -135,8 +133,6 @@ describe('Stop Function Test', function() {
 				'client did not connect').to.equal(true);
 			expect(stop,
 				'"stop" call did not return a callback').to.equal(true);
-			expect(stopAll,
-				'"stopAll" call did not return a callback').to.equal(true);
 			client.disconnect();
 		}, 1000);
 	});
@@ -153,6 +149,6 @@ describe('start processing message', function(done) {
 			setTimeout(function() {
 				expect(processor.startedProcessing).to.be.true;
 				done();
-			}, 100);
+		}, 100);
 	});
 });
