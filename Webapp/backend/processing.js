@@ -135,8 +135,10 @@ var setTiles = function(robotID, intensities) {
 	var coordY = robot.yCorner;
 	var delta = Math.pow(Math.pow(robot.xCorner - robot.xAfter, 2) +
 		Math.pow(robot.yCorner - robot.yAfter, 2), 0.5) / intensities.length;
-	var angle = Math.atan((robot.yAfter - robot.yCorner) / (robot.xAfter - robot.xCorner)); //TODO: (0,_) error
-
+	
+	// Need the angle with the offset.
+	var angle =  getAngleWithOffset(robotID);
+		
 	for (var i = 0; i < intensities.length; i++) {
 		var thisIntensity = intensities[i];
 
@@ -194,21 +196,100 @@ var getCorner = function(quadrantNo) {
 }
 
 /*
+ * Returns the robot's orietation wrt.
+ * the xAxis
+ *
+ */
+var getAngleWithOffset = function(robotID) {
+	var robot = robots[robotID];
+	// This keeps the orientation offset from the way that 
+	// the robot is facing.
+	//
+	// Note that offset is along the yAxis.
+	var offset = getCorner(robot.quadrantNo).orientation;
+	var angleNoOffset = getAngleNoOffset(robotID);
+	
+	return angleNoOffset - offset;
+}
+
+/*
+ * Returns the angle with respect to the 
+ * robot's current orientation.
+ */
+var getAngleNoOffset = function(robotID) {
+	var robot = robots[robotID];
+	var quadrantNo = robot.quadrantNo;
+
+	// Computes the differences:
+	var yDiff = robot.yAfter - robot.yCorner;
+	var xDiff = robot.xAfter - robot.xCorner;
+
+	console.log('diffs', xDiff, yDiff);
+
+	if (yDiff === 0) {
+		// If there is no yDiff, then the robot
+		// is heading along the xAxis and so we
+		// return the angle along taht
+		if (quadrantNo % 2 === 0) {
+			// How much the robot turns given 
+			// it's position depends on where it is
+			// on the board
+			return Math.PI / 2;
+		} else {
+			return 0;
+		}
+	}
+
+	if (xDiff === 0) {
+		// If there is no xDiff, then the robot
+		// is heading straight up the yAxis.
+		// Therefore, we just return orientation.
+		if (quadrantNo % 2 === 0) {
+			// How much the robot turns 
+			// given it's position depends on 
+			// where it is on the board
+			//
+			// Remember that the orientation of the robot 
+			// is always towards the y-axis
+			return 0;
+		} else {
+			return Math.PI / 2;
+		}
+	}
+
+	var opp;
+	var adj;
+
+	// Which one is opposite and adjacent depends 
+	// on which way the robot is facing.
+	if (robot.quadrant % 2 === 0) {
+		opp = xDiff;
+		adj = yDiff;
+	} else {
+		opp = yDiff;
+		adj = xDiff;
+	}
+
+	return Math.atan(opp / adj); 
+};
+
+/*
 * Called when a robot reaches the next corner and sends back a list of intensities
  */
 var nextMove = function (robotID) {
-
 	// The robot is now waiting
 	waitingRobots++;
 
-	if(waitingRobots === connectedRobots){
-
+	if(waitingRobots === connectedRobots) {
 		// Give each robot a new instruction
-		for(var id = 0; id<robots.length; id++){
-
+		for(var id = 0; id<robots.length; id++) {
+			if (robots[id] === undefined) {
+				// If ther robot is not defined, then there is a 
+				// robot somewhere else that is defined.
+				continue;
+			}
 			// Get the robot
 			var robot = robots[id];
-
 			// Calculate the next move
 			var next = route.move(robot.xCorner, robot.yCorner);
 
@@ -280,33 +361,18 @@ var vectorLength = function(vector) {
 var convert = function(robotID, tileX, tileY){
 	var robot = robots[robotID];
 
-	// Prev always stores starting corner, we interpolate between this and
+	// The robot always stores starting corner, we interpolate between this and
 	// tileX, tile Y. After checkTile returns, robots will store the new corner
 	// as prev but the tile just travelled to in after.
-	var cornerX = robot.xCorner;
-	var cornerY = robot.yCorner;
+	var changeInX = robot.xCorner - robot.xAfter;
+	var changeInY = robot.yCorner - robot.yAfter;
 
-	// [opp, adj]
-	var changeInX = Math.abs(tileX - cornerX);
-	var changeInY = Math.abs(tileY - cornerY);
-
-	var opp;
-	var adj;
-
-	// if quadrant number is even, opp is change in x, adj is change in y
-	if (robots[robotID].quadrant % 2 === 0) {
-		opp = changeInX;
-		adj = changeInY;
-	} else {
-		opp = changeInY;
-		adj = changeInX;
-	}
-
-	var angle = Math.atan(opp/adj); // opp/adj
+	var angle = getAngleNoOffset(robotID);
 	var distance = vectorLength([changeInX, changeInY]);
 
-	console.log('From x=' + cornerX + ' y='+ cornerY
-	+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' + angle*180/Math.PI + ' and distance ' + distance);
+	console.log('From x=' + robot.cornerX + ' y='+ robot.cornerY
+		+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' 
+		+ angle*180/Math.PI + ' and distance ' + distance);
 
 	return {angle: angle, distance: distance}
 };
