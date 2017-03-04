@@ -82,7 +82,7 @@ var addRobotToList = function(robotID) {
 	// xCorner/yCorner will be out of bounds of the tiles array since we will not
 	// always be in the bottom left hand corner now
 	robots[robotID] = {xCorner: 0, yCorner: 0,
-		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 };
+		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2};
 
 	connectedRobots++;
 }
@@ -145,7 +145,7 @@ var setTiles = function(robotID, intensities) {
 	var coordY = robot.yCorner;
 	var delta = Math.pow(Math.pow(robot.xCorner - robot.xAfter, 2) +
 		Math.pow(robot.yCorner - robot.yAfter, 2), 0.5) / intensities.length;
-	var angle = robot.orientation;
+	var angle = Math.atan((robot.yAfter - robot.yCorner) / (robot.xAfter - robot.xCorner)); //TODO: (0,_) error
 
 	for (var i = 0; i < intensities.length; i++) {
 		var thisIntensity = intensities[i];
@@ -157,7 +157,6 @@ var setTiles = function(robotID, intensities) {
 			roundedY > processingTiles[roundedX].length - 1) {
 			console.log("NON FATAL ERROR -------------------------------");
 			console.log("robot off grid");
-			setRecalibrationStatus(robotID);
 			return;
 		}
 
@@ -170,6 +169,14 @@ var setTiles = function(robotID, intensities) {
 		coordX += delta * Math.cos(angle);
 		coordY += delta * Math.sin(angle);
 	}
+
+	// Update the robot start position
+	robot.quadrant = (robot.quadrant + 1) % 4
+	var nextCorner = getNextCorner(robot.quadrant);
+
+	robot.xCorner = nextCorner.x;
+	robot.yCorner = nextCorner.y;
+
 }
 
 var getNextCorner = function(quadrantNo) {
@@ -210,6 +217,7 @@ var nextMove = function (robotID) {
 				communication.sendStop(id);
 
 				// Set the robot status to stopped
+				setRobotStatusStopped(id);
 				
 			}
 			else{
@@ -217,17 +225,9 @@ var nextMove = function (robotID) {
 				// Convert coordinates into angles and distances
 				var robotInstructions = convert(id, next.xAfter, next.yAfter);
 
-				// Update the robot
-				robot.quadrant = (robot.quadrant + 1) % 4
-				var nextCorner = getNextCorner(robot.quadrant);
-
-				robot.xCorner = nextCorner.x;
-				robot.yCorner = nextCorner.y;
-
+				// Update the robot destination
 				robot.xAfter = next.xAfter;
 				robot.yAfter = next.yAfter;
-
-				robot.orientation = nextCorner.orientation + robotInstructions.angle;
 
 				// Send the instruction
 				communication.sendMove(id, robotInstructions.angle, robotInstructions.distance);
@@ -237,15 +237,14 @@ var nextMove = function (robotID) {
 
 			}
 
-			sendStatusUpdate(id);
-
 		}
+
+		waitingRobots = 0;
 
 	}
 	else{
 		setRobotStatusWaiting(robotID);
 	}
-
 
 };
 
@@ -253,12 +252,12 @@ var nextMove = function (robotID) {
  * This updates the accepted tile value as appropriate
  */
 var tileUpdate = function(coordX, coordY){
-	var tile = processingTiles[coordX][coordY];
+	var tiles = processingTiles[coordX][coordY];
 
 	// Recalculate the processing tiles[0] value.
 	var whiteCount = 0;
 	var blackCount = 0;
-	for (var i = 1; i < tile.length; i ++) {
+	for (var i = 1; i < tiles.length; i ++) {
 		if (tiles[i] === 0) {
 			blackCount ++;
 		} else {
@@ -273,6 +272,8 @@ var tileUpdate = function(coordX, coordY){
 	} else {
 		tiles[0] = 0;
 	}
+
+	server.updateTile(coordX, coordY, tiles[0]);
 };
 
 var vectorLength = function(vector) {
@@ -355,7 +356,9 @@ var getGridDimensions = function() {
 var startProcessing = function() {
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
-	
+
+	console.log(robots.length);
+
 	for (var i = 0; i < robots.length; i ++) {
 		// This sends the start message to the robots.
 		communication.sendStart(i, tileSize);

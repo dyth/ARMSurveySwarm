@@ -65,6 +65,7 @@ var socketReceiveStatus = function(data) {
 	updateState(data.id);
 	updateRobotPosition(data.id);
 	updateRobotInfo();
+	updateCanvas();
 };
 
 var socketTileUpdate = function(data) {
