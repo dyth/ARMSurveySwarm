@@ -75,7 +75,7 @@ var receiveData = function(data, socket) {
 
 	}
 	else {
-		console.log("ERROR(recieveData/communication.js): Unknown Message");
+		console.log("ERROR(receiveData/communication.js): Unknown Message");
 	}
 
 };
@@ -103,7 +103,7 @@ var sendStop = function(robotID) {
 
 	// Get the socket and send
 	var socket = robots[robotID];
-	if(socket === null){
+	if(socket === null || socket === undefined){
 		console.log("ERROR(sendStop/communication.js): Null Socket");
 		return;
 	}
@@ -126,7 +126,7 @@ var sendMove = function(robotID, angle, distanceMM) {
 		return;
 	}
 
-	// toFixed converts the floating point numbers into fixed point 
+	// toFixed converts the floating point numbers into fixed point
 	// representations of themselves.
 	socket.write(JSON.stringify({ type: 'MOVE',
 			angle: parseInt(degrees),

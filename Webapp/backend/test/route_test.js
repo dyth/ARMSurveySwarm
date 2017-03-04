@@ -33,21 +33,6 @@ describe('Test move call to route', function() {
 		expect(routing.getRandomInt(0, 0)).to.be.within(0, 0);
 		expect(routing.getRandomInt(1, 1)).to.be.within(1, 1);
 	});
-
-	it('robots should not route to same tile ', function() {
-		routing.setUp(10);
-		var robots = processing.robots.slice();
-		var results = routing.move(1,1);
-		var sameTile = (robots[1].xPrev === results.xAfter &&
-			robots[1].yPrev === results.yAfter);
-		expect(sameTile).to.be.false;
-
-		//now not first move so can collide
-		results = routing.move(1,1);
-		sameTile = (robots[1].xPrev === results.xAfter &&
-			robots[1].yPrev === results.yAfter);
-		expect(sameTile).to.be.false;
-	});
 });
 
 describe('setUp ', function() {

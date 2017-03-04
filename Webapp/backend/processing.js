@@ -25,6 +25,7 @@ var processingTiles = [];
 // Waiting: 0, Scanning:  1, Stopped: 2
 var robots = [];
 
+// height and width in the number of tiles, tileSize in mm
 var width = 0;
 var height = 0;
 var tileSize = 0;
@@ -59,7 +60,7 @@ var createTilesList = function() {
 		}
 
 		for(var j = columns.length; j < height; j++) {
-			// This pushes the initial tile state. Accepted 
+			// This pushes the initial tile state. Accepted
 			// is the color that we currently take to be the value
 			// and black and white are counts of the measurements
 			// for each one.
@@ -93,12 +94,13 @@ var addRobotToList = function(robotID) {
  * Gets position in tiles list.
  */
 var roundPosition = function(pos) {
+	pos = pos / tileSize;
 	if (pos < 0) {
 		return 0;
 	} else if (pos > height) {
 		return height;
 	} else  {
-		return Math.floor(pos/tileSize + 0.1);
+		return Math.floor(pos + 0.1);
 	}
 }
 
@@ -295,9 +297,23 @@ var convert = function(robotID, tileX, tileY){
 	var cornerY = robot.yCorner;
 
 	// [opp, adj]
-	var vectorToTile = [Math.abs(tileX - cornerX), Math.abs(tileY - cornerY)];
-	var angle = Math.atan(vectorToTile[0]/vectorToTile[1])
-	var distance = vectorLength(vectorToTile);
+	var changeInX = Math.abs(tileX - cornerX);
+	var changeInY = Math.abs(tileY - cornerY);
+
+	var opp;
+	var adj;
+
+	// if quadrant number is even, opp is change in x, adj is change in y
+	if (robots[robotID].quadrant % 2 === 0) {
+		opp = changeInX;
+		adj = changeInY;
+	} else {
+		opp = changeInY;
+		adj = changeInX;
+	}
+
+	var angle = Math.atan(opp/adj); // opp/adj
+	var distance = vectorLength([changeInX, changeInY]);
 
 	console.log('From x=' + cornerX + ' y='+ cornerY
 	+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' + angle*180/Math.PI + ' and distance ' + distance);
@@ -327,11 +343,12 @@ var stop = function(robotID) {
  * Command from user to stop the traversal of all robots
  */
 var stopAll = function() {
+	console.log(robots);
 	for (var i = 0; i < robots.length; i ++) {
 		robots[i].robotStatus = 2;
 		sendStatusUpdate(i);
 		communication.sendStop(i);
-	}
+	};
 };
 
 /*
@@ -354,12 +371,16 @@ var getGridDimensions = function() {
 var startProcessing = function() {
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
+	console.log('robots length ' + robots.length);
 
 	for (var i = 0; i < robots.length; i ++) {
 		// This sends the start message to the robots.
-		communication.sendStart(i, tileSize);
+		if (robots[i] != undefined) {
 
-		nextMove(i);
+			communication.sendStart(i, tileSize);
+
+			nextMove(i);
+		}
 	}
 };
 
