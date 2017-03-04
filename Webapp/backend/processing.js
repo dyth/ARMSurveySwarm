@@ -123,16 +123,10 @@ var robotConnectionLost = function(robotID) {
  * and ending positiong to interpolate the locations of the intensities.
  */
 var setTiles = function(robotID, intensities) {
-	if (!startedProcessing) {
-		// If the processing hasn't started then
-		// all the state below hasn't been defined yet.
-		return;
-	}
 	var robot = robots[robotID];
 
 	// Update tile table for current position
 	// Get x, y, light intensity, add to processing tiles
-	// Set new position of robot
 	var coordX = robot.xPrev;
 	var coordY = robot.yPrev;
 	var delta = Math.pow(Math.pow(robot.xPrev - robot.xAfter, 2) +
@@ -161,12 +155,6 @@ var setTiles = function(robotID, intensities) {
 		//  Now, update the coordinates
 		coordX += delta * Math.cos(angle);
 		coordY += delta * Math.sin(angle);
-	}
-
-	//check if whole board covered
-	if (tilesCovered >= totalTiles) {
-		console.log('All tiles covered ');
-		communication.stopAll();
 	}
 }
 
@@ -232,11 +220,11 @@ var tileUpdate = function(coordX, coordY){
 	} else {
 		tiles[0] = 0;
 	}
-}
+};
 
 var vectorLength = function(vector) {
 	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2));
-}
+};
 
 /*
  * Set orientation of given robot in direction of tile.
@@ -280,7 +268,7 @@ var checkTile = function(robotID, tileX, tileY){
 
 	// And set the robot status to moving
 	setRobotStatusScanning(robotID);
-}
+};
 
 /*
  * This unpacks the dictionary for the robot status and sends it on to the
@@ -289,7 +277,7 @@ var checkTile = function(robotID, tileX, tileY){
 var sendStatusUpdate = function(robotID) {
 	var robot = robots[robotID];
 	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
-}
+};
 
 /*
  * Command from user to stop the traversal of one robot
@@ -298,7 +286,7 @@ var stop = function(robotID) {
 	robots[robotID].robotStatus = 2;
 	sendStatusUpdate(robotID);
 	communication.sendStop(robotID);
-}
+};
 
 /*
  * Command from user to stop the traversal of all robots
@@ -309,24 +297,24 @@ var stopAll = function() {
 		sendStatusUpdate(i);
 		communication.sendStop(i);
 	}
-}
+};
 
 /*
  * Set user input of tile size
  */
 var setTileSize = function(size) {
 	tileSize = size;
-}
+};
 
 var setGridDimensions = function(sizes) {
 	width = sizes.x;
 	height = sizes.y;
 	createTilesList();
-}
+};
 
 var getGridDimensions = function() {
 	return {x: width, y: height};
-}
+};
 
 var startProcessing = function() {
 	startedProcessing = true;
@@ -338,7 +326,7 @@ var startProcessing = function() {
 	}
 
 	// TODO -- CALL A ROUTE FUNCTION HERE 
-}
+};
 
 exports.setTileSize = setTileSize;
 exports.setGridDimensions = setGridDimensions;
