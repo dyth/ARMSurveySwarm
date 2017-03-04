@@ -54,14 +54,15 @@ describe('receiveData', function() {
 		coms.receiveData({type: "DONE", intensities: [1, 2, 3], id: 0}, {});
 	});
 
-	it('should send a start message to the robot', function() {
+	it('should send a start message to the robot', function(done) {
 		coms.receiveData({type: "HELLO", id: 0}, 
-			{destroyed: false, socket: function(data) {
+			{destroyed: false, write: function(data) {
 				var json = JSON.parse(data);
-				expect(data).to.have.type("START");
-				expect(data).to.have.tileSize.at.least(0);
+				expect(json).to.have.property("type", "START");
+				expect(json).to.have.property("tileSize", 10);
+				done();
 			}});
-		coms.sendStart();
+		coms.sendStart(0, 10);
 	});
 
 	it('should send a start message to the robot',

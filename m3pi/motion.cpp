@@ -264,7 +264,6 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     turnClockwise(robotTurningCorrection);
     turnClockwise(degree);
     goForwards(distance, samples, cadenceNumber, vectorIntensities);
-
     turnClockwise(270 - degree);
 
     //TODO: change back to 150 if not working
