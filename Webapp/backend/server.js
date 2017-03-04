@@ -51,13 +51,6 @@ io.sockets.on('connection', function(socket) {
 		socket.emit('stopCalled');
 	});
 
-	socket.on('stopAll', function () {
-		processor.stopAll();
-
-		// For testing purposes only.
-		socket.emit('stopAllCalled');
-	});
-
 	socket.on('startRobots', function(input) {
 		// console.log("tile size " + input.tileSize.toString());
 		// console.log("grid size " + input.gridSize.toString());
