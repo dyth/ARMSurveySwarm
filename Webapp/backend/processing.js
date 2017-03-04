@@ -101,6 +101,12 @@ var roundPosition = function(pos) {
 	}
 }
 
+var setRobotStatusStopped = function(robotID) {
+	robots[robotID].robotStatus = 2;
+
+	sendStatusUpdate(robotID);
+}
+
 var setRobotStatusScanning = function(robotID) {
 	robots[robotID].robotStatus = 1;
 
