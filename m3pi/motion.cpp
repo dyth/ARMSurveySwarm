@@ -37,11 +37,9 @@ void cadence(int remainder, int samples, vector<int> &intensities) {
     wait(remainder);
 
     // sample twice per tile size
-    int sensors[5];
     for (int i = 0; i < samples; i++) {
-        m3pi.calibrated_sensor(sensors);
         wait(1.0f / (float) samples);
-        intensities.push_back(sensors[2]);
+        intensities.push_back(m3pi.middle_sensor());
     }
 
     halt();
@@ -74,11 +72,9 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
-    int sensors[5];
     for (int i = 0; i < remainderSamples; i++) {
         wait(1.0f / (float) samples);
-        m3pi.calibrated_sensor(sensors);
-        intensities.push_back(sensors[2]);
+        intensities.push_back(m3pi.middle_sensor());
     }
     
     // do the specified number of cadences
@@ -247,17 +243,11 @@ void alignCorner(int distance) {
 
 void findLine() {
     // go backwards until line detected
-
-    // initialise sensors
-    int sensors[5];
-    m3pi.calibrated_sensor(sensors);
-
-    // go backwards until black
-    while(sensors[2] < 800) {
-        m3pi.backward(0.15);
-        m3pi.calibrated_sensor(sensors);
+    
+    m3pi.backward(0.15);
+    if (m3pi.middle_sensor() > 800) {
+        halt();
     }
-    halt();
 }
 
 void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
@@ -270,12 +260,10 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (degree, distance) then face the edge
 
     // turn the degree, then go forwards and sample the forward
-    turnClockwise(360 + robotTurningCorrection);
-    turnClockwise(degree);
+    turnClockwise(360 + degree + robotTurningCorrection);
     goForwards(distance, samples, cadenceNumber, vectorIntensities);
     turnClockwise(270 - degree);
 
-    //TODO: change back to 150 if not working
     // go off board, and then go backwards until an edge is detected
     goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 150);
     findLine();

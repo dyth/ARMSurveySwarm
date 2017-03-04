@@ -87,7 +87,7 @@ describe('receiveData', function() {
 					expect(json).to.have.property("angle",
 							Math.round(1213 * 180.0 / Math.PI));
 					expect(json).to.have.property("distance", Math.round(1231));
-					done();
+					done();// TODO -- fix this
 			}});
 
 			coms.sendMove(0, 1213,  1231);

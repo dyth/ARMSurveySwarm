@@ -13,6 +13,7 @@ describe('Create tiles list', function() {
 
 describe('setTiles function', function() {
 	it('should interpolate the points given', function() {
+		processor.setGridDimensions({x: 10, y: 10});
 		processor.resetProcessingTiles();
 		processor.createTilesList();
 		processor.robots[1] = {robotStatus: 1, quadrant: 0,
@@ -22,8 +23,32 @@ describe('setTiles function', function() {
 		processor.setTiles(1, values);
 		for (var i = 0; i < values.length; i ++) {
 			var tiles = processor.processingTiles[i][i];
-			console.log(values[i] , tiles);
 			expect(tiles.accepted).to.equal(values[i]);
+		}
+	});
+
+	it('should interpolate some other points too', function() {
+		processor.resetProcessingTiles();
+		processor.createTilesList();
+
+		processor.robots[1] = {robotStatus: 1, quadrant: 0, 
+			xCorner: 9, yCorner: 9, xAfter: 2, yAfter: 6};
+
+		var length = -7.61577;
+
+		var xS = 9;
+		var yS = 9;
+
+		var values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+		processor.setTiles(1, values);
+		for (var i = 0; i < values.length; i ++) {
+			var tiles = processor.processingTiles
+						[Math.round(xS)][Math.round(yS)];
+			xS -= length * Math.sin(1.1071487);
+			yS -= length * Math.cos(1.1071487);
+			console.log(xS, yS);
+			console.log(tiles);
+			// expect(tiles.accepted).to.equal(values[i]);
 		}
 	});
 });
@@ -116,11 +141,17 @@ describe('convert', function() {
 			processor.addRobotToList(1);
 			processor.robots[1].quadrant = 1;
 
+			processor.robots[0].xAfter = 4;
+			processor.robots[0].yAfter = 4;
+
+			processor.robots[1].xAfter = 3;
+			processor.robots[1].yAfter = 5;
+
 			var vectorLength = processor.vectorLength([4,4]);
 			var vectorLength2 = processor.vectorLength([3,5]);
 
-			var converted = processor.convert(0,4,4);
-			var converted2 = processor.convert(1,3,5);
+			var converted = processor.convert(0);
+			var converted2 = processor.convert(1);
 			console.log(converted2.angle);
 
 			expect(converted.angle).to.equal(Math.PI/4);
