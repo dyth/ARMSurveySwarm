@@ -63,8 +63,8 @@ var createTilesList = function() {
 			// This pushes the initial tile state. Accepted
 			// is the color that we currently take to be the value
 			// and black and white are counts of the measurements
-			// for each one.
-			columns.push({accepted: 1, black: 0, white: 0});
+			// for each one. Accepted is 2 by default as an unchecked tile.
+			columns.push({accepted: 2, black: 0, white: 0});
 		}
 
 		if (i < processingTiles.length) {
@@ -184,14 +184,14 @@ var setTiles = function(robotID, intensities) {
 
 	// Update the robot start position
 	robot.quadrant = (robot.quadrant + 1) % 4
-	var nextCorner = getNextCorner(robot.quadrant);
+	var nextCorner = getCorner(robot.quadrant);
 
 	robot.xCorner = nextCorner.x;
 	robot.yCorner = nextCorner.y;
 
 }
 
-var getNextCorner = function(quadrantNo) {
+var getCorner = function(quadrantNo) {
 	switch (quadrantNo) {
 		case 0:
 			return {orientation: Math.PI/2, x: 0, y: 0};
@@ -201,6 +201,8 @@ var getNextCorner = function(quadrantNo) {
 			return {orientation: -Math.PI/2, x: height - 1, y: height - 1};
 		case 3:
 			return {orientation: Math.PI, x: height - 1, y: 0};
+		default:
+			return {orientation: Math.PI/2, x: 0, y: 0};
 	}
 }
 
@@ -221,8 +223,7 @@ var nextMove = function (robotID) {
 			var robot = robots[id];
 
 			// Calculate the next move
-			var next = route.move(robot.x, robot.y);
-
+			var next = route.move(robot.xCorner, robot.yCorner);
 
 			if(next.stopAll){
 				// Stop the robot
@@ -267,8 +268,10 @@ var tileUpdate = function(coordX, coordY){
 	// Recalculate the processing accepted value.
 	// This sets the default value
 	// The >= value means that white is the default
-	if (tiles.white >= tiles.black) {
+	if (tiles.white > tiles.black) {
 		tiles.accepted = 1;
+	} else if (tiles.white === tiles.black) {
+		tiles.accepted = 2; //grey
 	} else {
 		tiles.accepted = 0;
 	}
@@ -343,7 +346,6 @@ var stop = function(robotID) {
  * Command from user to stop the traversal of all robots
  */
 var stopAll = function() {
-	console.log(robots);
 	for (var i = 0; i < robots.length; i ++) {
 		robots[i].robotStatus = 2;
 		sendStatusUpdate(i);
@@ -369,6 +371,7 @@ var getGridDimensions = function() {
 };
 
 var startProcessing = function() {
+	connectedRobots = 0;
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
 	console.log('robots length ' + robots.length);
@@ -411,9 +414,20 @@ if (TEST) {
 
 	exports.roundPosition = roundPosition;
 	exports.vectorLength = vectorLength;
+	exports.tileUpdate = tileUpdate;
+	exports.convert = convert;
+	exports.getCorner = getCorner;
+	exports.connectedRobots = connectedRobots;
 
 	var setCoveredToTotalTiles = function() {
 		tilesCovered = totalTiles;
+	}
+
+	exports.getConnectedRobots = function() {
+		return connectedRobots;
+	}
+	exports.setConnectedRobots = function() {
+		connectedRobots = 0;
 	}
 	exports.setCoveredToTotalTiles = setCoveredToTotalTiles;
 }
