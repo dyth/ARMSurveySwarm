@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
- 
+
 // board size
 #define tileSize 100
 
@@ -12,7 +12,7 @@
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
-#define robotTurningCorrection 80
+#define robotTurningCorrection 75
 
 void start();
 
