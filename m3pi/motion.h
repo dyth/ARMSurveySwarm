@@ -8,6 +8,7 @@
 #define tileSize 100
 
 // robot terms
+#define robotID 0
 #define rotation 2.591f
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f

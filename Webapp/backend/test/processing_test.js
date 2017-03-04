@@ -29,6 +29,7 @@ describe('setTiles function', function() {
 
 	it('should interpolate some other points too', function() {
 		processor.resetProcessingTiles();
+		processor.getGridDimensions({x:10, y:10});
 		processor.createTilesList();
 
 		processor.robots[1] = {robotStatus: 1, quadrant: 0,
@@ -42,8 +43,7 @@ describe('setTiles function', function() {
 		var values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 		processor.setTiles(1, values);
 		for (var i = 0; i < values.length; i ++) {
-			var tiles = processor.processingTiles
-						[Math.round(xS)][Math.round(yS)];
+			var tiles = processor.processingTiles[Math.round(xS)][Math.round(yS)];
 			xS -= length * Math.sin(1.1071487);
 			yS -= length * Math.cos(1.1071487);
 			console.log(xS, yS);
@@ -98,12 +98,20 @@ describe('next move', function() {
 	});
 });
 
+describe('stop all', function() {
+	it('should send out a stop message to all robots', function() {
+		var dataReceived;
+
+
+	});
+});
+
 describe('tile update', function() {
 	it('updates accepted tile to either 1 (white) or 0 (black)', function() {
 		processor.setGridDimensions({x:10, y:10});
 		processor.addRobotToList(0);
 		processor.tileUpdate(0,0);
-		expect(processor.processingTiles[0][0].accepted).to.equal(1);
+		expect(processor.processingTiles[0][0].accepted).to.equal(2);
 	});
 });
 

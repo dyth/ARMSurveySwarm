@@ -139,10 +139,8 @@ var sendMove = function(robotID, angle, distanceMM) {
 	// Convert angle to degrees
 	var degrees = angle * 180.0 / Math.PI;
 
-	// Get the socket and send
-	console.log(processor.robots);
-	var socket = processor.robots[robotID];
-	console.log(socket);
+	// Get the socket and sends
+	var socket = robots[robotID];
 
 	if (socket === undefined) {
 		// This will happen if there was a robot with a lower
