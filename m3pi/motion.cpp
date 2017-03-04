@@ -270,12 +270,10 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (degree, distance) then face the edge
 
     // turn the degree, then go forwards and sample the forward
-    turnClockwise(360 + robotTurningCorrection);
-    turnClockwise(degree);
+    turnClockwise(360 + degree + robotTurningCorrection);
     goForwards(distance, samples, cadenceNumber, vectorIntensities);
     turnClockwise(270 - degree);
 
-    //TODO: change back to 150 if not working
     // go off board, and then go backwards until an edge is detected
     goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 150);
     findLine();
