@@ -28,7 +28,7 @@ void turnClockwise(int degree) {
     halt();
 }
 
-void cadence(int remainder, int samples, int * cadenceIntensities) {
+void cadence(int remainder, int samples, vector<int> &intensities) {
     // drive straight for 1 second whilst sampling twice per tile size
 
     // move forward for remainder
@@ -41,7 +41,7 @@ void cadence(int remainder, int samples, int * cadenceIntensities) {
     for (int i = 0; i < samples; i++) {
         m3pi.calibrated_sensor(sensors);
         wait(1.0f / (float) samples);
-        cadenceIntensities[i] = sensors[2];
+        intensities.push_back(sensors[2]);
     }
 
     halt();
@@ -64,15 +64,14 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
 
     // move remainder of distance
     wait(((float) distanceRemainder) / robotDistancePerSecond);
-
+    
+    int sensors[5];
+    m3pi.calibrated_sensor(sensors);
+    intensities.push_back(sensors[2]);
+    
     // do the specified number of cadences
     for (int i = 0; i < cadenceNumber; i++) {
-        int segment[samples];
-        cadence(cadenceRemainder, samples, segment);
-
-        for (int j = 0; j < samples; j++) {
-            intensities.push_back(segment[j]);
-        }
+        cadence(cadenceRemainder, samples, intensities);
     }
 
     halt();
@@ -253,11 +252,9 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (x, y), then find the edge, then find the next corner
 
     // number of samples within a cadence
-    int samples = (int) robotDistancePerSecond / ((float) tileSize);// / 2.0f);
+    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f));
     // number of cadences
     int cadenceNumber = distance / robotDistancePerSecond;
-    // number of samples
-    int totalSamples = samples * cadenceNumber;
     // go to point (degree, distance) then face the edge
 
     // turn the degree, then go forwards and sample the forward
