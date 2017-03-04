@@ -10,10 +10,9 @@
 
 // board size
 #define tileSize 100
-#define boardSize 2000
 
 // robot terms
-#define rotation 2.493f
+#define rotation 2.591f
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
@@ -41,17 +40,14 @@ void turnClockwise(int degree) {
     halt();
 }
 
-void cadence() {
+void cadence(int remainder, int samples) {
     // drive straight for 1 second whilst sampling twice per tile size
-    
-    // define constants and varibles for sampling
-    int samples = (int) floor(robotDistancePerSecond / ((float) tileSize / 2.0f));
     int intensities[samples];
     
     // move forward for remainder
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
-    wait((int) robotDistancePerSecond % (int) (tileSize / 2) / robotDistancePerSecond);
+    wait(remainder);
     
     // sample twice per tile size
     int sensors[5];
@@ -67,24 +63,29 @@ void goForwards(int distance) {
     // go forwards in cadences of 1 second of bleed move and anneal
     m3pi.stop();
     
-    //bleed
+    // leftover distance in cadence that is not sampled
+    int cadenceRemainder = (int) robotDistancePerSecond % (tileSize / 2) / robotDistancePerSecond;
+    // number of samples within a cadence
+    int samples = (int) robotDistancePerSecond / ((float) tileSize / 2.0f);
+    // distance travelled without a cadence
+    int distanceRemainder = distance % (int) robotDistancePerSecond;
+    // number of cadences
+    int cadenceNumber = distance / robotDistancePerSecond;
+    
+    // bleed before starting motors
     m3pi.forward(0.25);
     wait(0.25);
-    
-    //move
-    while (distance > robotDistancePerSecond) {
-        cadence();
-        distance -= robotDistancePerSecond;
-        //anneal();
-    }
-    
-    // move remainder of distance
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
-    wait(((float) distance) / robotDistancePerSecond);
-    halt();
     
-    //anneal();
+    // move remainder of distance
+    wait(((float) distanceRemainder) / robotDistancePerSecond);
+    
+    // do the specified number of cadences
+    for (int i = 0; i < cadenceNumber; i++) {
+        cadence(cadenceRemainder, samples);
+    }
+    halt();
 }
 
 float sum (float* rotations, int debounce) {
@@ -130,7 +131,7 @@ void PIDFast(float MIN, float MAX, int iteration) {
         // Compute the power and use it to find new speeds
         float power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM));
         float right = speed+power;
-        float left  = speed-power;
+        float left = speed-power;
         
         // set speed at limits
         left = limit(left, MIN, MAX);
@@ -175,9 +176,9 @@ void PID(float MIN, float MAX, int debounce) {
         previous_pos_of_line = current_pos_of_line;
         
         // Compute the power and use it to find new speeds
-        float power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM));
+        float power = (proportional * (P_TERM)) + (integral*(I_TERM)) + (derivative*(D_TERM));
         float right = speed+power;
-        float left  = speed-power;
+        float left = speed-power;
         
         // set speed at limits
         left = limit(left, MIN, MAX);
@@ -204,57 +205,51 @@ void PID(float MIN, float MAX, int debounce) {
 void alignCorner(int distance) {
     // aligns a robot such that it is on the corner, facing the new direction
     
-    // find corner quickly, then align with corner, reverse and then
-    // slowly level up until corner is detected
-    
-    //turn to new direction (perpendicular to the starting position)
+    // follow line until the robot starts to turn, then turn facing new
+    // direction (perpendicular to the starting position)
     PIDFast(0.0f, 1.0f, distance);
-    PID(0.0, 0.5, 2);
-    PIDFast(-0.5f, 0.5f, 200);
-    //turnClockwise(80);
+    PID(0.0, 0.5, 4);
+    turnClockwise(85);
 }
 
-void findLine(float speed) {
-    // go forwards until line is found
+void findLine() {
+    // go backwards until line detected
     
+    // initialise sensors
     int sensors[5];
+    m3pi.calibrated_sensor(sensors);
     
-    while(1) {
-        m3pi.forward(-0.15);
+    // go backwards until black
+    while(sensors[2] < 900) {
+        m3pi.backward(0.15);
         m3pi.calibrated_sensor(sensors);
-    
-        // if black, advance length of tile
-        // if no longer black, then tile detected, keep on advancing
-        // otherwise, edge detected, turn to face new corner
-        if (sensors[2] > 900)  {
-            halt();
-            turnClockwise(90);
-        }
     }
-    
+    halt();
 }
 
 void cycleClockwise(double degree, double distance) {
     // go to point (x, y), then find the edge, then find the next corner
     
     // go to point (degree, distance) then face the edge
-    turnClockwise((float) degree);
-    goForwards((double) distance);
-    turnCounterClockwise((float) degree + 90.0f);
+    turnClockwise((int) degree);
+    goForwards((int) distance);
+    turnClockwise((int) 270 - degree);
     
-    goForwards((distance * sin(degree * 3.141592654f / 180.0f)) + 50.0f);
-        
-    // go forwards until edge detected
-    findLine(0.5f);
+    // go off board, and then go backwards until an edge is detected
+    goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 150);
+    findLine();
+    
+    // go forwards and then face the next corner
+    goForwards(25);
+    turnClockwise(90);
     
     // recalibrate and align with corner
-    m3pi.sensor_auto_calibrate();
-    alignCorner(boardSize - 200 - (int) (distance * cos(degree * 3.141592654f / 180.0f)));
+    alignCorner(600);
 }
 
 
 int main() {
-    // wait until human has left then autocalibrate
+    // wait until human has left then find the first corner
     m3pi.reset();
     wait(0.5);
     
