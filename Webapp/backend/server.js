@@ -71,10 +71,6 @@ io.sockets.on('connection', function(socket) {
 		processor.setTileSize(Number(input.tileSize));
 		// READY?
 		processor.setGridDimensions({x: numTiles, y: numTiles});
-		// SET?
-		for (var i = 0; i < numRobots; i ++) {
-			processor.addRobotToList(i);
-		}
 		// GO!!
 		processor.startProcessing();
 	});
