@@ -301,13 +301,12 @@ var nextMove = function (robotID) {
 				setRobotStatusStopped(id);
 
 			} else {
-
-				// Convert coordinates into angles and distances
-				var robotInstructions = convert(id, next.xAfter, next.yAfter);
-
 				// Update the robot destination
 				robot.xAfter = next.xAfter;
 				robot.yAfter = next.yAfter;
+				
+				// Convert coordinates into angles and distances
+				var robotInstructions = convert(id);
 
 				// Send the instruction
 				communication.sendMove(id, robotInstructions.angle, robotInstructions.distance);
@@ -358,7 +357,7 @@ var vectorLength = function(vector) {
  * which the robot will rotate.
  *
  */
-var convert = function(robotID, tileX, tileY){
+var convert = function(robotID){
 	var robot = robots[robotID];
 
 	// The robot always stores starting corner, we interpolate between this and
@@ -370,8 +369,8 @@ var convert = function(robotID, tileX, tileY){
 	var angle = getAngleNoOffset(robotID);
 	var distance = vectorLength([changeInX, changeInY]);
 
-	console.log('From x=' + robot.cornerX + ' y='+ robot.cornerY
-		+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' 
+	console.log('From x=' + robot.xCorner + ' y='+ robot.yCorner
+		+ ' going to x=' + robot.xAfter +' y=' + robot.yAfter + ' with angle ' 
 		+ angle*180/Math.PI + ' and distance ' + distance);
 
 	return {angle: angle, distance: distance}
