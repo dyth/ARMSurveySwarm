@@ -139,6 +139,8 @@ var robotConnectionLost = function(robotID) {
 var setTiles = function(robotID, intensities) {
 	var robot = robots[robotID];
 
+	console.log("DATA: " + intensities);
+
 	// Update tile table for current position
 	// Get x, y, light intensity, add to processing tiles
 	var coordX = robot.xCorner;
@@ -277,7 +279,7 @@ var tileUpdate = function(coordX, coordY){
 };
 
 var vectorLength = function(vector) {
-	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2));
+	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2)) * tileSize;
 };
 
 /*
@@ -302,7 +304,7 @@ var convert = function(robotID, tileX, tileY){
 	var distance = vectorLength(vectorToTile);
 
 	console.log('From x=' + cornerX + ' y='+ cornerY
-	+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' + angle*180/Math.PI);
+	+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' + angle*180/Math.PI + ' and distance ' + distance);
 
 	return {angle: angle, distance: distance}
 };
@@ -356,8 +358,6 @@ var getGridDimensions = function() {
 var startProcessing = function() {
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
-
-	console.log(robots.length);
 
 	for (var i = 0; i < robots.length; i ++) {
 		// This sends the start message to the robots.

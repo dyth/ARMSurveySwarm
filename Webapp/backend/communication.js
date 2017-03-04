@@ -129,8 +129,8 @@ var sendMove = function(robotID, angle, distanceMM) {
 	// toFixed converts the floating point numbers into fixed point 
 	// representations of themselves.
 	socket.write(JSON.stringify({ type: 'MOVE',
-			angle: degrees.toFixed(3),
-			distance: distanceMM.toFixed(3)}));
+			angle: parseInt(degrees),
+			distance: parseInt(distanceMM)}));
 };
 
 
