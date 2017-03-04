@@ -102,6 +102,13 @@ describe('stop all', function() {
 	it('should send out a stop message to all robots', function() {
 		var dataReceived;
 
+		coms.receiveData({type: 'HELLO', id: 0}, {destroyed: false, write: function(data) {
+			dataReceived = data;
+		}});
+
+		processor.stopAll();
+		var json = JSON.parse(dataReceived);
+		expect(json).to.have.property("type", "STOP");
 
 	});
 });
