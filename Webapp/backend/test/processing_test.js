@@ -15,7 +15,7 @@ describe('setTiles function', function() {
 	it('should interpolate the points given', function() {
 		processor.resetProcessingTiles();
 		processor.createTilesList();
-		processor.robots[1] = {robotStatus: 1, quadrant: 0, 
+		processor.robots[1] = {robotStatus: 1, quadrant: 0,
 			xCorner: 0, yCorner: 0, xAfter: 6, yAfter: 6};
 
 		var values = [1, 0, 1, 0, 1, 0];
@@ -49,14 +49,6 @@ describe('Reset robot', function() {
 	});
 });
 
-describe('set tiles', function() {
-	it('should interpolate between starting corner and tile, mapping the light'
-		+ ' intensities to the points between them', function() {
-			processor.setGridDimensions({x:10, y:10});
-
-		});
-});
-
 describe('next move', function() {
 	it('should route robot to tile within quadrant for the corner the robot is ' +
 	' at', function() {
@@ -68,8 +60,6 @@ describe('next move', function() {
 
 		// xAfter and yAfter should be updated and should be within quadrant 0
 		console.log('x '+ robot.xAfter + ' y ' + robot.yAfter);
-		expect(robot.xAfter).to.not.equal(0);
-		expect(robot.yAfter).to.not.equal(0);
 		expect(route.getQuadrant(robot.xAfter, robot.yAfter)).
 			to.equal(0);
 
@@ -81,7 +71,7 @@ describe('tile update', function() {
 		processor.setGridDimensions({x:10, y:10});
 		processor.addRobotToList(0);
 		processor.tileUpdate(0,0);
-		expect(processor.processingTiles[0][0].accepted).to.equal(2);
+		expect(processor.processingTiles[0][0].accepted).to.equal(1);
 	});
 });
 
@@ -90,10 +80,20 @@ describe('convert', function() {
 		' polar coordinates from corner', function() {
 			processor.setGridDimensions({x:10, y:10});
 			processor.addRobotToList(0); //starts in quadrant 0
-			var vectorLength = processor.vectorLength([2,2]);
-			var converted = processor.convert(0,2,2);
+			processor.addRobotToList(1);
+			processor.robots[1].quadrant = 1;
+
+			var vectorLength = processor.vectorLength([4,4]);
+			var vectorLength2 = processor.vectorLength([3,5]);
+
+			var converted = processor.convert(0,4,4);
+			var converted2 = processor.convert(1,3,5);
+			console.log(converted2.angle);
+
 			expect(converted.angle).to.equal(Math.PI/4);
 			expect(converted.distance).to.equal(vectorLength);
+			expect(converted2.angle).to.equal(Math.atan(5/3));
+			expect(converted2.distance).to.equal(vectorLength2);
 		});
 });
 

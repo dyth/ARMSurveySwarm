@@ -398,12 +398,12 @@ if (TEST) {
 	exports.height = height;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
-
 	exports.vectorLength = vectorLength;
 	exports.tileUpdate = tileUpdate;
 	exports.convert = convert;
 	exports.getCorner = getCorner;
 	exports.connectedRobots = connectedRobots;
+	exports.waitingRobots = waitingRobots;
 
 	var setCoveredToTotalTiles = function() {
 		tilesCovered = totalTiles;

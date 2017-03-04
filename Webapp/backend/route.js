@@ -117,7 +117,6 @@ var allTilesCovered = function() {
  */
 var move = function(xBefore, yBefore) {
 	var quadrantNo = getQuadrant(xBefore, yBefore);
-  console.log('quadrant ' + quadrantNo);
 	if (allTilesCovered()){
 		return {xAfter: -1, yAfter: -1, stopAll: true};
 	} else if (uncheckedTiles[quadrantNo].length === 0) {
