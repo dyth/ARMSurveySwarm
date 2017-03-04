@@ -87,6 +87,7 @@ var addRobotToList = function(robotID) {
 		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2};
 
 	connectedRobots++;
+
 }
 
 var setRobotStatusStopped = function(robotID) {
@@ -224,7 +225,7 @@ var getAngleNoOffset = function(robotID) {
 	var yDiff = robot.yAfter - robot.yCorner;
 	var xDiff = robot.xAfter - robot.xCorner;
 
-	console.log('diffs', xDiff, yDiff);
+	//console.log('diffs', xDiff, yDiff);
 
 	if (yDiff === 0) {
 		// If there is no yDiff, then the robot
@@ -277,6 +278,7 @@ var getAngleNoOffset = function(robotID) {
 * Called when a robot reaches the next corner and sends back a list of intensities
  */
 var nextMove = function (robotID) {
+
 	// The robot is now waiting
 	waitingRobots++;
 
@@ -423,7 +425,6 @@ var getGridDimensions = function() {
 };
 
 var startProcessing = function() {
-	connectedRobots = 0;
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
 	console.log('robots length ' + robots.length);
