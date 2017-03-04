@@ -1,7 +1,7 @@
 #include "mbed.h"
 #include "m3pi.h"
 #include <algorithm>
- 
+
 // board size
 #define tileSize 100
 

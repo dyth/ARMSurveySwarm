@@ -1,17 +1,4 @@
-#include "mbed.h"
-#include "MbedJSONValue.h"
-#include "TCPSocket.h"
-#include "ESP8266Interface.h"
-#include "SocketAddress.h"
-#include "m3pi.h"
-#include <string>
-
-#define ASIZE(array) (sizeof((array))/sizeof((array[0])))
-
-#define SERVIP "192.168.46.3"
-#define SERVPORT 9000
-#define SSID "private_network152"
-#define PASSWORD "CelesteAqua78"
+#include "main.h"
 
 using namespace std;
 
@@ -21,9 +8,7 @@ ESP8266Interface wifi(p28, p27);
 SocketAddress server(SERVIP, SERVPORT);
 TCPSocket socket;
 
-m3pi robot; // robot
-
-MbedJSONValue readAndDecodeInstruction(){
+void readAndDecodeInstruction(MbedJSONValue &instruction){
 
     // Reads instruction
     char rbuffer[64];
@@ -31,10 +16,33 @@ MbedJSONValue readAndDecodeInstruction(){
     pc.printf("\n**** NEW INSTRUCTION ****\n%s\n", rbuffer);
 
     // Decode instruction
-    MbedJSONValue instruction;
     parse(instruction, rbuffer);
 
-    return instruction;
+}
+
+/*
+*
+*
+*/
+void sendDone(int intensities[], int count){
+
+    // Create the DONE message
+    MbedJSONValue message;
+    message["type"] = "DONE";
+
+    // Add the intensities
+    // TODO: LOOK INTO SENDING MORE THAN 20 THINGS
+    for(int i = 0; i < count; i++){
+        message["intensities"][i] = intensities[i];
+    }
+
+    // Serialize the message
+    string toSend = message.serialize();
+
+    // Send the message
+    socket.send(toSend.c_str(), toSend.size());
+
+    pc.printf("SENDING(%s)\n", toSend);
 
 }
 
@@ -45,9 +53,9 @@ MbedJSONValue readAndDecodeInstruction(){
 void handleStart(MbedJSONValue &instruction){
 
     // Get the tile size
-    double tileSize = instruction["tileSize"].get<double>();
+    //int tileSize = instruction["tileSize"].get<int>();
 
-    pc.printf("START(%f)\n", tileSize);
+    pc.printf("START(%d)\n", tileSize);
 
 }
 
@@ -58,10 +66,14 @@ void handleStart(MbedJSONValue &instruction){
 void handleMove(MbedJSONValue &instruction){
 
     // Get the angle and distance
-    double angle = instruction["angle"].get<double>();
-    double distance = instruction["distance"].get<double>();
+    int angle = instruction["angle"].get<int>();
+    int distance = instruction["distance"].get<int>();
 
-    pc.printf("MOVE(%f, %f)\n", angle, distance);
+    pc.printf("MOVE(%d, %d)\n", angle, distance);
+
+    int * intensities = cycleClockwise(angle, distance);
+
+    sendDone(intensities, ASIZE(intensities));
 
 }
 
@@ -101,36 +113,6 @@ void sendHello(){
     // Serialize the message
     string toSend = message.serialize();
 
-    toSend.append("\n");
-
-    // Send the message
-    socket.send(toSend.c_str(), toSend.size());
-
-    pc.printf("SENDING(%s)\n", toSend);
-
-}
-
-/*
-*
-*
-*/
-void sendDone(int intensities[], int count){
-
-    // Create the DONE message
-    MbedJSONValue message;
-    message["type"] = "DONE";
-
-    // Add the intensities
-    // TODO: LOOK INTO SENDING MORE THAN 20 THINGS
-    for(int i = 0; i < count; i++){
-        message["intensities"][i] = intensities[i];
-    }
-
-    // Serialize the message
-    string toSend = message.serialize();
-
-    toSend.append("\n");
-
     // Send the message
     socket.send(toSend.c_str(), toSend.size());
 
@@ -149,7 +131,7 @@ void run(){
     while(1){
 
         // Get the instruction
-        instruction = readAndDecodeInstruction();
+        readAndDecodeInstruction(instruction);
 
         // Handle instruction
         string type = instruction["type"].get<string>();
@@ -187,6 +169,9 @@ int main() {
     socket.connect(server);
 
     pc.printf("Connected\n");
+
+    // Setup robot
+    start();
 
     // Send the HELLO message
     sendHello();
