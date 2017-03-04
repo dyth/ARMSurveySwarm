@@ -23,7 +23,7 @@ var initialTileState = [2];
 // For the status, it is an index in the array  'states' in state.js
 // on the frontend:
 
-// Waiting: 0, Scanning:  1, Stopped: 2 
+// Waiting: 0, Scanning:  1, Stopped: 2
 var robots = [];
 
 var width = 0;
@@ -220,7 +220,7 @@ var nextMove = function (robotID) {
 
 				// Set the robot status to stopped
 				setRobotStatusStopped(id);
-				
+
 			}
 			else{
 
@@ -287,7 +287,7 @@ var vectorLength = function(vector) {
  *
  * It returns a dictionary of the distance and the angle through
  * which the robot will rotate.
- * 
+ *
  */
 var convert = function(robotID, tileX, tileY){
 	var robot = robots[robotID];
