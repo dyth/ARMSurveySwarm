@@ -28,7 +28,7 @@ void turnClockwise(int degree) {
     halt();
 }
 
-int * cadence(int remainder, int samples, int * intensities) {
+int * cadence(int remainder, int samples, int * cadenceIntensities) {
     // drive straight for 1 second whilst sampling twice per tile size
     
     // move forward for remainder
@@ -41,11 +41,11 @@ int * cadence(int remainder, int samples, int * intensities) {
     for (int i = 0; i < samples; i++) {
         m3pi.calibrated_sensor(sensors);
         wait(1.0f / (float) samples);
-        intensities[i] = sensors[2];
+        cadenceIntensities[i] = sensors[2];
     }
     
     halt();
-    return intensities;
+    return cadenceIntensities;
 }
 
 int * goForwards(int distance, int samples, int cadenceNumber, int * intensities) {
@@ -256,18 +256,20 @@ void findLine() {
 void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (x, y), then find the edge, then find the next corner
     
-    // go to point (degree, distance) then face the edge
-    turnClockwise(degree + (int) robotTurningCorrection);
-    
     // number of samples within a cadence
     int samples = (int) robotDistancePerSecond / ((float) tileSize);// / 2.0f);
     // number of cadences
     int cadenceNumber = distance / robotDistancePerSecond;
     // number of samples
     int totalSamples = samples * cadenceNumber;
+    // go to point (degree, distance) then face the edge
     
+    // turn the degree, then go forwards and sample the forward
+    turnClockwise(degree + (int) robotTurningCorrection);
     int intensities[totalSamples];
     goForwards(distance, samples, cadenceNumber, intensities);
+    vectorIntensities.assign(intensities, intensities + (sizeof(intensities)/sizeof(int));
+    
     turnClockwise(270 - degree);
     
     //TODO: change back to 150 if not working
@@ -282,7 +284,7 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // recalibrate and align with corner
     alignCorner(600);
     
-    vectorIntensities.assign(intensities, intensities + totalSamples);
+    
 }
 
 void start() {
