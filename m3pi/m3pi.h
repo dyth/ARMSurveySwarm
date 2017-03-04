@@ -179,11 +179,10 @@ public:
      */
     void reset_calibration (void);
     
-    /** Get the calibrated sensor values
-     *  needs a int[5] array to write into
+    /** Get the calibrated sensor value of the middle sensor
      *  values go from 0 to 1000
      */
-    void calibrated_sensor (int *);
+    int middle_sensor (void);
     
     void PID_start(int max_speed, int a, int b, int c, int d);
 
