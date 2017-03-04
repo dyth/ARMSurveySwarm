@@ -33,10 +33,7 @@ describe('Test tcp server', function() {
 		client = net.connect({port: 9000}, function() {
 			expect(true, 'client did not connect').to.be.true;
 
-			// send some data to the server. We expect it to only parse
-			// the data upon receipt of the \n
 			client.write('some data');
-			client.write('\n');
 			done();
 		});
 	});
@@ -50,19 +47,32 @@ describe('Test tcp server', function() {
 describe('receiveData', function() {
 	it('should add a robot to the list of robots on receipt of a hello message',
 		function() {
+			var initialProcessorLength = processor.robots.length;
+			coms.receiveData({type: "HELLO", id: 0});
+
+			expect(coms.robots.length).to.equal(1);
+			expect(processor.robots.length).to.equal(
+				Math.max(1, initialProcessorLength));
 	});
 
-	it('RESET message should reset the position of the robot', function() {
+	it('should not crash when DONE messages are sent', function() {
+		coms.receiveData({type: "DONE", intensities: [1, 2, 3], id: 0});
 	});
 
-	it('should work when DONE messages are sent', function() {
+	it('should send a start message to the robot', function(done) {
+		coms.receiveData({type: "HELLO", id: 0}, 
+			{destroyed: false, socket: function(data) {
+				var json = JSON.parse(data);
+				expect(data).to.have.type("START");
+				expect(data).to.have.tileSize.at.least(0);
+				done();
+			}});
+		coms.sendStart();
 	});
 
-	it('INTENSITY messages ', function() {
-	});
+	it('should send a start message to the robot',
+		function() {
 
-	it('should send a message to the robot',
-		function(done) {
 	});
 
 	it('should not crash easily', function() {
