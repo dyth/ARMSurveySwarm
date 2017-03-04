@@ -1,3 +1,5 @@
+#include "motion.h"
+
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
