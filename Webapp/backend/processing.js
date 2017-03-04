@@ -89,21 +89,6 @@ var addRobotToList = function(robotID) {
 	connectedRobots++;
 }
 
-/*
- * Function to round position to correspond to bottom left corner of tile.
- * Gets position in tiles list.
- */
-var roundPosition = function(pos) {
-	pos = pos / tileSize;
-	if (pos < 0) {
-		return 0;
-	} else if (pos > height) {
-		return height;
-	} else  {
-		return Math.floor(pos + 0.1);
-	}
-}
-
 var setRobotStatusStopped = function(robotID) {
 	robots[robotID].robotStatus = 2;
 
@@ -155,8 +140,10 @@ var setTiles = function(robotID, intensities) {
 	for (var i = 0; i < intensities.length; i++) {
 		var thisIntensity = intensities[i];
 
-		var roundedX = roundPosition(coordX);
-		var roundedY = roundPosition(coordY);
+		var roundedX = Math.round(coordX);
+		var roundedY = Math.round(coordY);
+
+		console.log(coordX, coordY);
 
 		if (roundedX > processingTiles.length - 1 ||
 			roundedY > processingTiles[roundedX].length - 1) {
@@ -409,11 +396,14 @@ if (TEST) {
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
 
-	exports.roundPosition = roundPosition;
 	exports.vectorLength = vectorLength;
 
 	var setCoveredToTotalTiles = function() {
 		tilesCovered = totalTiles;
 	}
 	exports.setCoveredToTotalTiles = setCoveredToTotalTiles;
+
+	exports.resetProcessingTiles = function() {
+		processingTiles.length = 0;
+	}
 }
