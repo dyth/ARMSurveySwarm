@@ -265,16 +265,17 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (degree, distance) then face the edge
     
     // turn the degree, then go forwards and sample the forward
-    turnClockwise(degree + (int) robotTurningCorrection);
+    turnClockwise(robotTurningCorrection);
+    turnClockwise(degree);
     int intensities[totalSamples];
     goForwards(distance, samples, cadenceNumber, intensities);
-    vectorIntensities.assign(intensities, intensities + (sizeof(intensities)/sizeof(int));
+    vectorIntensities.assign(intensities, intensities + (sizeof(intensities) / sizeof(int)));
     
     turnClockwise(270 - degree);
     
     //TODO: change back to 150 if not working
     // go off board, and then go backwards until an edge is detected
-    goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 50);
+    goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 150);
     findLine();
     
     // go forwards and then face the next corner
@@ -293,28 +294,3 @@ void start() {
     wait(0.5);
     alignCorner(200);
 }
-
-/*
-void testing() {
-    // some code for testing the motion of the robot
-    // goes round the board in an infinite loop
-    
-    start();
-    
-    while (1) {
-        int x = 800;
-        int y = 500;
-        
-        float distance = pow(x, 2.0f) + pow(y, 2.0f);
-        int travel = (int) sqrt(distance);
-        int degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
-        
-        int * intensities = cycleClockwise(degree, travel);
-        for (int i = 0;  ;i++) {
-            m3pi.cls();
-            m3pi.locate(0, 0);
-            m3pi.printf("/d", intensities[i]);
-        }
-    }
-}
-*/
