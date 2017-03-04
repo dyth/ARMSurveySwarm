@@ -240,13 +240,13 @@ void findLine() {
     halt();
 }
 
-int * cycleClockwise(double degree, double distance) {
+int * cycleClockwise(int degree, int distance) {
     // go to point (x, y), then find the edge, then find the next corner
     
     // go to point (degree, distance) then face the edge
-    turnClockwise((int) degree);
-    int * intensities = goForwards((int) distance);
-    turnClockwise((int) 270 - degree);
+    turnClockwise(degree);
+    int * intensities = goForwards(distance);
+    turnClockwise( 270 - degree);
     
     // go off board, and then go backwards until an edge is detected
     goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 150);
@@ -274,9 +274,9 @@ int main() {
         int x = 800;
         int y = 500;
         
-        double distance = (double) pow(x, 2.0f) + pow(y, 2.0f);
-        double travel = (double) sqrt(distance);
-        float degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
+        float distance = pow(x, 2.0f) + pow(y, 2.0f);
+        int travel = (int) sqrt(distance);
+        int degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
         
         int * intensities = cycleClockwise(degree, travel);
     }
