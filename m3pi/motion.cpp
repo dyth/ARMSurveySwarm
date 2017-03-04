@@ -13,17 +13,10 @@ void halt() {
     wait(1.0f);
 }
 
-void turnCounterClockwise(int degree) {
-    // Turn left at the slowest speed possible for accuracy
-    m3pi.left(0.15f);
-    wait(((float) degree) * rotation / 360.0f);
-    halt();
-}
-
 void turnClockwise(int degree) {
     // Turn right at the slowset speed possible for accuracy
     m3pi.stop();
-    m3pi.right(0.15f);
+    m3pi.right(0.25f);
     wait(((float) degree) * rotation / 360.0f);
     halt();
 }
@@ -278,7 +271,11 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
 
 void start() {
     // wait until human has left then find the first corner
+    //turnClockwise(720);
+    
     m3pi.reset();
     wait(0.5);
     alignCorner(200);
+    
+    //turnClockwise(360 + 45 + robotTurningCorrection);
 }
