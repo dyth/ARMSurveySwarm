@@ -30,7 +30,7 @@ var server = net.createServer(function(socket) {
 	});
 
 	socket.on('error', function(error) {
-		if (socket.id) {
+		if (socket.robotID) {
 			// If the robot ID was put in the socket, then
 			// we can use this to trigger an error message. Otherwise
 			// the robot didn't get to the HELLO stage
@@ -58,7 +58,7 @@ var receiveData = function(data, socket) {
 		robots[robotID] = socket;
 
 		// Add the robot ID to the socket
-		socket.id = robotID;
+		socket.robotID = robotID;
 
 		// Add the robot to the processor
 		processor.addRobotToList(robotID);
@@ -66,7 +66,14 @@ var receiveData = function(data, socket) {
 	} else if(data.type === 'DONE'){
 
 		// Extract the robot id
-		var robotID = socket.id;
+		var robotID = socket.robotID;
+
+		if (robots[robotID] === undefined) {
+			// There was an error getting that out.
+			console.log("ERROR(receiveData/communication.js): Unknown ID " + 
+				socket.robotID);
+			return;
+		}
 
 		// Send the intensity data to processing
 		processor.setTiles(robotID, data.intensities);
@@ -90,6 +97,13 @@ var sendStart = function(robotID, tileSize) {
 		console.log("ERROR(sendStart/communication.js): Null Socket");
 		return;
 	}
+
+	if (socket === undefined) {
+		// This will happen if there was a robot with a lower
+		// ID than has connected started.
+		return;
+	}
+
 	socket.write(JSON.stringify({type: "START", tileSize: tileSize}));
 
 };
@@ -101,7 +115,14 @@ var sendStop = function(robotID) {
 
 	// Get the socket and send
 	var socket = robots[robotID];
-	if(socket === null || socket === undefined){
+
+	if (socket === undefined) {
+		// This will happen if there was a robot with a lower
+		// ID than has connected started.
+		return;
+	}
+
+	if (socket === null) {
 		console.log("ERROR(sendStop/communication.js): Null Socket");
 		return;
 	}

@@ -37,18 +37,13 @@ describe('Test tcp server', function() {
 			done();
 		});
 	});
-
-	it('should accept two messages at once', function(done) {
-		client.write('{"type": "HELLO"}{"type": "HELLO"}');
-		done();
-	});
 });
 
 describe('receiveData', function() {
 	it('should add a robot to the list of robots on receipt of a hello message',
 		function() {
 			var initialProcessorLength = processor.robots.length;
-			coms.receiveData({type: "HELLO", id: 0});
+			coms.receiveData({type: "HELLO", id: 0}, {});
 
 			expect(coms.robots.length).to.equal(1);
 			expect(processor.robots.length).to.equal(
@@ -56,7 +51,7 @@ describe('receiveData', function() {
 	});
 
 	it('should not crash when DONE messages are sent', function() {
-		coms.receiveData({type: "DONE", intensities: [1, 2, 3], id: 0});
+		coms.receiveData({type: "DONE", intensities: [1, 2, 3], id: 0}, {});
 	});
 
 	it('should send a start message to the robot', function(done) {
