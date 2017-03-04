@@ -37,16 +37,16 @@ void handleStart(MbedJSONValue &instruction){
 * Called when a MOVE instruction is received.
 * Robot gets the angle in degrees and distance in mm.
 */
-void handleMove(MbedJSONValue &instruction){
+void handleMove(MbedJSONValue &instruction, vector<int> &intensities){
+
+    // Reset the intensities vector
+    intensities.clear();
 
     // Get the angle and distance
     int angle = instruction["angle"].get<int>();
     int distance = instruction["distance"].get<int>();
 
     pc.printf("MOVE(%d, %d)\n", angle, distance);
-
-    // Create a vector to hold intensities
-    vector<int> intensities;
 
     cycleClockwise(angle, distance, intensities);
 
@@ -131,6 +131,9 @@ void run(){
 
     MbedJSONValue instruction;
 
+    // Create a vector to hold intensities
+    vector<int> intensities;
+
     while(1){
 
         // Get the instruction
@@ -141,7 +144,7 @@ void run(){
 
         if(type.compare("START") == 0) handleStart(instruction);
 
-        if(type.compare("MOVE") == 0) handleMove(instruction);
+        if(type.compare("MOVE") == 0) handleMove(instruction, intensities);
 
         if(type.compare("WAIT") == 0) handleWait(instruction);
 

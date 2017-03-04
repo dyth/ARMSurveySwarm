@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iterator>
 #include <vector>
- 
+
 // board size
 #define tileSize 100
 
