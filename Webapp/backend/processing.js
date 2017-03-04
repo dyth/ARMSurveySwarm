@@ -209,7 +209,7 @@ var getAngleWithOffset = function(robotID) {
 	var offset = getCorner(robot.quadrantNo).orientation;
 	var angleNoOffset = getAngleNoOffset(robotID);
 	
-	return angleNoOffset - offset;
+	return offset - angleNoOffset;
 }
 
 /*
