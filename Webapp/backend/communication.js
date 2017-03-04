@@ -70,7 +70,7 @@ var receiveData = function(data, socket) {
 
 		if (robots[robotID] === undefined) {
 			// There was an error getting that out.
-			console.log("ERROR(receiveData/communication.js): Unknown ID " + 
+			console.log("ERROR(receiveData/communication.js): Unknown ID " +
 				socket.robotID);
 			return;
 		}
@@ -122,7 +122,7 @@ var sendStop = function(robotID) {
 		return;
 	}
 
-	if (socket === null) {
+	if (socket === null || socket.write === undefined) {
 		console.log("ERROR(sendStop/communication.js): Null Socket");
 		return;
 	}
@@ -139,8 +139,16 @@ var sendMove = function(robotID, angle, distanceMM) {
 	var degrees = angle * 180.0 / Math.PI;
 
 	// Get the socket and send
-	var socket = robots[robotID];
-	if(socket === null){
+	console.log(robots);
+	var socket = processor.robots[robotID];
+
+	if (socket === undefined) {
+		// This will happen if there was a robot with a lower
+		// ID than has connected started.
+		return;
+	}
+
+	if(socket === null || socket.write === undefined){
 		console.log("ERROR(sendMove/communication.js): Null Socket");
 		return;
 	}

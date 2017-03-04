@@ -49,9 +49,82 @@ describe('Reset robot', function() {
 	});
 });
 
-// TODO -- write some tests for nextMove
-describe('next Move', function() {
-	it('routes robot to another tile', function() {
+describe('set tiles', function() {
+	it('should interpolate between starting corner and tile, mapping the light'
+		+ ' intensities to the points between them', function() {
+			processor.setGridDimensions({x:10, y:10});
+
+		});
+});
+
+describe('next move', function() {
+	it('should route robot to tile within quadrant for the corner the robot is ' +
+	' at', function() {
+		processor.setConnectedRobots();
+		processor.addRobotToList(0);
+		route.setUp(10);
+		processor.nextMove(0);
+		var robot = processor.robots[0];
+
+		// xAfter and yAfter should be updated and should be within quadrant 0
+		console.log('x '+ robot.xAfter + ' y ' + robot.yAfter);
+		expect(robot.xAfter).to.not.equal(0);
+		expect(robot.yAfter).to.not.equal(0);
+		expect(route.getQuadrant(robot.xAfter, robot.yAfter)).
+			to.equal(0);
 
 	});
+});
+
+describe('tile update', function() {
+	it('updates accepted tile to either 1 (white) or 0 (black)', function() {
+		processor.setGridDimensions({x:10, y:10});
+		processor.addRobotToList(0);
+		processor.tileUpdate(0,0);
+		expect(processor.processingTiles[0][0].accepted).to.equal(2);
+	});
+});
+
+describe('convert', function() {
+	it('takes destination provided by route, converting directions to tile to' +
+		' polar coordinates from corner', function() {
+			processor.setGridDimensions({x:10, y:10});
+			processor.addRobotToList(0); //starts in quadrant 0
+			var vectorLength = processor.vectorLength([2,2]);
+			var converted = processor.convert(0,2,2);
+			expect(converted.angle).to.equal(Math.PI/4);
+			expect(converted.distance).to.equal(vectorLength);
+		});
+});
+
+describe('get next corner', function() {
+	it('should return the coordinates and orientation of robot starting' +
+		 ' at given corner', function() {
+			processor.setGridDimensions({x:10, y:10});
+			var quadrant0 = processor.getCorner(0);
+			var quadrant1 = processor.getCorner(1);
+			var quadrant2 = processor.getCorner(2);
+			var quadrant3 = processor.getCorner(3);
+			var quadrantN = processor.getCorner(100);
+
+			expect(quadrant0.orientation).to.equal(Math.PI/2);
+			expect(quadrant0.x).to.equal(0);
+			expect(quadrant0.y).to.equal(0);
+
+			expect(quadrant1.orientation).to.equal(0);
+			expect(quadrant1.x).to.equal(0);
+			expect(quadrant1.y).to.equal(9);
+
+			expect(quadrant2.orientation).to.equal(-Math.PI/2);
+			expect(quadrant2.x).to.equal(9);
+			expect(quadrant2.y).to.equal(9);
+
+			expect(quadrant3.orientation).to.equal(Math.PI);
+			expect(quadrant3.x).to.equal(9);
+			expect(quadrant3.y).to.equal(0);
+
+			expect(quadrantN.orientation).to.equal(Math.PI/2);
+			expect(quadrantN.x).to.equal(0);
+			expect(quadrantN.y).to.equal(0);
+		});
 });

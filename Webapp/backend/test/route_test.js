@@ -42,7 +42,7 @@ describe('setUp ', function() {
 		expect(routing.uncheckedTiles[0].length
 			+ routing.uncheckedTiles[1].length
 			+ routing.uncheckedTiles[2].length
-			+ routing.uncheckedTiles[3].length).to.equal(100);
+			+ routing.uncheckedTiles[3].length).to.equal(10*2 + 8*2);
 	});
 
 
@@ -54,7 +54,7 @@ describe('setUp ', function() {
 		expect(routing.uncheckedTiles[0].length
 			+ routing.uncheckedTiles[1].length
 			+ routing.uncheckedTiles[2].length
-			+ routing.uncheckedTiles[3].length).to.equal(81);
+			+ routing.uncheckedTiles[3].length).to.equal(9*2 + 7*2);
 	});
 });
 
@@ -69,9 +69,9 @@ describe('removeTile ', function() {
 
 	it('should work regardless of index chosen', function() {
 		routing.setUp(10);
-		var tileHead = routing.uncheckedTiles[0][16];
+		var tileHead = routing.uncheckedTiles[0][2];
 		routing.removeTile(tileHead.xPos, tileHead.yPos);
-		expect(routing.uncheckedTiles[0][16]).to.not.equal(tileHead);
-		expect(routing.uncheckedTiles[0].length).to.equal(24);
+		expect(routing.uncheckedTiles[0][2]).to.not.equal(tileHead);
+		expect(routing.uncheckedTiles[0].length).to.equal(8);
 	});
 });
