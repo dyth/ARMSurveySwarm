@@ -28,7 +28,7 @@ void turnClockwise(int degree) {
     halt();
 }
 
-int * cadence(int remainder, int samples, int * cadenceIntensities) {
+void cadence(int remainder, int samples, int * cadenceIntensities) {
     // drive straight for 1 second whilst sampling twice per tile size
     
     // move forward for remainder
@@ -45,10 +45,9 @@ int * cadence(int remainder, int samples, int * cadenceIntensities) {
     }
     
     halt();
-    return cadenceIntensities;
 }
 
-int * goForwards(int distance, int samples, int cadenceNumber, int * intensities) {
+void goForwards(int distance, int samples, int cadenceNumber, vector<int> &intensities) {
     // go forwards in cadences of 1 second of bleed move and anneal
     m3pi.stop();
     
@@ -78,7 +77,6 @@ int * goForwards(int distance, int samples, int cadenceNumber, int * intensities
     }
     
     halt();
-    return intensities;
 }
 
 void goForwards(int distance) {
@@ -109,7 +107,6 @@ void goForwards(int distance) {
     
     halt();
 }
-
 
 float sum (float* rotations, int debounce) {
     // return sum of debounce array
@@ -269,6 +266,9 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     turnClockwise(degree);
     int intensities[totalSamples];
     goForwards(distance, samples, cadenceNumber, intensities);
+    
+    //goForwards(distance, samples, cadenceNumber, vectorIntensities);
+    
     vectorIntensities.assign(intensities, intensities + (sizeof(intensities) / sizeof(int)));
     
     turnClockwise(270 - degree);
@@ -281,7 +281,7 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go forwards and then face the next corner
     goForwards(25);
     turnClockwise(90);
-    
+
     // recalibrate and align with corner
     alignCorner(600);
     
@@ -294,3 +294,28 @@ void start() {
     wait(0.5);
     alignCorner(200);
 }
+
+/*
+void testing() {
+    // some code for testing the motion of the robot
+    // goes round the board in an infinite loop
+    
+    start();
+    
+    while (1) {
+        int x = 800;
+        int y = 500;
+        
+        float distance = pow(x, 2.0f) + pow(y, 2.0f);
+        int travel = (int) sqrt(distance);
+        int degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
+        
+        int * intensities = cycleClockwise(degree, travel);
+        for (int i = 0;  ;i++) {
+            m3pi.cls();
+            m3pi.locate(0, 0);
+            m3pi.printf("/d", intensities[i]);
+        }
+    }
+}
+*/
