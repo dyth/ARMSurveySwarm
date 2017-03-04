@@ -72,7 +72,7 @@ describe('receiveData', function() {
 					var json = JSON.parse(data);
 					expect(json).to.have.property("type", "STOP");
 					done();
-			});
+			}});
 	});
 });
 
