@@ -1,7 +1,9 @@
 #include "mbed.h"
 #include "m3pi.h"
 #include <algorithm>
-
+#include <iterator>
+#include <vector>
+ 
 // board size
 #define tileSize 100
 
@@ -13,4 +15,4 @@
 
 void start();
 
-int * cycleClockwise(int degree, int distance);
+vector<int> cycleClockwise(int degree, int distance, vector<int> vectorIntensities);
