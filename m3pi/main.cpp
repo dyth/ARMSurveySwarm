@@ -1,190 +1,320 @@
-#include "main.h"
+#include "motion.h"
 
-using namespace std;
+// PID terms
+#define P_TERM 1
+#define I_TERM 0
+#define D_TERM 20
 
-Serial pc(USBTX, USBRX); // tx, rx
+m3pi m3pi;
 
-ESP8266Interface wifi(p28, p27);
-SocketAddress server(SERVIP, SERVPORT);
-TCPSocket socket;
-
-void readAndDecodeInstruction(MbedJSONValue &instruction){
-
-    // Reads instruction
-    char rbuffer[64];
-    int rcount = socket.recv(rbuffer, sizeof rbuffer);
-    pc.printf("\n**** NEW INSTRUCTION ****\n%s\n", rbuffer);
-
-    // Decode instruction
-    parse(instruction, rbuffer);
-
+void halt() {
+    // halt robot and allow motors to cool down
+    m3pi.stop();
+    wait(1.0f);   
 }
 
-/*
-*
-*
-*/
-void sendDone(int intensities[], int count){
+void turnCounterClockwise(int degree) {
+    // Turn left at the slowest speed possible for accuracy
+    m3pi.left(0.15f);
+    wait(((float) degree) * rotation / 360.0f);
+    halt();
+}
 
-    // Create the DONE message
-    MbedJSONValue message;
-    message["type"] = "DONE";
+void turnClockwise(int degree) {
+    // Turn right at the slowset speed possible for accuracy
+    m3pi.stop();
+    m3pi.right(0.15f);
+    wait(((float) degree) * rotation / 360.0f);
+    halt();
+}
 
-    // Add the intensities
-    // TODO: LOOK INTO SENDING MORE THAN 20 THINGS
-    for(int i = 0; i < count; i++){
-        message["intensities"][i] = intensities[i];
+int * cadence(int remainder, int samples, int * cadenceIntensities) {
+    // drive straight for 1 second whilst sampling twice per tile size
+    
+    // move forward for remainder
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    wait(remainder);
+    
+    // sample twice per tile size
+    int sensors[5];
+    for (int i = 0; i < samples; i++) {
+        m3pi.calibrated_sensor(sensors);
+        wait(1.0f / (float) samples);
+        cadenceIntensities[i] = sensors[2];
     }
-
-    // Serialize the message
-    string toSend = message.serialize();
-
-    // Send the message
-    socket.send(toSend.c_str(), toSend.size());
-
-    pc.printf("SENDING(%s)\n", toSend);
-
+    
+    halt();
+    return cadenceIntensities;
 }
 
-/*
-* Called when a START instruction is received.
-* Robot gets the tile size in mm.
-*/
-void handleStart(MbedJSONValue &instruction){
-
-    // Get the tile size
-    //int tileSize = instruction["tileSize"].get<int>();
-
-    pc.printf("START(%d)\n", tileSize);
-
-}
-
-/*
-* Called when a MOVE instruction is received.
-* Robot gets the angle in degrees and distance in mm.
-*/
-void handleMove(MbedJSONValue &instruction){
-
-    // Get the angle and distance
-    int angle = instruction["angle"].get<int>();
-    int distance = instruction["distance"].get<int>();
-
-    pc.printf("MOVE(%d, %d)\n", angle, distance);
-
-    int * intensities = cycleClockwise(angle, distance);
-
-    sendDone(intensities, ASIZE(intensities));
-
-}
-
-/*
-* Called when a STOP instruction is received.
-*/
-void handleStop(MbedJSONValue &instruction){
-
-    pc.printf("STOP\n");
-
-}
-
-/*
-* Called when a WAIT instruction is received.
-* Robot gets the time to wait in ms
-*/
-void handleWait(MbedJSONValue &instruction){
-
-    // Get the time to wait
-    int time = instruction["time"].get<int>();
-
-    pc.printf("WAIT(%d)\n", time);
-
-}
-
-/*
-* Initial message sent by the robot to the server
-* Robot sends its id for reference
-*/
-void sendHello(){
-
-    // Create the HELLO message
-    MbedJSONValue message;
-    message["type"] = "HELLO";
-    message["id"] = 0; // TODO: CHANGE THIS
-
-    // Serialize the message
-    string toSend = message.serialize();
-
-    // Send the message
-    socket.send(toSend.c_str(), toSend.size());
-
-    pc.printf("SENDING(%s)\n", toSend);
-
-}
-
-/*
-* The main loop of execution
-* Continuously reads instructions and processes them
-*/
-void run(){
-
-    MbedJSONValue instruction;
-
-    while(1){
-
-        // Get the instruction
-        readAndDecodeInstruction(instruction);
-
-        // Handle instruction
-        string type = instruction["type"].get<string>();
-
-        if(type.compare("START") == 0) handleStart(instruction);
-
-        if(type.compare("MOVE") == 0) handleMove(instruction);
-
-        if(type.compare("WAIT") == 0) handleWait(instruction);
-
-        if(type.compare("STOP") == 0) handleStop(instruction);
-
+int * goForwards(int distance, int samples, int cadenceNumber, int * intensities) {
+    // go forwards in cadences of 1 second of bleed move and anneal
+    m3pi.stop();
+    
+    // leftover distance in cadence that is not sampled
+    int cadenceRemainder = (int) robotDistancePerSecond % (tileSize / 2) / robotDistancePerSecond;
+    // distance travelled without a cadence
+    int distanceRemainder = distance % (int) robotDistancePerSecond;
+    
+    // bleed before starting motors
+    m3pi.forward(0.25);
+    wait(0.25);
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    
+    // move remainder of distance
+    wait(((float) distanceRemainder) / robotDistancePerSecond);
+    
+    int index = 0;
+    // do the specified number of cadences
+    for (int i = 0; i < cadenceNumber; i++) {
+        int segment[samples];
+        cadence(cadenceRemainder, samples, segment);
+        
+        for (int j = 0; j < samples; j++) {
+            intensities[index++] = segment[j];
+        }
     }
-
-
+    
+    halt();
+    return intensities;
 }
 
-int main() {
+void goForwards(int distance) {
+    // go forwards in cadences of 1 second of bleed move and anneal
+    m3pi.stop();
+    
+    // number of cadences
+    int cadenceNumber = distance / robotDistancePerSecond;
+    // distance travelled without a cadence
+    int distanceRemainder = distance % (int) robotDistancePerSecond;
+    
+    // bleed before starting motors
+    m3pi.forward(0.25);
+    wait(0.25);
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
+    
+    // move remainder of distance
+    wait(((float) distanceRemainder) / robotDistancePerSecond);
+    
+    // do the specified number of cadences
+    for (int i = 0; i < cadenceNumber; i++) {
+        wait(1);
+        halt();
+        m3pi.left_motor(robotMotorLeft);
+        m3pi.right_motor(robotMotorRight);
+    }
+    
+    halt();
+}
 
-    printf("\n\n******************************\n");
-    printf("ESP8266 WiFi control\n");
 
-    // Bring up the ESP8266 WiFi connection
-    wifi.connect(SSID, PASSWORD);
+float sum (float* rotations, int debounce) {
+    // return sum of debounce array
+    float s = 0.0f;
+    for (int j = 0; j < debounce; j++) {
+        s += rotations[j];
+    }
+    return s;
+}
 
-    // print connection details to PC for debugging
-    pc.printf("Connected: \n");
-    const char *ip = wifi.get_ip_address();
-    pc.printf("IP address is %s\n", ip ? ip : "No IP");
-    const char *mac = wifi.get_mac_address();
-    pc.printf("MAC address is %s\n", mac ? mac : "No MAC");
+float limit(float speed, float MIN, float MAX) {
+    // ensures MIN < speed < MAX
+    if (speed < MIN)
+        return MIN;
+    else if (speed > MAX)
+        return MAX;
+    else
+        return speed;
+}
 
-    // Establish socket connection
-    socket.open(&wifi);
-    socket.connect(server);
+void PIDFast(float MIN, float MAX, int iteration) {
+    // PID line following between the speeds MIN and MAX
+    float rightTotal;
+    float leftTotal;
+    float current_pos_of_line = 0.0;
+    float previous_pos_of_line = 0.0;
+    float derivative, proportional, integral = 0;
+    float speed = MAX;
+    int count = 0;
+    
+    m3pi.sensor_auto_calibrate();
+    
+    // loop until debouncing has succeeded
+    while (count++ < iteration) {
+        // Get the position of the line.
+        current_pos_of_line = m3pi.line_position();        
+        proportional = current_pos_of_line;
+        
+        // Compute the derivative, integral, remember previous position
+        derivative = current_pos_of_line - previous_pos_of_line;
+        integral += proportional;
+        previous_pos_of_line = current_pos_of_line;
+        
+        // Compute the power and use it to find new speeds
+        float power = (proportional * (P_TERM) ) + (integral*(I_TERM)) + (derivative*(D_TERM));
+        float right = speed+power;
+        float left = speed-power;
+        
+        // set speed at limits
+        left = limit(left, MIN, MAX);
+        right = limit(right, MIN, MAX);
+        m3pi.left_motor(left);
+        m3pi.right_motor(right);
+        
+        leftTotal += left;
+        rightTotal += right;
+    }
+    // stop and calibrate sensors
+    halt();
+}
+    
+void PID(float MIN, float MAX, int debounce) {
+    // PID line following between the speeds MIN and MAX
+    float rightTotal;
+    float leftTotal;
+    float current_pos_of_line = 0.0;
+    float previous_pos_of_line = 0.0;
+    float derivative, proportional, integral = 0;
+    float speed = MAX;
+    int in = 0;
+    
+    // create array for debouncing and fill it with a starting
+    float rotations[debounce];
+    std::fill(rotations, rotations + debounce, 1.0f);
+    int count = 0;
+    
+    float s = 1.0f;
+    
+    m3pi.sensor_auto_calibrate();
+    
+    // loop until debouncing has succeeded
+    while (s != 0.0f) {
+        in++;
+        // Get the position of the line.
+        current_pos_of_line = m3pi.line_position();        
+        proportional = current_pos_of_line;
+        
+        // Compute the derivative, integral, remember previous position
+        derivative = current_pos_of_line - previous_pos_of_line;
+        integral += proportional;
+        previous_pos_of_line = current_pos_of_line;
+        
+        // Compute the power and use it to find new speeds
+        float power = (proportional * (P_TERM)) + (integral*(I_TERM)) + (derivative*(D_TERM));
+        float right = speed+power;
+        float left = speed-power;
+        
+        // set speed at limits
+        left = limit(left, MIN, MAX);
+        right = limit(right, MIN, MAX);
+        m3pi.left_motor(left);
+        m3pi.right_motor(right);
+        
+        leftTotal += left;
+        rightTotal += right;
+        
+        // do some debouncing
+        if (in > 50) {
+            rotations[count++] = left;
+            if (count == debounce) {
+                count = 0;
+            }
+            s = sum(rotations, debounce);
+        }
+    }
+    // stop and calibrate sensors
+    halt();
+}
 
-    pc.printf("Connected\n");
+void alignCorner(int distance) {
+    // aligns a robot such that it is on the corner, facing the new direction
+    
+    // follow line until the robot starts to turn, then turn facing new
+    // direction (perpendicular to the starting position)
+    PIDFast(0.0f, 1.0f, distance);
+    PID(0.0, 0.5, 4);
+}
 
-    // Setup robot
+void findLine() {
+    // go backwards until line detected
+    
+    // initialise sensors
+    int sensors[5];
+    m3pi.calibrated_sensor(sensors);
+    
+    // go backwards until black
+    while(sensors[2] < 800) {
+        m3pi.backward(0.15);
+        m3pi.calibrated_sensor(sensors);
+    }
+    halt();
+}
+
+void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
+    // go to point (x, y), then find the edge, then find the next corner
+    
+    // number of samples within a cadence
+    int samples = (int) robotDistancePerSecond / ((float) tileSize);// / 2.0f);
+    // number of cadences
+    int cadenceNumber = distance / robotDistancePerSecond;
+    // number of samples
+    int totalSamples = samples * cadenceNumber;
+    // go to point (degree, distance) then face the edge
+    
+    // turn the degree, then go forwards and sample the forward
+    turnClockwise(degree + (int) robotTurningCorrection);
+    int intensities[totalSamples];
+    goForwards(distance, samples, cadenceNumber, intensities);
+    vectorIntensities.assign(intensities, intensities + (sizeof(intensities)/sizeof(int));
+    
+    turnClockwise(270 - degree);
+    
+    //TODO: change back to 150 if not working
+    // go off board, and then go backwards until an edge is detected
+    goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 50);
+    findLine();
+    
+    // go forwards and then face the next corner
+    goForwards(25);
+    turnClockwise(90);
+    
+    // recalibrate and align with corner
+    alignCorner(600);
+    
+    
+}
+
+void start() {
+    // wait until human has left then find the first corner
+    m3pi.reset();
+    wait(0.5);
+    alignCorner(200);
+}
+
+/*
+void testing() {
+    // some code for testing the motion of the robot
+    // goes round the board in an infinite loop
+    
     start();
-
-    // Send the HELLO message
-    sendHello();
-
-    // Run the main loop
-    run();
-
-    // Close the socket to return its memory and bring down the network interface
-    socket.close();
-
-    // Bring down the ESP8266 WiFi connection
-    wifi.disconnect();
-    printf("Done\n");
-
-
+    
+    while (1) {
+        int x = 800;
+        int y = 500;
+        
+        float distance = pow(x, 2.0f) + pow(y, 2.0f);
+        int travel = (int) sqrt(distance);
+        int degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
+        
+        int * intensities = cycleClockwise(degree, travel);
+        for (int i = 0;  ;i++) {
+            m3pi.cls();
+            m3pi.locate(0, 0);
+            m3pi.printf("/d", intensities[i]);
+        }
+    }
 }
+*/

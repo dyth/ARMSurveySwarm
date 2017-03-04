@@ -12,7 +12,8 @@
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
+#define robotTurningCorrection 80
 
 void start();
 
-vector<int> cycleClockwise(int degree, int distance, vector<int> vectorIntensities);
+void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities);
