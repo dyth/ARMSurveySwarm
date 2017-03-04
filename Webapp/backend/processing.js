@@ -79,9 +79,9 @@ var createTilesList = function() {
  */
 var addRobotToList = function(robotID) {
 	// Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
-	// xPrev/yPrev will be out of bounds of the tiles array since we will not
+	// xCorner/yCorner will be out of bounds of the tiles array since we will not
 	// always be in the bottom left hand corner now
-	robots[robotID] = {id: i, xPrev: 0, yPrev: 0,
+	robots[robotID] = {id: i, xCorner: 0, yCorner: 0,
 		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 };
 
 	connectedRobots++;
@@ -141,10 +141,10 @@ var setTiles = function(robotID, intensities) {
 
 	// Update tile table for current position
 	// Get x, y, light intensity, add to processing tiles
-	var coordX = robot.xPrev;
-	var coordY = robot.yPrev;
-	var delta = Math.pow(Math.pow(robot.xPrev - robot.xAfter, 2) +
-		Math.pow(robot.yPrev - robot.yAfter, 2), 0.5) / intensities.length;
+	var coordX = robot.xCorner;
+	var coordY = robot.yCorner;
+	var delta = Math.pow(Math.pow(robot.xCorner - robot.xAfter, 2) +
+		Math.pow(robot.yCorner - robot.yAfter, 2), 0.5) / intensities.length;
 	var angle = robot.orientation;
 
 	for (var i = 0; i < intensities.length; i++) {
@@ -223,8 +223,8 @@ var nextMove = function (robotID, intensities) {
 				robot.quadrant = (robot.quadrant + 1) % 4
 				var nextCorner = getNextCorner(robot.quadrant);
 
-				robot.xPrev = nextCorner.x;
-				robot.yPrev = nextCorner.y;
+				robot.xCorner = nextCorner.x;
+				robot.yCorner = nextCorner.y;
 
 				robot.xAfter = next.xAfter;
 				robot.yAfter = next.yAfter;
@@ -294,8 +294,8 @@ var convert = function(robotID, tileX, tileY){
 	// Prev always stores starting corner, we interpolate between this and
 	// tileX, tile Y. After checkTile returns, robots will store the new corner
 	// as prev but the tile just travelled to in after.
-	var cornerX = robot.xPrev;
-	var cornerY = robot.yPrev;
+	var cornerX = robot.xCorner;
+	var cornerY = robot.yCorner;
 
 	// [opp, adj]
 	var vectorToTile = [Math.abs(tileX - cornerX), Math.abs(tileY - cornerY)];
