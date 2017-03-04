@@ -67,12 +67,14 @@ describe('receiveData', function() {
 
 	it('sendStop should send a stop message',
 		function(done) {
-			coms.receiveData({type: "DONE", id: 0},
+			coms.receiveData({type: "HELLO", id: 0},
 				{destroyed: false, write: function(data) {
 					var json = JSON.parse(data);
 					expect(json).to.have.property("type", "STOP");
 					done();
 			}});
+
+			coms.sendStop(0);
 	});
 });
 
