@@ -55,7 +55,7 @@ describe('Calling updateStatus', function() {
 			var newClient = io.connect(socketURL, options);
 
 			newClient.on('sendRobotStatus', function(data) {
-				if (data.id === 1) {
+				if (data.status === 2) {
 					receivedData1.push(data);
 				} else {
 					receivedData2.push(data);
@@ -70,11 +70,11 @@ describe('Calling updateStatus', function() {
 			newClient.on('connect', function() {
 				connections ++;
 
-				if (connections == NUM) {
+				if (connections === NUM) {
 					// If all the servers are connected, then
 					// run the broadcasts.
-					server.updateStatus(1, 10, 5, 'running');
-					server.updateStatus(3, 2, 1, 'stopped');
+					server.updateStatus(2, 10, 5, 'running');
+					server.updateStatus(3, 2, 6, 'stopped');
 
 				}
 			});
@@ -84,7 +84,7 @@ describe('Calling updateStatus', function() {
 
 		setTimeout(function() {
 			expect(receivedData1.length, "not all clients received" +
-			" message 1: " + receivedData2.length.toString ()+ "/"
+			" message 1: " + receivedData1.length.toString ()+ "/"
 				+ NUM.toString() + "\n").to.equal(NUM);
 			expect(receivedData2.length, "not all clients received" +
 			" message 2: " + receivedData2.length.toString() + "/" +
@@ -125,11 +125,6 @@ describe('Stop Function Test', function() {
 			client.emit('resume', {id: 1});
 		});
 
-		client.on('resumeCalled', function(data) {
-			resume = true;
-			client.emit('stopAll');
-		});
-
 		client.on('stopAllCalled', function(data) {
 			stopAll = true;
 			done();
@@ -140,8 +135,6 @@ describe('Stop Function Test', function() {
 				'client did not connect').to.equal(true);
 			expect(stop,
 				'"stop" call did not return a callback').to.equal(true);
-			expect(resume,
-				'"resume" call did not return a callback').to.equal(true);
 			expect(stopAll,
 				'"stopAll" call did not return a callback').to.equal(true);
 			client.disconnect();

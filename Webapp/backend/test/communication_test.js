@@ -70,15 +70,16 @@ describe('receiveData', function() {
 	});
 });
 
-describe('stop, resume and stopAll', function() {
+describe('stop', function() {
 	var dataReceived;
-	var dataReceived2;
+
+	processor.addRobotToList(1);
 	it('should add a robot with a callback', function() {
 		// Add a couple of robots
-		// coms.receiveData("HELLO:1\n", {destroyed: false, write:
-			// function(data) {
-				// dataReceived = data;
-			// }});
+		coms.receiveData("HELLO:1\n", {destroyed: false, write:
+			function(data) {
+				dataReceived = data;
+			}});
 	});
 
 	it('stop should send out a STOP\n message', function() {

@@ -103,7 +103,7 @@ var sendStop = function(robotID) {
 
 	// Get the socket and send
 	var socket = robots[robotID];
-	if(socket === null){
+	if(socket === null || socket === undefined){
 		console.log("ERROR(sendStop/communication.js): Null Socket");
 		return;
 	}
