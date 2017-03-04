@@ -236,7 +236,6 @@ void alignCorner(int distance) {
     // direction (perpendicular to the starting position)
     PIDFast(0.0f, 1.0f, distance);
     PID(0.0, 0.5, 4);
-    turnClockwise(83);
 }
 
 void findLine() {
@@ -254,14 +253,14 @@ void findLine() {
     halt();
 }
 
-vector<int> cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
+void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (x, y), then find the edge, then find the next corner
     
     // go to point (degree, distance) then face the edge
-    turnClockwise(degree);
+    turnClockwise(degree + (int) robotTurningCorrection);
     
     // number of samples within a cadence
-    int samples = (int) robotDistancePerSecond / ((float) tileSize / 2.0f);
+    int samples = (int) robotDistancePerSecond / ((float) tileSize);// / 2.0f);
     // number of cadences
     int cadenceNumber = distance / robotDistancePerSecond;
     // number of samples
@@ -271,8 +270,9 @@ vector<int> cycleClockwise(int degree, int distance, vector<int> &vectorIntensit
     goForwards(distance, samples, cadenceNumber, intensities);
     turnClockwise(270 - degree);
     
+    //TODO: change back to 150 if not working
     // go off board, and then go backwards until an edge is detected
-    goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 150);
+    goForwards((int) (distance * sin(degree * 3.141592654f / 180.0f)) + 50);
     findLine();
     
     // go forwards and then face the next corner
@@ -283,8 +283,6 @@ vector<int> cycleClockwise(int degree, int distance, vector<int> &vectorIntensit
     alignCorner(600);
     
     vectorIntensities.assign(intensities, intensities + totalSamples);
-    
-    return vectorIntensities;
 }
 
 void start() {
