@@ -40,7 +40,7 @@ void turnClockwise(int degree) {
     halt();
 }
 
-void cadence(int remainder, int samples) {
+int * cadence(int remainder, int samples) {
     // drive straight for 1 second whilst sampling twice per tile size
     int intensities[samples];
     
@@ -56,10 +56,12 @@ void cadence(int remainder, int samples) {
         wait(1.0f / (float) samples);
         intensities[i] = sensors[2];
     }
+    
     halt();
+    return intensities;
 }
 
-void goForwards(int distance) {
+int * goForwards(int distance) {
     // go forwards in cadences of 1 second of bleed move and anneal
     m3pi.stop();
     
@@ -81,11 +83,19 @@ void goForwards(int distance) {
     // move remainder of distance
     wait(((float) distanceRemainder) / robotDistancePerSecond);
     
+    int intensities[cadenceNumber * samples];
+    int index = 0;
     // do the specified number of cadences
     for (int i = 0; i < cadenceNumber; i++) {
-        cadence(cadenceRemainder, samples);
+        int * segment = {cadence(cadenceRemainder, samples)};
+        
+        for (int j = 0; j < samples; j++) {
+            intensities[index++] = segment[j];
+        }
     }
+    
     halt();
+    return intensities;
 }
 
 float sum (float* rotations, int debounce) {
@@ -227,12 +237,12 @@ void findLine() {
     halt();
 }
 
-void cycleClockwise(double degree, double distance) {
+int * cycleClockwise(double degree, double distance) {
     // go to point (x, y), then find the edge, then find the next corner
     
     // go to point (degree, distance) then face the edge
     turnClockwise((int) degree);
-    goForwards((int) distance);
+    int * intensities = goForwards((int) distance);
     turnClockwise((int) 270 - degree);
     
     // go off board, and then go backwards until an edge is detected
@@ -245,6 +255,8 @@ void cycleClockwise(double degree, double distance) {
     
     // recalibrate and align with corner
     alignCorner(600);
+    
+    return intensities;
 }
 
 
@@ -265,6 +277,6 @@ int main() {
         double travel = (double) sqrt(distance);
         float degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
         
-        cycleClockwise(degree, travel);
+        int * intensities = cycleClockwise(degree, travel);
     }
 }
