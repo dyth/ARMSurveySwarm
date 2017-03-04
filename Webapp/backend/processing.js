@@ -179,31 +179,6 @@ var getNextCorner = function(quadrantNo) {
 	}
 }
 
-var routeRobot = function(robotID) {
-
-	console.log("\n** ROUTE ROBOT ** ("+robotID+")");
-
-	if (robotID >= robots.height) {
-		console.log("unexpected robot " + robotID);
-		return;
-	}
-
-	// set robots to move to random point within quadrant another module
-	// send robotID, and current quadrant corner
-	// move will send back the destination of the robot so can set
-	// xPrev and yPrev to xAfter and yAfter with data received from route.
-	var destination = route.move(robotID, robots[robotID].quadrant);
-	console.log('routing from quadrant '+ robots[robotID].quadrant);
-	if (destination.stopAll) {
-		stopAll();
-		return;
-	}
-	checkTile(robotID, destination.xAfter, destination.yAfter);
-
-	// Update the position of the robot in the webserver.
-	sendStatusUpdate(robotID);
-}
-
 /*
 * Called when a robot reaches the next corner and sends back a list of intensities
  */
@@ -273,11 +248,13 @@ var vectorLength = function(vector) {
 };
 
 /*
- * Set orientation of given robot in direction of tile.
+ * This takes the next position of the robots.
+ *
+ * It returns a dictionary of the distance and the angle through
+ * which the robot will rotate.
+ * 
  */
-var checkTile = function(robotID, tileX, tileY){
-	console.log('\n** CHECK TILE ** (' + robotID + ', ' + tileX + ', ' + tileY + ')');
-
+var convert = function(robotID, tileX, tileY){
 	var robot = robots[robotID];
 
 	// Prev always stores starting corner, we interpolate between this and
@@ -294,26 +271,7 @@ var checkTile = function(robotID, tileX, tileY){
 	console.log('From x=' + cornerX + ' y='+ cornerY
 	+ ' going to x=' + tileX +' y=' + tileY + ' with angle ' + angle*180/Math.PI);
 
-	// Turn by angle (0 to pi) clockwise
-	// communication.move now takes (robotID, angle, distance)
-	// Server needs to keep track of location of robot.
-	communication.sendMove(robotID, angle, distance*tileSize);
-
-
-	// get next corner to be xPrev
-	robots[robotID].quadrant = (robots[robotID].quadrant + 1) % 4
-	var nextCorner = getNextCorner(robots[robotID].quadrant);
-
-	robots[robotID].xPrev = nextCorner.x;
-	robots[robotID].yPrev = nextCorner.y;
-
-	robot.xAfter = tileX;
-	robot.yAfter = tileY;
-
-	robot.orientation = nextCorner.orientation + angle;
-
-	// And set the robot status to moving
-	setRobotStatusScanning(robotID);
+	return {angle: angle, distance: distance}
 };
 
 /*
