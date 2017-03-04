@@ -17,7 +17,6 @@ var route = require('./route');
 var TEST = true;
 
 var processingTiles = [];
-var initialTileState = [2];
 
 // Array order is by robot ID.
 // For the status, it is an index in the array  'states' in state.js
@@ -60,9 +59,11 @@ var createTilesList = function() {
 		}
 
 		for(var j = columns.length; j < height; j++) {
-			// initial tile state is a 2 element
-			// list for first robot and final state
-			columns.push(initialTileState.slice());
+			// This pushes the initial tile state. Accepted 
+			// is the color that we currently take to be the value
+			// and black and white are counts of the measurements
+			// for each one.
+			columns.push({accepted: 1, black: 0, white: 0});
 		}
 
 		if (i < processingTiles.length) {
@@ -162,7 +163,14 @@ var setTiles = function(robotID, intensities) {
 			return;
 		}
 
-		processingTiles[roundedX][roundedY].push(thisIntensity);
+		if (thisIntensity === 0) {
+			// Intensity is black
+			processingTiles[roundedX][roundedY].black ++;
+		} else {
+			// Intensity is white
+			processingTiles[roundedX][roundedY].white ++;
+		}
+
 		// This updates the accepted value for the tile and sends
 		// it on to the server.
 		tileUpdate(roundedX, roundedY);
@@ -254,26 +262,16 @@ var nextMove = function (robotID) {
 var tileUpdate = function(coordX, coordY){
 	var tiles = processingTiles[coordX][coordY];
 
-	// Recalculate the processing tiles[0] value.
-	var whiteCount = 0;
-	var blackCount = 0;
-	for (var i = 1; i < tiles.length; i ++) {
-		if (tiles[i] === 0) {
-			blackCount ++;
-		} else {
-			whiteCount ++;
-		}
-	}
-
+	// Recalculate the processing accepted value.
 	// This sets the default value
 	// The >= value means that white is the default
-	if (whiteCount >= blackCount) {
-		tiles[0] = 1;
+	if (tiles.white >= tiles.black) {
+		tiles.accepted = 1;
 	} else {
-		tiles[0] = 0;
+		tiles.accepted = 0;
 	}
 
-	server.updateTile(coordX, coordY, tiles[0]);
+	server.updateTile(coordX, coordY, tiles);
 };
 
 var vectorLength = function(vector) {
@@ -384,7 +382,6 @@ exports.robotConnectionLost = robotConnectionLost;
 if (TEST) {
 	exports.createTilesList = createTilesList;
 	exports.processingTiles = processingTiles;
-	exports.initialTileState = initialTileState;
 	exports.robots = robots;
 	exports.width = width;
 	exports.height = height;
