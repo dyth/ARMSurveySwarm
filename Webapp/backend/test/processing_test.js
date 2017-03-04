@@ -109,11 +109,17 @@ describe('convert', function() {
 			processor.addRobotToList(1);
 			processor.robots[1].quadrant = 1;
 
+			processor.robots[0].xAfter = 4;
+			processor.robots[0].yAfter = 4;
+
+			processor.robots[1].xAfter = 3;
+			processor.robots[1].yAfter = 5;
+
 			var vectorLength = processor.vectorLength([4,4]);
 			var vectorLength2 = processor.vectorLength([3,5]);
 
-			var converted = processor.convert(0,4,4);
-			var converted2 = processor.convert(1,3,5);
+			var converted = processor.convert(0);
+			var converted2 = processor.convert(1);
 			console.log(converted2.angle);
 
 			expect(converted.angle).to.equal(Math.PI/4);
