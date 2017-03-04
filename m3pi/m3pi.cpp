@@ -131,8 +131,9 @@ int m3pi::middle_sensor(void) {
         _ser.getc();
     }
     char lowbyte = _ser.getc();
-    char hibyte  = _ser.getc();
-    return (lowbyte + (hibyte << 8));
+    char hibyte = _ser.getc();
+    int s = (lowbyte + (hibyte << 8));
+    return s;
 }
 
 void m3pi::PID_start(int max_speed, int a, int b, int c, int d) {
