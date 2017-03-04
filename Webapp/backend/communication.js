@@ -8,7 +8,6 @@ var robots = [];
 var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
-
 		// Pass the data on to receive data.
 		var jsonData;
 
@@ -149,8 +148,8 @@ var sendMove = function(robotID, angle, distanceMM) {
 	// toFixed converts the floating point numbers into fixed point
 	// representations of themselves.
 	socket.write(JSON.stringify({ type: 'MOVE',
-			angle: parseInt(degrees),
-			distance: parseInt(distanceMM)}));
+			angle: parseInt(Math.round(degrees)),
+			distance: parseInt(Math.round(distanceMM))}));
 };
 
 

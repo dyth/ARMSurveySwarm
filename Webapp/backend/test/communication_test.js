@@ -76,25 +76,19 @@ describe('receiveData', function() {
 
 			coms.sendStop(0);
 	});
-});
 
-describe('stop', function() {
-	var dataReceived;
-
-	processor.addRobotToList(1);
-	it('should add a robot with a callback', function() {
-		// Add a couple of robots
-		coms.receiveData("HELLO:1\n", {destroyed: false, write:
-			function(data) {
-				dataReceived = data;
+	it('sendMove should send out a move message',
+		function(done) {
+			coms.receiveData({type: "HELLO", id: 0},
+				{destroyed: false, write: function(data) {
+					var json = JSON.parse(data);
+					expect(json).to.have.property("type", "MOVE");
+					expect(json).to.have.property("angle", 
+							Math.round(1213 * 180.0 / Math.PI));
+					expect(json).to.have.property("distance", Math.round(1231));
+					done();
 			}});
-	});
 
-	it('stop should send out a STOP\n message', function() {
-		coms.sendStop(1);
-	});
-});
-
-describe('Move function sending instructions to robot', function() {
-
+			coms.sendMove(0, 1213,  1231);
+		});
 });
