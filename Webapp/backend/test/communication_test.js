@@ -91,6 +91,6 @@ describe('receiveData', function() {
 			}});
 
 			coms.sendMove(0, 1213,  1231);
-
+			coms.robots[0] = undefined;
 		});
 });

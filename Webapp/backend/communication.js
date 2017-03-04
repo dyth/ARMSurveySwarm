@@ -122,7 +122,8 @@ var sendStop = function(robotID) {
 		return;
 	}
 
-	if (socket === null || socket.write === undefined) {
+	// function socket.write needs to be defined
+	if (socket === null || typeof socket.write === "undefined") {
 		console.log("ERROR(sendStop/communication.js): Null Socket");
 		return;
 	}
@@ -139,8 +140,9 @@ var sendMove = function(robotID, angle, distanceMM) {
 	var degrees = angle * 180.0 / Math.PI;
 
 	// Get the socket and send
-	console.log(robots);
+	console.log(processor.robots);
 	var socket = processor.robots[robotID];
+	console.log(socket);
 
 	if (socket === undefined) {
 		// This will happen if there was a robot with a lower
@@ -148,7 +150,8 @@ var sendMove = function(robotID, angle, distanceMM) {
 		return;
 	}
 
-	if(socket === null || socket.write === undefined){
+	// function socket.write needs to be defined
+	if(socket === null || typeof socket.write === "undefined"){
 		console.log("ERROR(sendMove/communication.js): Null Socket");
 		return;
 	}

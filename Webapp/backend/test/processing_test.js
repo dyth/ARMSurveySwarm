@@ -64,6 +64,39 @@ describe('next move', function() {
 			to.equal(0);
 
 	});
+	it('should stop all robots when all quadrants have no tiles to check', function() {
+		route.uncheckedTiles[0].length = 0;
+		route.uncheckedTiles[1].length = 0;
+		route.uncheckedTiles[2].length = 0;
+		route.uncheckedTiles[3].length = 0;
+		processor.nextMove(0);
+	});
+});
+
+describe('stop all', function() {
+	it('should send out a message to stop all the robots', function() {
+		processor.setGridDimensions({x:10, y:10});
+		processor.setConnectedRobots();
+		processor.addRobotToList(0);
+		processor.addRobotToList(1);
+		console.log(processor.robots);
+		var dataReceived;
+		var dataReceived2;
+
+		coms.receiveData({type: "HELLO", id: 0}, {destroyed:false, write: function(data) {
+			dataReceived = data;
+		}});
+		coms.receiveData({type: "HELLO", id: 1}, {destroyed:false, write: function(data) {
+			dataReceived2 = data;
+		}});
+		processor.stopAll();
+
+		var json = JSON.parse(dataReceived);
+		expect(json).to.have.property("type", "STOP");
+		json = JSON.parse(dataReceived2);
+		expect(json).to.have.property("type", "STOP");
+
+	});
 });
 
 describe('tile update', function() {
