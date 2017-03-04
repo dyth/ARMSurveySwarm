@@ -56,18 +56,30 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     // distance travelled without a cadence
     int distanceRemainder = distance % (int) robotDistancePerSecond;
 
-    // bleed before starting motors
+    // leftover distance in sampling remainder
+    int sampleRemainder = distanceRemainder % (int) (tileSize / 2);
+    // number of remainder samples
+    int remainderSamples = distanceRemainder / (int) (tileSize / 2);
+    
+    // bleed
     m3pi.forward(0.25);
     wait(0.25);
+    
+    // start motors
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
-
-    // move remainder of distance
-    wait(((float) distanceRemainder) / robotDistancePerSecond);
     
+    wait(((float) sampleRemainder) / robotDistancePerSecond);
+    halt();
+    
+    m3pi.left_motor(robotMotorLeft);
+    m3pi.right_motor(robotMotorRight);
     int sensors[5];
-    m3pi.calibrated_sensor(sensors);
-    intensities.push_back(sensors[2]);
+    for (int i = 0; i < remainderSamples; i++) {
+        wait(1.0f / (float) samples);
+        m3pi.calibrated_sensor(sensors);
+        intensities.push_back(sensors[2]);
+    }
     
     // do the specified number of cadences
     for (int i = 0; i < cadenceNumber; i++) {
@@ -273,9 +285,7 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     turnClockwise(90);
 
     // recalibrate and align with corner
-    alignCorner(600);
-
-
+    alignCorner(200);
 }
 
 void start() {
@@ -284,28 +294,3 @@ void start() {
     wait(0.5);
     alignCorner(200);
 }
-
-/*
-void testing() {
-    // some code for testing the motion of the robot
-    // goes round the board in an infinite loop
-
-    start();
-
-    while (1) {
-        int x = 800;
-        int y = 500;
-
-        float distance = pow(x, 2.0f) + pow(y, 2.0f);
-        int travel = (int) sqrt(distance);
-        int degree = atan2 ((float) x, (float) y) * 180.0f / 3.141592654f;
-
-        int * intensities = cycleClockwise(degree, travel);
-        for (int i = 0;  ;i++) {
-            m3pi.cls();
-            m3pi.locate(0, 0);
-            m3pi.printf("/d", intensities[i]);
-        }
-    }
-}
-*/
