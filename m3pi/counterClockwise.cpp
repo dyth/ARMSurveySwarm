@@ -1,7 +1,6 @@
 #include "mbed.h"
 #include "m3pi.h"
 #include <algorithm>
-#include <sstream>
  
 // PID terms
 #define P_TERM 1
@@ -22,7 +21,7 @@ m3pi m3pi;
 void halt() {
     // halt robot and allow motors to cool down
     m3pi.stop();
-    wait(2.0f);   
+    wait(1.0f);   
 }
 
 void turnCounterClockwise(int degree) {
@@ -127,6 +126,8 @@ void PIDFast(float MIN, float MAX, int iteration) {
     float speed = MAX;
     int count = 0;
     
+    m3pi.sensor_auto_calibrate();
+    
     // loop until debouncing has succeeded
     while (count++ < iteration) {
         // Get the position of the line.
@@ -172,6 +173,8 @@ void PID(float MIN, float MAX, int debounce) {
     int count = 0;
     
     float s = 1.0f;
+    
+    m3pi.sensor_auto_calibrate();
     
     // loop until debouncing has succeeded
     while (s != 0.0f) {
@@ -219,7 +222,7 @@ void alignCorner(int distance) {
     // direction (perpendicular to the starting position)
     PIDFast(0.0f, 1.0f, distance);
     PID(0.0, 0.5, 4);
-    turnClockwise(85);
+    turnClockwise(83);
 }
 
 void findLine() {
@@ -230,7 +233,7 @@ void findLine() {
     m3pi.calibrated_sensor(sensors);
     
     // go backwards until black
-    while(sensors[2] < 900) {
+    while(sensors[2] < 800) {
         m3pi.backward(0.15);
         m3pi.calibrated_sensor(sensors);
     }
@@ -264,8 +267,6 @@ int main() {
     // wait until human has left then find the first corner
     m3pi.reset();
     wait(0.5);
-    
-    m3pi.sensor_auto_calibrate();
     alignCorner(500);
     
     // main loop of program
