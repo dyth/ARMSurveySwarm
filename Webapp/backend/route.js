@@ -96,7 +96,7 @@ var allTilesCovered = function() {
  * It is passed the current x and y for a robot and 
  */
 var move = function(xBefore, yBefore) {
-	var quadrantNo = getQuadrantNo(xBefore, yBefore);
+	var quadrantNo = getQuadrant(xBefore, yBefore);
 	if (allTilesCovered()){
 		return {xAfter: -1, yAfter: -1, stopAll: true};
 	} else if (uncheckedTiles[quadrantNo].length === 0) {

@@ -71,6 +71,7 @@ var receiveData = function(data, socket) {
 
 		// Send the intensity data to processing
 		processor.setTiles(robotID, data.intensities);
+		processor.nextMove(robotID);
 
 	}
 	else {

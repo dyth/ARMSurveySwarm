@@ -59,7 +59,7 @@ var createTilesList = function() {
 			columns = processingTiles[i];
 		}
 
-		for(var j = columns.length; j < length; j++) {
+		for(var j = columns.length; j < height; j++) {
 			// initial tile state is a 2 element
 			// list for first robot and final state
 			columns.push(initialTileState.slice());
@@ -81,7 +81,7 @@ var addRobotToList = function(robotID) {
 	// Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
 	// xCorner/yCorner will be out of bounds of the tiles array since we will not
 	// always be in the bottom left hand corner now
-	robots[robotID] = {id: i, xCorner: 0, yCorner: 0,
+	robots[robotID] = {xCorner: 0, yCorner: 0,
 		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 };
 
 	connectedRobots++;
@@ -188,13 +188,10 @@ var getNextCorner = function(quadrantNo) {
 /*
 * Called when a robot reaches the next corner and sends back a list of intensities
  */
-var nextMove = function (robotID, intensities) {
+var nextMove = function (robotID) {
 
 	// The robot is now waiting
 	waitingRobots++;
-
-	// Update the tiles with the new intensity values
-	setTiles(robotID, intensities);
 
 	if(waitingRobots === connectedRobots){
 
@@ -213,6 +210,7 @@ var nextMove = function (robotID, intensities) {
 				communication.sendStop(id);
 
 				// Set the robot status to stopped
+				
 			}
 			else{
 
@@ -361,9 +359,9 @@ var startProcessing = function() {
 	for (var i = 0; i < robots.length; i ++) {
 		// This sends the start message to the robots.
 		communication.sendStart(i, tileSize);
-	}
 
-	// TODO -- CALL A ROUTE FUNCTION HERE 
+		nextMove(i);
+	}
 };
 
 exports.setTileSize = setTileSize;
@@ -374,7 +372,7 @@ exports.stop = stop;
 exports.stopAll = stopAll;
 exports.setTiles = setTiles;
 exports.startProcessing = startProcessing;
-exports.routeRobot = routeRobot;
+exports.nextMove = nextMove;
 exports.robotConnectionLost = robotConnectionLost;
 
 
@@ -391,7 +389,6 @@ if (TEST) {
 	exports.height = height;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
-	exports.checkTile = checkTile;
 
 	exports.roundPosition = roundPosition;
 	exports.vectorLength = vectorLength;
