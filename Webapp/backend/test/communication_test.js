@@ -47,25 +47,6 @@ describe('Test tcp server', function() {
 	});
 });
 
-describe('wait message', function() {
-	it('should send out a wait message to the connected (specified) client',
-		function(done) {
-			var client = net.connect({port:9000}, function() {
-				client.write('{"type":"HELLO", "id":1}');
-			});
-
-			client.on('data', function(data) {
-				expect(data.toString()).to.equal('{"type":"WAIT","time":3000}');
-				done();
-			});
-
-			setTimeout(function() {
-				coms.wait(1);
-				console.log("ROBOTS" + coms.robots);
-			}, 100);
-	});
-});
-
 describe('receiveData', function() {
 	it('should add a robot to the list of robots on receipt of a hello message',
 		function() {
@@ -101,7 +82,7 @@ describe('stop, resume and stopAll', function() {
 	});
 
 	it('stop should send out a STOP\n message', function() {
-		coms.stop(1);
+		coms.sendStop(1);
 	});
 });
 

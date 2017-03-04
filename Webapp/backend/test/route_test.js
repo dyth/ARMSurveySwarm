@@ -36,7 +36,7 @@ describe('Test move call to route', function() {
 
 	it('robots should not route to same tile ', function() {
 		routing.setUp(10);
-		var robots = processing.getRobots().slice();
+		var robots = processing.robots.slice();
 		var results = routing.move(1,1);
 		var sameTile = (robots[1].xPrev === results.xAfter &&
 			robots[1].yPrev === results.yAfter);

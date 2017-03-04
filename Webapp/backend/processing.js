@@ -97,7 +97,7 @@ var roundPosition = function(pos) {
 	} else if (pos > height) {
 		return height;
 	} else  {
-		return Math.floor(pos + 0.1);
+		return Math.floor(pos/tileSize + 0.1);
 	}
 }
 
@@ -221,8 +221,7 @@ var nextMove = function (robotID) {
 				// Set the robot status to stopped
 				setRobotStatusStopped(id);
 
-			}
-			else{
+			} else {
 
 				// Convert coordinates into angles and distances
 				var robotInstructions = convert(id, next.xAfter, next.yAfter);
@@ -243,8 +242,7 @@ var nextMove = function (robotID) {
 
 		waitingRobots = 0;
 
-	}
-	else{
+	} else {
 		setRobotStatusWaiting(robotID);
 	}
 
