@@ -65,13 +65,14 @@ describe('receiveData', function() {
 		coms.sendStart(0, 10);
 	});
 
-	it('should send a start message to the robot',
-		function() {
-
-	});
-
-	it('should not crash easily', function() {
-		expect(true, 'server did not crash').to.be.true;
+	it('sendStop should send a stop message',
+		function(done) {
+			coms.receiveData({type: "DONE", id: 0},
+				{destroyed: false, write: function(data) {
+					var json = JSON.parse(data);
+					expect(json).to.have.property("type", "STOP");
+					done();
+			});
 	});
 });
 
