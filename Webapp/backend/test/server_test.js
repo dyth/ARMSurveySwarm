@@ -60,9 +60,6 @@ describe('Calling updateStatus', function() {
 				} else {
 					receivedData2.push(data);
 				}
-
-				console.log(receivedData1.length);
-				console.log(receivedData2.length);
 			});
 
 			newClient.on('connect', function() {
