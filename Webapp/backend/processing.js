@@ -182,7 +182,7 @@ var getNextCorner = function(quadrantNo) {
 /*
 * Called when a robot reaches the next corner and sends back a list of intensities
  */
-var robotDone = function (robotID, intensities) {
+var nextMove = function (robotID, intensities) {
 
 	// The robot is now waiting
 	waitingRobots++;
@@ -201,17 +201,45 @@ var robotDone = function (robotID, intensities) {
 			// Calculate the next move
 			var next = route.move(robot.x, robot.y);
 
+
 			if(next.stopAll){
 				// Stop the robot
 				communication.sendStop(id);
+
+				// Set the robot status to stopped
 			}
 			else{
-				// CONVERT & SEND
+
+				// Convert coordinates into angles and distances
+				var robotInstructions = convert(id, next.xAfter, next.yAfter);
+
+				// Update the robot
+				robot.quadrant = (robot.quadrant + 1) % 4
+				var nextCorner = getNextCorner(robot.quadrant);
+
+				robot.xPrev = nextCorner.x;
+				robot.yPrev = nextCorner.y;
+
+				robot.xAfter = next.xAfter;
+				robot.yAfter = next.yAfter;
+
+				robot.orientation = nextCorner.orientation + robotInstructions.angle;
+
+				// Send the instruction
+				communication.sendMove(id, robotInstructions.angle, robotInstructions.distance);
+
+				//And set the robot status to moving
+				setRobotStatusScanning(robotID);
+
 			}
 
+			sendStatusUpdate(id);
 
 		}
 
+	}
+	else{
+		setRobotStatusWaiting(robotID);
 	}
 
 
