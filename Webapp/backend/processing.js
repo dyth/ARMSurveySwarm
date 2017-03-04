@@ -35,6 +35,11 @@ var totalTiles = 0;
 
 var startedProcessing = false;
 
+// State to coordinate robots
+// A robot at the corner is a waiting robot
+var connectedRobots = 0;
+var waitingRobots = 0;
+
 /*
  * Create new tilesList
  *
@@ -76,10 +81,10 @@ var addRobotToList = function(robotID) {
 	// Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
 	// xPrev/yPrev will be out of bounds of the tiles array since we will not
 	// always be in the bottom left hand corner now
-	for(var i = robots.length; i < numRobots; i++) {
-		robots[robotID] = {id: i, xPrev: 0, yPrev: 0,
-		 xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 };
-	}
+	robots[robotID] = {id: i, xPrev: 0, yPrev: 0,
+		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2, orientation: 0 };
+
+	connectedRobots++;
 }
 
 /*
@@ -114,6 +119,9 @@ var robotConnectionLost = function(robotID) {
 	robots[robotID].robotStatus = 2;
 
 	sendStatusUpdate(robotID);
+
+	// Decrease the connected robots
+	connectedRobots--;
 };
 
 /*
@@ -195,6 +203,44 @@ var routeRobot = function(robotID) {
 	// Update the position of the robot in the webserver.
 	sendStatusUpdate(robotID);
 }
+
+/*
+* Called when a robot reaches the next corner and sends back a list of intensities
+ */
+var robotDone = function (robotID, intensities) {
+
+	// The robot is now waiting
+	waitingRobots++;
+
+	// Update the tiles with the new intensity values
+	setTiles(robotID, intensities);
+
+	if(waitingRobots === connectedRobots){
+
+		// Give each robot a new instruction
+		for(var id = 0; id<robots.length; id++){
+
+			// Get the robot
+			var robot = robots[id];
+
+			// Calculate the next move
+			var next = route.move(robot.x, robot.y);
+
+			if(next.stopAll){
+				// Stop the robot
+				communication.sendStop(id);
+			}
+			else{
+				// CONVERT & SEND
+			}
+
+
+		}
+
+	}
+
+
+};
 
 /*
  * This updates the accepted tile value as appropriate
