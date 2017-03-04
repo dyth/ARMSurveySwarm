@@ -92,20 +92,19 @@ var allTilesCovered = function() {
 
 /*
  * Choose tile to check next, return x and y positions.
+ *
+ * It is passed the current x and y for a robot and 
  */
-var move = function(robotID, quadrantNo) {
+var move = function(xBefore, yBefore) {
+	var quadrantNo = getQuadrantNo(xBefore, yBefore);
 	if (allTilesCovered()){
-
 		return {xAfter: -1, yAfter: -1, stopAll: true};
-
 	} else if (uncheckedTiles[quadrantNo].length === 0) {
+		// Covered all tiles in quadrant, move it to tile to just go to next corner
+		return {xAfter: escapeTilesX[quadrantNo] * tilesAcross,
+			yAfter: escapeTilesY[quadrantNo] *tilesAcross, stopAll: false};
 
-    // Covered all tiles in quadrant, move it to tile to just go to next corner
-    return {xAfter: escapeTilesX*tilesAcross,
-      yAfter: escapeTilesY*tilesAcross, stopAll: false};
-
-  } else {
-
+	} else {
 		var tileIndex = getRandomInt(0, uncheckedTiles[quadrantNo].length);
 		var nextX = uncheckedTiles[quadrantNo][tileIndex].xPos;
 		var nextY = uncheckedTiles[quadrantNo][tileIndex].yPos;
