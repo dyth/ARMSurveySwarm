@@ -8,7 +8,6 @@ var robots = [];
 var server = net.createServer(function(socket) {
 
 	socket.on('data', function(data) {
-		// This is to put fragmented messages together before parsing them.
 
 		// Pass the data on to receive data.
 		var jsonData;
@@ -50,6 +49,8 @@ var server = net.createServer(function(socket) {
 var receiveData = function(data, socket) {
 
 	if(data.type === 'HELLO'){
+
+		console.log("Robot " + data.id + " connected.")
 
 		// Extract the robot id
 		var robotID = data.id;
