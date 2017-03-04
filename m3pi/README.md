@@ -8,7 +8,7 @@ A fork of Chris Styles's library, but with an added function for returning an `i
 
 The function is `m3pi.calibrated_sensor(sensors);`, where sensors is an `int array[5]`.
 
-Calibrated sensor values lie between 0 and 1000, where 0 is totally light and 1000 indicated completely dark.
+They are calibrated by the function `m3pi.sensor_auto_calibrate();`, which linearly interpolates sensor readings between 0 and 1000. 0 is the lightest observed value during calibration and 1000 is the darkest.
 
 ## Final program
 
