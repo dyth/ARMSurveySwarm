@@ -8,26 +8,6 @@ ESP8266Interface wifi(p28, p27);
 SocketAddress server(SERVIP, SERVPORT);
 TCPSocket socket;
 
-string vectorToString(vector<int> &v){
-
-    ostringstream ss;
-
-    ss << "[";
-
-    for(int i = 0; i < v.size(); i++){
-
-        ss << i;
-        if(i < v.size() - 1)
-            ss << ",";
-
-    }
-
-    ss << "]";
-
-    return ss.str();
-
-}
-
 void readAndDecodeInstruction(MbedJSONValue &instruction){
     
     // Reads instruction
@@ -127,8 +107,26 @@ void sendDone(vector<int> &intensities){
     MbedJSONValue message;
     message["type"] = "DONE";
     
-    string s = vectorToString(intensities);
-    message["intensities"] = s;
+    message["count"] = (int)intensities.size();
+    
+    // Create a temp JSON object
+    MbedJSONValue temp;
+    int j = 0;
+    
+    for(int i = 0; i < intensities.size(); i++){
+        
+        if(i % 20 == 0 && i > 0){
+            // Flush the temp
+            message["intensities"][j] = temp.serialize();
+            j++;
+        }
+        
+        temp[i % 20] = intensities[i];
+            
+    }
+    
+    // Flush the temp
+    message["intensities"][j] = temp.serialize();
     
     // Serialize the message
     string toSend = message.serialize();
