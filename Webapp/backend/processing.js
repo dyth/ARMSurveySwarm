@@ -333,6 +333,7 @@ exports.handleDone = handleDone;
  */
 if (TEST) {
 
+    exports.TEST = TEST;
 	exports.initTiles = initTiles;
 	exports.tiles = tiles;
 	exports.robots = robots;
