@@ -5,7 +5,13 @@
 #define I_TERM 0
 #define D_TERM 20
 
+int tileSize;
+
 m3pi m3pi;
+
+void setTileSize(int size) {
+    tileSize = size;
+}
 
 void halt() {
     // halt robot and allow motors to cool down
@@ -33,7 +39,7 @@ void cadence(int remainder, int samples, vector<int> &intensities) {
     for (int i = 0; i < samples; i++) {
         wait(1.0f / (float) samples);
         int sensors[5];
-        m3pi.calibrated_sensor(sensors);
+        m3pi.calibrated_sensor(sensors)
         intensities.push_back(sensors[2]);
     }
 
@@ -70,7 +76,7 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     for (int i = 0; i < remainderSamples; i++) {
         wait(1.0f / (float) samples);
         int sensors[5];
-        m3pi.calibrated_sensor(sensors);
+        m3pi.calibrated_sensor(sensors)
         intensities.push_back(sensors[2]);
     }
     
@@ -249,7 +255,7 @@ void findLine() {
     */
     while (1) {
         int sensors[5];
-        m3pi.calibrated_sensor(sensors);
+        m3pi.calibrated_sensor(sensors)
         if (sensors[2] > 800) {
             break;
         }
