@@ -88,13 +88,13 @@ var addRobotToList = function(robotID) {
 
 	connectedRobots++;
 
-}
+};
 
 var setRobotStatusStopped = function(robotID) {
 	robots[robotID].robotStatus = 2;
 
 	sendStatusUpdate(robotID);
-}
+};
 
 var setRobotStatusScanning = function(robotID) {
 	robots[robotID].robotStatus = 1;
@@ -106,7 +106,7 @@ var setRobotStatusWaiting = function(robotID) {
 	robots[robotID].robotStatus = 0;
 
 	sendStatusUpdate(robotID);
-}
+};
 
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.

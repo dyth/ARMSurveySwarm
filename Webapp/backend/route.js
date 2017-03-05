@@ -8,7 +8,7 @@
  * prevention algorithms and requires that an uncheckedTiles list be stored
  * for each quadrant.
  */
-var processing = require('./processing');
+var processing = require('./processing_new');
 var TEST = true;
 
 // Each element is dictionary of x, y positions for unchecked tiles
