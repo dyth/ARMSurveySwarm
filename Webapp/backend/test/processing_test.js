@@ -127,12 +127,12 @@ describe('next move', function() {
 	it('should route robot to tile within quadrant for the corner the robot is ' +
 	' at', function() {
 		processor.setConnectedRobots();
+		processor.unconnectAllRobots();
+
 		processor.addRobotToList(0);
 		route.setUp(10);
 
 		var robot = processor.robots[0];
-
-
 
 		for (var i = 0; i < 8; i++) {
 			console.log('-----------');

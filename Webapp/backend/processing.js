@@ -377,10 +377,7 @@ var convert = function(robotID){
 		+ ' going to x=' + robot.xAfter +' y=' + robot.yAfter + ' with angle '
 		+ angle*180/Math.PI + ' and distance ' + distance);
 
-	// if (robot.xCorner === 9 && robot.yCorner === 0) {
-	// 	console.log(new Error().stack());
-	// 	throw "error";
-	// }
+	//console.log(new Error().stack);
 
 	return {angle: angle, distance: distance}
 };
@@ -490,6 +487,10 @@ if (TEST) {
 	exports.setConnectedRobots = function() {
 		connectedRobots = 0;
 	}
+	exports.unconnectAllRobots = function() {
+		robots.length = 0;
+	}
+
 	exports.setCoveredToTotalTiles = setCoveredToTotalTiles;
 
 	exports.resetProcessingTiles = function() {
