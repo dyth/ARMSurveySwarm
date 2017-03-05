@@ -344,7 +344,7 @@ var tileUpdate = function(coordX, coordY){
 		tiles.accepted = 0;
 	}
 
-	server.updateTile(coordX, coordY, tiles);
+	server.updateTile(coordX, coordY, tiles.accepted);
 };
 
 var vectorLength = function(vector) {

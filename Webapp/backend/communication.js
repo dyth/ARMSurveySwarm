@@ -65,6 +65,10 @@ var receiveData = function(data, socket) {
 
 	} else if(data.type === 'DONE'){
 
+		var intensities = flattenIntensities(data.intensities, data.count);
+
+		console.log(intensities);
+
 		// Extract the robot id
 		var robotID = socket.robotID;
 
@@ -76,7 +80,7 @@ var receiveData = function(data, socket) {
 		}
 
 		// Send the intensity data to processing
-		processor.setTiles(robotID, data.intensities);
+		processor.setTiles(robotID, intensities);
 		processor.nextMove(robotID);
 
 	} else {
@@ -159,6 +163,24 @@ var sendMove = function(robotID, angle, distanceMM) {
 	socket.write(JSON.stringify({ type: 'MOVE',
 			angle: parseInt(Math.round(degrees)),
 			distance: parseInt(Math.round(distanceMM))}));
+};
+
+
+var flattenIntensities = function (rawIntensities, count) {
+
+	var result = [];
+
+	console.log(rawIntensities.length);
+
+	for(var i = 0; i < rawIntensities.length; i++){
+
+		var array = JSON.parse(rawIntensities[i]);
+		result = result.concat(array);
+
+	}
+
+	return result.slice(0, count);
+
 };
 
 
