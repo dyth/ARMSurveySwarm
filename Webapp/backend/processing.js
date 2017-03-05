@@ -96,6 +96,7 @@ var addRobotToList = function(robotID) {
     robots[robotID] = {xDest: 0, yDest: 0, corner: 0, robotStatus: 0};
 
     connectedRobots++;
+    waitingRobots++;
 
 };
 
@@ -152,10 +153,11 @@ var startProcessing = function() {
         if (robots[i] !== undefined) {
 
             communication.sendStart(i, tileSize);
-            nextMove(i);
 
         }
     }
+
+    nextMove();
 };
 
 
@@ -176,9 +178,7 @@ var moveToNextCorner = function (robotId) {
  * a list of intensities. The server gets the next tile to move to using route,
  * creates the instruction to send to the robot and sends it over WiFi.
  */
-var nextMove = function (robotId) {
-
-    waitingRobots++;
+var nextMove = function () {
 
     if(waitingRobots === connectedRobots){
 
@@ -206,13 +206,14 @@ var nextMove = function (robotId) {
                 communication.sendMove(id, radToDeg(instructions.angle), instructions.distance);
                 setRobotStatusScanning(id);
                 console.log('('+startCorner.x+','+startCorner.y+') -> ('+robot.xDest+','+robot.yDest+') with angle '+radToDeg(instructions.angle)+' and distance '+instructions.distance);
-							}
+
              }
-					 waitingRobots = 0;
+
+        }
+
+        waitingRobots = 0;
 
 
-    } else {
-        setRobotStatusWaiting(robotId);
     }
 
 };
@@ -227,6 +228,8 @@ var nextMove = function (robotId) {
  * retrieve the colour of each tile passed.
  */
 var handleDone = function(robotId, intensities){
+
+    waitingRobots++;
 
     var robot = robots[robotId];
 
@@ -264,6 +267,8 @@ var handleDone = function(robotId, intensities){
 
     // Update the robot state
     robot.corner = (robot.corner + 1) % 4;
+
+    setRobotStatusWaiting(robotId);
 
 };
 
@@ -394,6 +399,7 @@ exports.handleDone = handleDone;
  */
 if (TEST) {
 
+    exports.TEST = TEST;
 	exports.initTiles = initTiles;
 	exports.tiles = tiles;
 	exports.robots = robots;

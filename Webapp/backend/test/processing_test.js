@@ -14,6 +14,12 @@ var getColour = function(intensity) {
 	}
 }
 
+describe('processing', function() {
+	it('should be in test mode', function() {
+		expect(processor.TEST).to.be.true;
+	});
+});
+
 describe('Create tiles list', function() {
 	it('Should setup a new list of tiles of size 10, 10', function() {
 		processor.setGridDimensions(10);
@@ -83,9 +89,11 @@ describe('next move', function() {
 		for (var i = 0; i < 8; i++) {
 			console.log('-----------');
 
-			processor.nextMove(0);
+			processor.nextMove();
 
 			// xDest and yDest should be updated and should be within quadrant i
+
+			console.log(i + " " + JSON.stringify(robot));
 
 			expect(route.getQuadrant(robot.xDest, robot.yDest)).
 				to.equal(i%4);

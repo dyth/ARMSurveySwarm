@@ -79,7 +79,7 @@ var receiveData = function(data, socket) {
 
 		// Send the intensity data to processing
 		processor.handleDone(robotID, intensities);
-		processor.nextMove(robotID);
+		processor.nextMove();
 
 	} else {
 		console.log("ERROR(receiveData/communication.js): Unknown Message");
@@ -210,4 +210,5 @@ if (TEST) {
 	exports.TEST = TEST;
 	exports.robots = robots;
 	exports.receiveData = receiveData;
+	exports.server = server;
 }
