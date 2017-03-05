@@ -161,12 +161,9 @@ var nextMove = function (robotId) {
             var next = route.move(startCorner.x, startCorner.y);
 
             if(next.stopAll){
-
                 communication.sendStop(id);
                 setRobotStatusStopped(id);
-
-            }
-            else{
+             } else {
 
                 robot.xDest = next.xAfter;
                 robot.yDest = next.yAfter;
@@ -175,17 +172,13 @@ var nextMove = function (robotId) {
 
                 communication.sendMove(id, radToDeg(instructions.angle), instructions.distance);
                 setRobotStatusScanning(id);
+                console.log('('+startCorner.x+','+startCorner.y+') -> ('+robot.xDest+','+robot.yDest+') with angle '+radToDeg(instructions.angle)+' and distance '+instructions.distance);
+							}
+             }
+					 waitingRobots = 0;
 
-                console.log('('+startCorner.x+','+startCorner.y+') -> ('+robot.xDest+','+robot.yDest+') with angle '+radToDeg(instructions.angle)+' and distance '+instructions.distance)
 
-            }
-
-        }
-
-        waitingRobots = 0;
-
-    }
-    else {
+    } else {
         setRobotStatusWaiting(robotId);
     }
 

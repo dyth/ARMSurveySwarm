@@ -23,6 +23,7 @@ describe('processing', function() {
 describe('Create tiles list', function() {
 	it('Should setup a new list of tiles of size 10, 10', function() {
 		processor.setGridDimensions(10);
+		console.log(processor.tiles);
 		expect(10).to.equal(processor.tiles[0].length);
 		expect(10).to.equal(processor.tiles.length);
 	});
@@ -39,7 +40,7 @@ describe('handleDone function', function() {
 
 		var values = [200, 750, 13, 1110, 173, 1000];
 		processor.handleDone(1, values);
-		
+
 		// NOTE handleDone no longer gets corner tile
 		for (var i = 1; i <= values.length; i ++) {
 			var tile = processor.tiles[i][i];
