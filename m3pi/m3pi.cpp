@@ -127,7 +127,7 @@ void m3pi::reset_calibration() {
 
 int m3pi::middle_sensor(void) {
     _ser.putc(SEND_CALIBRATED_SENSOR_VALUES);
-    int[5] cal;
+    int cal[5];
     for (int i=0; i<5; i++){
         char lowbyte = _ser.getc();
         char hibyte  = _ser.getc();
