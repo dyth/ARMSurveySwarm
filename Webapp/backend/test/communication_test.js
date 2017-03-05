@@ -37,11 +37,22 @@ describe('Test tcp server', function() {
 			done();
 		});
 	});
+
+	it('should be able to receive json data', function(done) {
+		client.write('{"type":"HELLO", "id": 1}');
+
+		setTimeout(function() {
+			expect(coms.robots[1]).to.exist;
+			expect(processor.robots[1]).to.exist;
+			done();
+		}, 100);
+	});
 });
 
 describe('receiveData', function() {
 	it('should add a robot to the list of robots on receipt of a hello message',
 		function() {
+			coms.robots.length = 0;
 			var initialProcessorLength = processor.robots.length;
 			coms.receiveData({type: "HELLO", id: 0}, {});
 

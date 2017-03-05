@@ -43,8 +43,8 @@ var server = net.createServer(function(socket) {
 });
 
 /*
-* Called when the server is sent data
-*/
+ * Called when the server is sent data
+ */
 var receiveData = function(data, socket) {
 
 	if(data.type === 'HELLO'){
@@ -67,8 +67,6 @@ var receiveData = function(data, socket) {
 
 		var intensities = flattenIntensities(data.intensities, data.count);
 
-		console.log(intensities);
-
 		// Extract the robot id
 		var robotID = socket.robotID;
 
@@ -80,7 +78,7 @@ var receiveData = function(data, socket) {
 		}
 
 		// Send the intensity data to processing
-		processor.setTiles(robotID, intensities);
+		processor.handleDone(robotID, intensities);
 		processor.nextMove(robotID);
 
 	} else {
@@ -90,9 +88,9 @@ var receiveData = function(data, socket) {
 };
 
 /*
-* Sends the start message to a robot.
-* Called in processing.js
-*/
+ * Sends the start message to a robot.
+ * Called in processing.js
+ */
 var sendStart = function(robotID, tileSize) {
 
 	// Get the socket and send
@@ -113,8 +111,8 @@ var sendStart = function(robotID, tileSize) {
 };
 
 /*
-* Sends the stop message to a robot.
-*/
+ * Sends the stop message to a robot.
+ */
 var sendStop = function(robotID) {
 
 	// Get the socket and send
@@ -136,12 +134,9 @@ var sendStop = function(robotID) {
 };
 
 /*
-* Sends a move message to a robot
+ * Sends a move message to a robot
  */
 var sendMove = function(robotID, angle, distanceMM) {
-
-	// Convert angle to degrees
-	var degrees = angle * 180.0 / Math.PI;
 
 	// Get the socket and sends
 	var socket = robots[robotID];
@@ -161,16 +156,36 @@ var sendMove = function(robotID, angle, distanceMM) {
 	// toFixed converts the floating point numbers into fixed point
 	// representations of themselves.
 	socket.write(JSON.stringify({ type: 'MOVE',
-			angle: parseInt(Math.round(degrees)),
-			distance: parseInt(Math.round(distanceMM))}));
+		angle: parseInt(Math.round(angle)),
+		distance: parseInt(Math.round(distanceMM))}));
 };
 
+var sendNextCorner = function (robotId) {
+
+	// Get the socket and sends
+	var socket = robots[robotId];
+
+	if (socket === undefined) {
+		// This will happen if there was a robot with a lower
+		// ID than has connected started.
+		return;
+	}
+
+	// function socket.write needs to be defined
+	if(socket === null || typeof socket.write === "undefined"){
+		console.log("ERROR(sendMove/communication.js): Null Socket");
+		return;
+	}
+
+	socket.write(JSON.stringify({
+		type: 'CORNER'
+	}));
+
+};
 
 var flattenIntensities = function (rawIntensities, count) {
 
 	var result = [];
-
-	console.log(rawIntensities.length);
 
 	for(var i = 0; i < rawIntensities.length; i++){
 
@@ -189,6 +204,7 @@ server.listen(9000);
 exports.sendStart = sendStart;
 exports.sendStop = sendStop;
 exports.sendMove = sendMove;
+exports.sendNextCorner = sendNextCorner;
 
 if (TEST) {
 	exports.TEST = TEST;

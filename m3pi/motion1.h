@@ -13,5 +13,7 @@
 #define robotTurningCorrection 75
 
 void start();
-
+void alignCorner(int distance);
+void alignCorner();
 void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities);
+void setTileSize(int size);

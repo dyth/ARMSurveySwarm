@@ -1,9 +1,5 @@
-#include "mbed.h"
-#include "m3pi.h"
-#include <algorithm>
-#include <sstream>
 #include "motion1.h"
- 
+
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
@@ -63,7 +59,7 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     int sampleRemainder = distanceRemainder % (int) (tileSize / 2);
     // number of remainder samples
     int remainderSamples = distanceRemainder / (int) (tileSize / 2);
-    
+
     // bleed
     /*
     m3pi.forward(0.25);
@@ -72,10 +68,10 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     // start motors
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
-    
+
     wait(((float) sampleRemainder) / robotDistancePerSecond);
     halt();
-    
+
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
     for (int i = 0; i < remainderSamples; i++) {
@@ -84,7 +80,7 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
         m3pi.calibrated_sensor(sensors);
         intensities.push_back(sensors[2]);
     }
-    
+
     // do the specified number of cadences
     for (int i = 0; i < cadenceNumber; i++) {
         cadence(cadenceRemainder, samples, intensities);
@@ -251,9 +247,13 @@ void alignCorner(int distance) {
     PID(0.0, 0.5, 4);
 }
 
+void alignCorner(){
+    alignCorner(500);
+}
+
 void findLine() {
     // go backwards until line detected
-    
+
     m3pi.backward(0.15);
     /*
     if (m3pi.middle_sensor() > 800) {
@@ -298,10 +298,10 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
 void start() {
     // wait until human has left then find the first corner
     //turnClockwise(720);
-    
+
     m3pi.reset();
     wait(0.5);
     alignCorner(200);
-    
+
     //turnClockwise(360 + 45 + robotTurningCorrection);
 }

@@ -1,11 +1,11 @@
-#include "motion.h"
+#include "motion1.h"
 #include "MbedJSONValue.h"
 #include "TCPSocket.h"
 #include "ESP8266Interface.h"
 #include "SocketAddress.h"
 #include <string>
 
-#define SERVIP "192.168.46.4"
+#define SERVIP "192.168.46.6"
 #define SERVPORT 9000
 #define SSID "private_network152"
 #define PASSWORD "CelesteAqua78"
