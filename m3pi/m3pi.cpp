@@ -1,6 +1,6 @@
-/* m3pi Library
+/* A m3pi Library, based on earlier work by cstyles
  *
- * Copyright (c) 2007-2010 cstyles
+ * Copyright (c) 2007-2010 David Hui, (c) 2007-2010 cstyles
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -123,18 +123,6 @@ void m3pi::calibrate(void) {
 
 void m3pi::reset_calibration() {
     _ser.putc(LINE_SENSORS_RESET_CALIBRATION);
-}
-
-int m3pi::middle_sensor(void) {
-    _ser.putc(SEND_CALIBRATED_SENSOR_VALUES);
-    int cal[5];
-    for (int i=0; i<5; i++){
-        char lowbyte = _ser.getc();
-        char hibyte  = _ser.getc();
-        int s = (lowbyte + (hibyte << 8));
-        cal[i] = s;
-    }
-    return cal[2];
 }
 
 void m3pi::calibrated_sensor (int * cal) {
