@@ -4,8 +4,7 @@ node_js:
     - 0.12
 
 install:
-    - npm install connect serve-static socket.io socket.io-client html express path mocha chai mathjs
-    - npm install --save-dev coveralls mocha-lcov-reporter
+    - npm install 
     - sudo apt-get install nodejs
 
 env:
@@ -18,9 +17,6 @@ after_success:
 notifications:
   email:
     recipients:
-      - jcw78@cam.ac.uk
-      - jcw78@cam.ac.uk
-      - jcw78@cam.ac.uk
       - jcw78@cam.ac.uk
       - dyth2@cam.ac.uk
       - hrk32@cam.ac.uk
