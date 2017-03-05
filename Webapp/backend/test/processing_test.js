@@ -12,7 +12,6 @@ var getColour = function(intensity) {
 	} else {
 		return 2;
 	}
-
 }
 
 describe('Create tiles list', function() {
@@ -103,20 +102,6 @@ describe('next move', function() {
 	});
 });
 
-// describe('stop all', function() {
-// 	it('should send out a stop message to all robots', function() {
-// 		var dataReceived;
-//
-// 		coms.receiveData({type: 'HELLO', id: 0}, {destroyed: false, write: function(data) {
-// 			dataReceived = data;
-// 		}});
-//
-// 		processor.stopAll();
-// 		var json = JSON.parse(dataReceived);
-// 		expect(json).to.have.property("type", "STOP");
-//
-// 	});
-// });
 
 describe('tile update', function() {
 	it('updates accepted tile to either 1 (white) or 0 (black)', function() {
@@ -126,31 +111,3 @@ describe('tile update', function() {
 		expect(processor.tiles[0][0].accepted).to.equal(2);
 	});
 });
-
-// describe('convert', function() {
-// 	it('takes destination provided by route, converting directions to tile to' +
-// 		' polar coordinates from corner', function() {
-// 			processor.setGridDimensions(10);
-// 			processor.addRobotToList(0); //starts in quadrant 0
-// 			processor.addRobotToList(1);
-// 			processor.robots[1].corner = 1;
-//
-// 			processor.robots[0].xDest = 4;
-// 			processor.robots[0].yDest = 4;
-//
-// 			processor.robots[1].xDest = 3;
-// 			processor.robots[1].yDest = 5;
-//
-// 			var vectorLength = processor.vectorLength([4,4]);
-// 			var vectorLength2 = processor.vectorLength([3,5]);
-//
-// 			var converted = processor.convertToRobotInstructions(0);
-// 			var converted2 = processor.convert(1);
-// 			console.log(converted2.angle);
-//
-// 			expect(converted.angle).to.equal(Math.PI/4);
-// 			expect(converted.distance).to.equal(vectorLength);
-// 			expect(converted2.angle).to.equal(Math.atan(5/3));
-// 			expect(converted2.distance).to.equal(vectorLength2);
-// 		});
-// });

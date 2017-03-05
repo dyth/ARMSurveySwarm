@@ -13,13 +13,17 @@ var TEST = true;
 
 // Each element is dictionary of x, y positions for unchecked tiles
 
-// unchecked tiles now split up the board into 4 quadrants.
-// robots at corners numbering the quadrants will only be routed into those
-// quadrants
+/* Unchecked tiles now split up the board into 4 quadrants.
+ * Robots at corners numbering the quadrants will only be routed into those
+ * quadrants
+ */
 var uncheckedTiles = [[],[],[],[]];
 var numQuadrants = 4;
 
-// Weights to get tile positions when quadrant is full
+/*
+ * Weights to get tile positions when quadrant is full.
+ */
+
 var escapeTilesX = [1/4, 1/2, 3/4, 1/2];
 var escapeTilesY = [1/2, 3/4, 1/2, 1/4];
 

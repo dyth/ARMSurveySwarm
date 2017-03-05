@@ -165,17 +165,19 @@ var startProcessing = function() {
 };
 
 
+/* Robot moves clockwise to the next corner, entering the next quadrant */
 var moveToNextCorner = function (robotId) {
 
     //communication.sendNextCorner(robotId);
     robots[robotId].corner = (robots[robotId].corner + 1) % 4;
-
 };
 
 
 
 /*
- * Called when a robot reaches the next corner and sends back a list of intensities
+ * Called when a robot reaches the next corner and sends back
+ * a list of intensities. The server gets the next tile to move to using route,
+ * creates the instruction to send to the robot and sends it over WiFi.
  */
  var nextMove = function (robotId) {
 
@@ -276,7 +278,10 @@ var moveToNextCorner = function (robotId) {
 
 
 /*
- * This updates the accepted tile value as appropriate
+ * This updates the accepted tile value to be either black, white or grey.
+ * If euqal numbers of robots have asserted that the tile is black and white,
+ * the tile is set to grey and will be checked by another robot. Otherwise it
+ * set to the colour which the majority of robots have scanned.
  */
 var updateTile = function(x, y){
 	var tile = tiles[x][y];
@@ -324,6 +329,7 @@ var convertToRobotInstructions = function(startX, startY, endX, endY, corner){
 };
 
 
+/* Convert angle in radians to degrees */
 var radToDeg = function (rad) {
     return rad * 180 / Math.PI;
 };
@@ -338,6 +344,8 @@ var stop = function(robotID) {
 	sendStatusUpdate(robotID);
 	communication.sendStop(robotID);
 };
+
+
 
 /*
  * This unpacks the dictionary for the robot status and sends it on to the
@@ -374,7 +382,9 @@ var setRobotStatusScanning = function(robotID) {
 
 
 /*
- *
+ * Send message to webapp to update status of robot to waiting.
+ * Status is set to waiting when the robots are waiting for remaining robots
+ * to get to a corner.
  */
 var setRobotStatusWaiting = function(robotID) {
 	robots[robotID].robotStatus = 0;
