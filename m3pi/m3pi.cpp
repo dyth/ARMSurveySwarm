@@ -127,13 +127,14 @@ void m3pi::reset_calibration() {
 
 int m3pi::middle_sensor(void) {
     _ser.putc(SEND_CALIBRATED_SENSOR_VALUES);
-    for (int i=0; i<3; i++) {
-        _ser.getc();
+    int[5] cal;
+    for (int i=0; i<5; i++){
+        char lowbyte = _ser.getc();
+        char hibyte  = _ser.getc();
+        int s = (lowbyte + (hibyte << 8));
+        cal[i] = s;
     }
-    char lowbyte = _ser.getc();
-    char hibyte = _ser.getc();
-    int s = (lowbyte + (hibyte << 8));
-    return s;
+    return cal[2];
 }
 
 void m3pi::PID_start(int max_speed, int a, int b, int c, int d) {
