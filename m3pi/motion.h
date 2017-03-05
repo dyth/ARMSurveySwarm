@@ -4,9 +4,6 @@
 #include <iterator>
 #include <vector>
 
-// board size
-#define tileSize 100
-
 // robot terms
 #define robotID 0
 #define rotation 1.231f
