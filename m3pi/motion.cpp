@@ -1,5 +1,9 @@
-#include "motion.h"
-
+#include "mbed.h"
+#include "m3pi.h"
+#include <algorithm>
+#include <sstream>
+#include "motion1.h"
+ 
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
@@ -39,7 +43,7 @@ void cadence(int remainder, int samples, vector<int> &intensities) {
     for (int i = 0; i < samples; i++) {
         wait(1.0f / (float) samples);
         int sensors[5];
-        m3pi.calibrated_sensor(sensors)
+        m3pi.calibrated_sensor(sensors);
         intensities.push_back(sensors[2]);
     }
 
@@ -61,9 +65,10 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     int remainderSamples = distanceRemainder / (int) (tileSize / 2);
     
     // bleed
+    /*
     m3pi.forward(0.25);
     wait(0.25);
-    
+    */
     // start motors
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
@@ -76,7 +81,7 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     for (int i = 0; i < remainderSamples; i++) {
         wait(1.0f / (float) samples);
         int sensors[5];
-        m3pi.calibrated_sensor(sensors)
+        m3pi.calibrated_sensor(sensors);
         intensities.push_back(sensors[2]);
     }
     
@@ -98,8 +103,10 @@ void goForwards(int distance) {
     int distanceRemainder = distance % (int) robotDistancePerSecond;
 
     // bleed before starting motors
-    m3pi.forward(0.25);
-    wait(0.25);
+    /*
+    *m3pi.forward(0.25);
+    *wait(0.25);
+    */
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
 
@@ -255,7 +262,7 @@ void findLine() {
     */
     while (1) {
         int sensors[5];
-        m3pi.calibrated_sensor(sensors)
+        m3pi.calibrated_sensor(sensors);
         if (sensors[2] > 800) {
             break;
         }
