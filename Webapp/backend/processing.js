@@ -179,8 +179,11 @@ var moveToNextCorner = function (robotId) {
  * creates the instruction to send to the robot and sends it over WiFi.
  */
 var nextMove = function () {
+	console.log(waitingRobots);
+	console.log(connectedRobots);
 
     if(waitingRobots === connectedRobots){
+
 
         // Give each robot a new instruction
         for(var id = 0; id < robots.length; id++){
@@ -417,12 +420,16 @@ if (TEST) {
 		connectedRobots = 0;
 	}
 
-	exports.unconnectAllRobots = function() {
+	exports.disconnectAllRobots = function() {
 		robots.length = 0;
 	}
 
 	exports.resetTiles = function() {
 		tiles.length = 0;
+	}
+
+	exports.resetWaitingRobots = function() {
+		waitingRobots = 0;
 	}
 
 }

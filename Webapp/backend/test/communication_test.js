@@ -75,7 +75,10 @@ describe('receiveData', function() {
 	it('a done message should result in the done count in processing increasing',
 		function() {
 			coms.robots[0] = {destroyed: false, write: function() {}};
+			coms.robots[1] = {destroyed: false, write: function() {}};
+
 			var originalCount = processor.waitingRobots;
+			console.log(originalCount);
 
 			coms.receiveData({type: "DONE", intensities: ["[1, 2]"], count: 0}, {});
 
