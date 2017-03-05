@@ -33,7 +33,7 @@ describe('setTiles function', function() {
 		processor.createTilesList();
 		processor.setGridDimensions({x: 10, y: 10});
 
-		processor.robots[1] = {robotStatus: 1, quadrant: 2, 
+		processor.robots[1] = {robotStatus: 1, quadrant: 2,
 			xCorner: 9, yCorner: 9, xAfter: 8, yAfter: 8};
 
 		var values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
@@ -48,7 +48,7 @@ describe('setTiles function', function() {
 
 describe('getting angles', function() {
 	it('should return some sensible numbers', function() {
-		processor.robots[0] = {robotStatus:1, 
+		processor.robots[0] = {robotStatus:1,
 			quadrant: 0, xCorner: 0, yCorner: 0, xAfter: 5, yAfter: 2};
 
 		var angle = processor.getAngleNoOffset(0);
@@ -129,13 +129,28 @@ describe('next move', function() {
 		processor.setConnectedRobots();
 		processor.addRobotToList(0);
 		route.setUp(10);
-		processor.nextMove(0);
+
 		var robot = processor.robots[0];
 
-		// xAfter and yAfter should be updated and should be within quadrant 0
-		console.log('x '+ robot.xAfter + ' y ' + robot.yAfter);
-		expect(route.getQuadrant(robot.xAfter, robot.yAfter)).
-			to.equal(0);
+
+
+		for (var i = 0; i < 8; i++) {
+			console.log('-----------');
+
+			processor.nextMove(0);
+
+			// xAfter and yAfter should be updated and should be within quadrant 0
+			console.log('x '+ robot.xAfter + ' y ' + robot.yAfter);
+			expect(route.getQuadrant(robot.xAfter, robot.yAfter)).
+				to.equal(i%4);
+
+			// Update the robot start position
+			robot.quadrant = (robot.quadrant + 1) % 4
+			var nextCorner = processor.getCorner(robot.quadrant);
+
+			robot.xCorner = nextCorner.x;
+			robot.yCorner = nextCorner.y;
+		}
 
 	});
 	it('should stop all robots when all quadrants have no tiles to check', function() {

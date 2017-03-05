@@ -210,7 +210,7 @@ var getAngleWithOffset = function(robotID) {
 	// Note that offset is along the yAxis.
 	var offset = getCorner(robot.quadrant).orientation;
 	var angleNoOffset = getAngleNoOffset(robotID);
-	
+
 	console.log('offset' + offset * 180 / Math.PI);
 	console.log('no offset' + angleNoOffset * 180 / Math.PI);
 	return offset - angleNoOffset;
@@ -357,18 +357,18 @@ var vectorLength = function(vector) {
 /*
  * This takes the next position of the robots.
  *
- * It returns a dictionary of the distance and the angle through
+ * It returns a dictionary of the distance and the clockwise angle through
  * which the robot will rotate.
- *
  */
 var convert = function(robotID){
+
 	var robot = robots[robotID];
 
 	// The robot always stores starting corner, we interpolate between this and
 	// tileX, tile Y. After checkTile returns, robots will store the new corner
 	// as prev but the tile just travelled to in after.
-	var changeInX = robot.xCorner - robot.xAfter;
-	var changeInY = robot.yCorner - robot.yAfter;
+	var changeInX = Math.abs(robot.xCorner - robot.xAfter);
+	var changeInY = Math.abs(robot.yCorner - robot.yAfter);
 
 	var angle = getAngleNoOffset(robotID);
 	var distance = vectorLength([changeInX, changeInY]);
@@ -376,6 +376,11 @@ var convert = function(robotID){
 	console.log('From x=' + robot.xCorner + ' y='+ robot.yCorner
 		+ ' going to x=' + robot.xAfter +' y=' + robot.yAfter + ' with angle '
 		+ angle*180/Math.PI + ' and distance ' + distance);
+
+	// if (robot.xCorner === 9 && robot.yCorner === 0) {
+	// 	console.log(new Error().stack());
+	// 	throw "error";
+	// }
 
 	return {angle: angle, distance: distance}
 };

@@ -122,7 +122,7 @@ var move = function(xBefore, yBefore) {
 	} else if (uncheckedTiles[quadrantNo].length === 0) {
 		// Covered all tiles in quadrant, move it to tile to just go to next corner
 		return {xAfter: escapeTilesX[quadrantNo] * tilesAcross,
-			yAfter: escapeTilesY[quadrantNo] *tilesAcross, stopAll: false};
+			yAfter: escapeTilesY[quadrantNo] * tilesAcross, stopAll: false};
 
 	} else {
 		var tileIndex = getRandomInt(0, uncheckedTiles[quadrantNo].length);

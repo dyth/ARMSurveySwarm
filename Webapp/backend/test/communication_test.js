@@ -54,6 +54,7 @@ describe('receiveData', function() {
 		coms.receiveData({type: "DONE", intensities: [1, 2, 3], id: 0}, {});
 	});
 
+
 	it('should send a start message to the robot', function(done) {
 		coms.receiveData({type: "HELLO", id: 0},
 			{destroyed: false, write: function(data) {
