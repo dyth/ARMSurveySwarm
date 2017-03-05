@@ -210,4 +210,5 @@ if (TEST) {
 	exports.TEST = TEST;
 	exports.robots = robots;
 	exports.receiveData = receiveData;
+	exports.server = server;
 }

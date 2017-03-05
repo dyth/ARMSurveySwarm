@@ -42,10 +42,16 @@ describe('Test tcp server', function() {
 		client.write('{"type":"HELLO", "id": 1}');
 
 		setTimeout(function() {
+			console.log('ROBOTS ' + processor.robots);
 			expect(coms.robots[1]).to.exist;
 			expect(processor.robots[1]).to.exist;
 			done();
 		}, 100);
+	});
+
+	it('should be able to connect to at least 4 clients', function() {
+		// TODO
+		// expect(coms.server.maxConnections).to.be.at.least(4);
 	});
 });
 
@@ -66,7 +72,18 @@ describe('receiveData', function() {
 	});
 
 
+	it('a done message should result in the done count in processing increasing',
+		function() {
+			coms.robots[0] = {destroyed: false, write: function() {}};
+			var originalCount = processor.waitingRobots;
+			coms.receiveData({type: "DONE", intensities: [1, 2], id: 0}, {});
+
+			exepct(processor.waitingRobots).to.equal(originalCount + 1);
+	});
+
+
 	it('should send a start message to the robot', function(done) {
+		processor.robots.length = 0;
 		coms.receiveData({type: "HELLO", id: 0},
 			{destroyed: false, write: function(data) {
 				var json = JSON.parse(data);
@@ -76,9 +93,12 @@ describe('receiveData', function() {
 			}});
 		coms.sendStart(0, 10);
 	});
+});
 
+describe('other sending functions', function() {
 	it('sendStop should send a stop message',
 		function(done) {
+			processor.robots.length = 0;
 			coms.receiveData({type: "HELLO", id: 0},
 				{destroyed: false, write: function(data) {
 					var json = JSON.parse(data);
@@ -104,5 +124,5 @@ describe('receiveData', function() {
 
 			coms.sendMove(0, 1213,  1231);
 			coms.robots[0] = undefined;
-		});
+	});
 });
