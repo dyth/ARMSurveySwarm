@@ -8,16 +8,37 @@
  *	 intensity information
  */
 
-var TEST = true;
 
 // dependencies for this module
 var server = require('./server');
 var communication = require('./communication');
 var route = require('./route');
 
+
+// flag used for exports of functions used in test harnesses
+var TEST = true;
+
+
+/* Array holding the current corner coordinates, destination tile coordinates,
+ * status and current quadrant number.
+ *
+ * Potential states of the robots -- Waiting: 0, Scanning:  1, Stopped: 2
+ * Array order is by robot ID.
+ * For the status, it is an index in the array 'states' in state.js
+ * on the frontend
+ */
 var robots = [];
 
+
+/* State of floor tiles making up pattern.
+ *
+ * A 2D array indexed by Cartesian coordinates where each tile is defined
+ * using a dictionary storing the number of robots that have asserted that the
+ * tile colour is either black or white. The accepted attribute is set once
+ * more than two robots agree on the colour of a tile.
+ */
 var tiles = [];
+
 
 /* Grid size is width of the board in the number of tiles.
  * Tile size is in mm
@@ -31,8 +52,14 @@ var tileSize = 0;
  */
 var startedProcessing = false;
 
+
+/* State to coordinate robots.
+ * A robot at the corner is a waiting robot where all robots have to be at a
+ * corner before the next move is given.
+ */
 var connectedRobots = 0;
 var waitingRobots = 0;
+
 
 /*
  * Create new tiles list, called after the user has entered
@@ -50,15 +77,14 @@ var initTiles = function () {
 
 };
 
+
 /*
- * Adds a robot to the list
- * Called in communication.js
+ * Adds a robot to the list when robot is connected.
+ * Robots start at corner 0 before moving to one of the four corners of the
+ * floor pattern.
+ * Quadrants are numbered 0 - 3 starting from the bottom left-hand corner.
  */
 var addRobotToList = function(robotID) {
-
-    // Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
-    // xCorner/yCorner will be out of bounds of the tiles array since we will not
-    // always be in the bottom left hand corner now
 
     // TODO: Don't ignore reconnecting robots
     // Move all other robots to next corner
@@ -71,9 +97,8 @@ var addRobotToList = function(robotID) {
 
     connectedRobots++;
 
-    console.log(robots);
-
 };
+
 
 /*
  * Set the robot status to waiting and decrease the number of connected robots.
@@ -89,12 +114,14 @@ var robotConnectionLost = function(robotID) {
     connectedRobots--;
 };
 
+
 /*
  * Set user input of tile size
  */
 var setTileSize = function(s) {
     tileSize = s;
 };
+
 
 /*
  * Sets height and width of board in tile number given by user
@@ -104,12 +131,14 @@ var setGridDimensions = function(s) {
     initTiles();
 };
 
+
 /*
  * Gets height and width of board in tile number given by user
  */
 var getGridSize = function() {
     return gridSize;
 };
+
 
 /*
  * Called when the robots are all connected to start routing
@@ -129,9 +158,10 @@ var startProcessing = function() {
     }
 };
 
+
 /*
-* Called before processing starts.
-* Moves a robot to the next corner.
+ * Called before processing starts.
+ * Robot moves clockwise to the next corner, entering the next quadrant
  */
 var moveToNextCorner = function (robotId) {
 
@@ -140,8 +170,11 @@ var moveToNextCorner = function (robotId) {
 
 };
 
+
 /*
-* Sends the next instruction to a robot
+ * Called when a robot reaches the next corner and sends back
+ * a list of intensities. The server gets the next tile to move to using route,
+ * creates the instruction to send to the robot and sends it over WiFi.
  */
 var nextMove = function (robotId) {
 
@@ -184,9 +217,14 @@ var nextMove = function (robotId) {
 
 };
 
+
 /*
-* Called when a robot sends a DONE message.
-* Robot sends intensities to be processed.
+ * Called when a robot sends a DONE message.
+ * Register communication of tile colour received from robots.
+ *
+ * Input is robot ID and a list of light intensities. We use the robot start
+ * and ending positiong to interpolate the locations of the intensities to
+ * retrieve the colour of each tile passed.
  */
 var handleDone = function(robotId, intensities){
 
@@ -229,6 +267,7 @@ var handleDone = function(robotId, intensities){
 
 };
 
+
 /*
  * This updates the accepted tile value to be either black, white or grey.
  * If equal numbers of robots have asserted that the tile is black and white,
@@ -253,7 +292,10 @@ var updateTile = function (x, y) {
 
 };
 
+
 /* Math Functions */
+
+/* Get next data for corner given the quadrant that the robot is in */
 var cornerToCoordinates = function (corner) {
 
     if(corner === 0) return {x:0, y:0};
@@ -263,8 +305,12 @@ var cornerToCoordinates = function (corner) {
 
 };
 
+
 /*
-* Converts cartesian coordinates to angle and distance instructions for the robot.
+ * Converts cartesian coordinates to angle and distance instructions
+ * for the robot.
+ * Return a dictionary of the distance and the clockwise angle through
+ * which the robot will rotate.
  */
 var convertToRobotInstructions = function(startX, startY, endX, endY, corner){
 
@@ -281,9 +327,11 @@ var convertToRobotInstructions = function(startX, startY, endX, endY, corner){
 
 };
 
+
 var radToDeg = function (rad) {
     return rad * 180 / Math.PI;
 };
+
 
 /*
  * This unpacks the dictionary for the robot status and sends it on to the
@@ -294,18 +342,36 @@ var sendStatusUpdate = function(robotID) {
     server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
 };
 
+
+/*
+ * Send message to webapp to update status of robot to stopped.
+ * Robots can be stopped by user or are stopped by the server when all tiles
+ * have been covered.
+ */
 var setRobotStatusStopped = function(robotID) {
     robots[robotID].robotStatus = 2;
 
     sendStatusUpdate(robotID);
 };
 
+
+/*
+ * Send message to webapp to update status of robot to scanning.
+ * Status is set to scanning when robots are being routed to a tile
+ * on the floor pattern.
+ */
 var setRobotStatusScanning = function(robotID) {
     robots[robotID].robotStatus = 1;
 
     sendStatusUpdate(robotID);
 };
 
+
+/*
+ * Send message to webapp to update status of robot to waiting.
+ * Status is set to waiting when the robots are waiting for remaining robots
+ * to get to a corner.
+ */
 var setRobotStatusWaiting = function(robotID) {
     robots[robotID].robotStatus = 0;
 
