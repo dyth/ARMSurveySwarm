@@ -31,26 +31,75 @@ describe('setTiles function', function() {
 		processor.resetProcessingTiles();
 		processor.getGridDimensions({x:10, y:10});
 		processor.createTilesList();
+		processor.setGridDimensions({x: 10, y: 10});
 
-		processor.robots[1] = {robotStatus: 1, quadrant: 0,
-			xCorner: 9, yCorner: 9, xAfter: 2, yAfter: 6};
-
-		var length = -7.61577;
-
-		var xS = 9;
-		var yS = 9;
+		processor.robots[1] = {robotStatus: 1, quadrant: 2, 
+			xCorner: 9, yCorner: 9, xAfter: 8, yAfter: 8};
 
 		var values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 		processor.setTiles(1, values);
-		for (var i = 0; i < values.length; i ++) {
-			var tiles = processor.processingTiles[Math.round(xS)][Math.round(yS)];
-			xS -= length * Math.sin(1.1071487);
-			yS -= length * Math.cos(1.1071487);
-			console.log(xS, yS);
-			console.log(tiles);
-			// expect(tiles.accepted).to.equal(values[i]);
-		}
+		var tiles1 = processor.processingTiles[9][9];
+		var tiles2 = processor.processingTiles[8][8];
+
+		expect(tiles1).to.have.property("accepted", 1);
+		expect(tiles2).to.have.property("accepted", 1);
 	});
+});
+
+describe('getting angles', function() {
+	it('should return some sensible numbers', function() {
+		processor.robots[0] = {robotStatus:1, 
+			quadrant: 0, xCorner: 0, yCorner: 0, xAfter: 5, yAfter: 2};
+
+		var angle = processor.getAngleNoOffset(0);
+		expect(angle).to.equal(Math.atan(5.0/2));
+
+		var offsetAngle = processor.getAngleWithOffset(0);
+		expect(offsetAngle).to.equal(Math.atan(2/5.0));
+	});
+
+	it('should work in other quadrants', function() {
+		processor.robots[0].quadrant = 1;
+		processor.robots[0].xCorner = 0;
+		processor.robots[0].yCorner = 5;
+		processor.robots[0].xAfter = 4;
+		processor.robots[0].yAfter = 4;
+
+		var angle = processor.getAngleNoOffset(0);
+		expect(angle).to.equal(Math.atan(1/4));
+
+		var offsetAngle = processor.getAngleWithOffset(0);
+		expect(offsetAngle).to.equal(3 * Math.PI / 2 + Math.atan(4));
+	});
+
+	it('should work in quadrants 2', function() {
+		processor.robots[0].quadrant = 2;
+		processor.robots[0].xCorner = 5;
+		processor.robots[0].yCorner = 5;
+		processor.robots[0].xAfter = 3;
+		processor.robots[0].yAfter = 4;
+
+		var angle = processor.getAngleNoOffset(0);
+		expect(angle).to.equal(Math.atan(2));
+
+		var offsetAngle = processor.getAngleWithOffset(0);
+		expect(offsetAngle).to.equal(3 * Math.PI / 2 - Math.atan(2));
+	});
+
+	it('should work in quadrant 3', function() {
+		processor.robots[0].quadrant = 3;
+		processor.robots[0].xCorner = 5;
+		processor.robots[0].yCorner = 0;
+		processor.robots[0].xAfter = 2;
+		processor.robots[0].yAfter = 1;
+
+		var angle = processor.getAngleNoOffset(0);
+		expect(angle).to.equal(Math.atan(1/3));
+
+		var offsetAngle = processor.getAngleWithOffset(0);
+		expect(offsetAngle).to.equal(Math.PI - Math.atan(1/3));
+	});
+
 });
 
 describe('Vector Length', function() {
@@ -164,11 +213,11 @@ describe('get next corner', function() {
 			expect(quadrant0.x).to.equal(0);
 			expect(quadrant0.y).to.equal(0);
 
-			expect(quadrant1.orientation).to.equal(0);
+			expect(quadrant1.orientation).to.equal(Math.PI * 2);
 			expect(quadrant1.x).to.equal(0);
 			expect(quadrant1.y).to.equal(9);
 
-			expect(quadrant2.orientation).to.equal(-Math.PI/2);
+			expect(quadrant2.orientation).to.equal(3 * Math.PI/2);
 			expect(quadrant2.x).to.equal(9);
 			expect(quadrant2.y).to.equal(9);
 

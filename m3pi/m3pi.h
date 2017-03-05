@@ -174,6 +174,7 @@ public:
      */
     void calibrate(void);
 
+
     /** Clear the current calibration settings
      *
      */
@@ -183,6 +184,8 @@ public:
      *  values go from 0 to 1000
      */
     int middle_sensor (void);
+    
+    void calibrated_sensor (int *);
     
     void PID_start(int max_speed, int a, int b, int c, int d);
 

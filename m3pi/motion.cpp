@@ -13,17 +13,10 @@ void halt() {
     wait(1.0f);
 }
 
-void turnCounterClockwise(int degree) {
-    // Turn left at the slowest speed possible for accuracy
-    m3pi.left(0.15f);
-    wait(((float) degree) * rotation / 360.0f);
-    halt();
-}
-
 void turnClockwise(int degree) {
     // Turn right at the slowset speed possible for accuracy
     m3pi.stop();
-    m3pi.right(0.15f);
+    m3pi.right(0.25f);
     wait(((float) degree) * rotation / 360.0f);
     halt();
 }
@@ -39,7 +32,9 @@ void cadence(int remainder, int samples, vector<int> &intensities) {
     // sample twice per tile size
     for (int i = 0; i < samples; i++) {
         wait(1.0f / (float) samples);
-        intensities.push_back(m3pi.middle_sensor());
+        int sensors[5];
+        m3pi.calibrated_sensor(sensors);
+        intensities.push_back(sensors[2]);
     }
 
     halt();
@@ -74,7 +69,9 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     m3pi.right_motor(robotMotorRight);
     for (int i = 0; i < remainderSamples; i++) {
         wait(1.0f / (float) samples);
-        intensities.push_back(m3pi.middle_sensor());
+        int sensors[5];
+        m3pi.calibrated_sensor(sensors);
+        intensities.push_back(sensors[2]);
     }
     
     // do the specified number of cadences
@@ -245,8 +242,17 @@ void findLine() {
     // go backwards until line detected
     
     m3pi.backward(0.15);
+    /*
     if (m3pi.middle_sensor() > 800) {
         halt();
+    }
+    */
+    while (1) {
+        int sensors[5];
+        m3pi.calibrated_sensor(sensors);
+        if (sensors[2] > 800) {
+            break;
+        }
     }
 }
 
@@ -278,7 +284,11 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
 
 void start() {
     // wait until human has left then find the first corner
+    //turnClockwise(720);
+    
     m3pi.reset();
     wait(0.5);
     alignCorner(200);
+    
+    //turnClockwise(360 + 45 + robotTurningCorrection);
 }

@@ -5,7 +5,7 @@
 #include "SocketAddress.h"
 #include <string>
 
-#define SERVIP "192.168.46.2"
+#define SERVIP "192.168.46.4"
 #define SERVPORT 9000
 #define SSID "private_network152"
 #define PASSWORD "CelesteAqua78"
