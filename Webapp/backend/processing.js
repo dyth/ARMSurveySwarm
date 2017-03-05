@@ -130,6 +130,12 @@ var setTiles = function(robotID, intensities) {
 
 	console.log("DATA: " + intensities);
 
+	if (intensities.length === 0) {
+		console.log("No intensities provided");
+
+		return;
+	}
+
 	// Update tile table for current position
 	// Get x, y, light intensity, add to processing tiles
 	var coordX = robot.xCorner;
