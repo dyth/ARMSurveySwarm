@@ -70,6 +70,7 @@ var addRobotToList = function(robotID) {
     robots[robotID] = {xDest: 0, yDest: 0, corner: 0, robotStatus: 0};
 
     connectedRobots++;
+    waitingRobots++;
 
     console.log(robots);
 
@@ -123,10 +124,11 @@ var startProcessing = function() {
         if (robots[i] !== undefined) {
 
             communication.sendStart(i, tileSize);
-            nextMove(i);
 
         }
     }
+
+    nextMove();
 };
 
 /*
@@ -143,9 +145,7 @@ var moveToNextCorner = function (robotId) {
 /*
 * Sends the next instruction to a robot
  */
-var nextMove = function (robotId) {
-
-    waitingRobots++;
+var nextMove = function () {
 
     if(waitingRobots === connectedRobots){
 
@@ -173,13 +173,14 @@ var nextMove = function (robotId) {
                 communication.sendMove(id, radToDeg(instructions.angle), instructions.distance);
                 setRobotStatusScanning(id);
                 console.log('('+startCorner.x+','+startCorner.y+') -> ('+robot.xDest+','+robot.yDest+') with angle '+radToDeg(instructions.angle)+' and distance '+instructions.distance);
-							}
+
              }
-					 waitingRobots = 0;
+
+        }
+
+        waitingRobots = 0;
 
 
-    } else {
-        setRobotStatusWaiting(robotId);
     }
 
 };
@@ -189,6 +190,8 @@ var nextMove = function (robotId) {
 * Robot sends intensities to be processed.
  */
 var handleDone = function(robotId, intensities){
+
+    waitingRobots++;
 
     var robot = robots[robotId];
 
@@ -226,6 +229,8 @@ var handleDone = function(robotId, intensities){
 
     // Update the robot state
     robot.corner = (robot.corner + 1) % 4;
+
+    setRobotStatusWaiting(robotId);
 
 };
 

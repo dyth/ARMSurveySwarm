@@ -76,9 +76,10 @@ describe('receiveData', function() {
 		function() {
 			coms.robots[0] = {destroyed: false, write: function() {}};
 			var originalCount = processor.waitingRobots;
-			coms.receiveData({type: "DONE", intensities: [1, 2], id: 0}, {});
 
-			exepct(processor.waitingRobots).to.equal(originalCount + 1);
+			coms.receiveData({type: "DONE", intensities: ["[1, 2]"], count: 0}, {});
+
+			expect(processor.waitingRobots).to.equal(originalCount + 1);
 	});
 
 
@@ -112,6 +113,7 @@ describe('other sending functions', function() {
 
 	it('sendMove should send out a move message',
 		function(done) {
+			processor.robots.length = 0;
 			coms.receiveData({type: "HELLO", id: 0},
 				{destroyed: false, write: function(data) {
 					var json = JSON.parse(data);
