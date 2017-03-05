@@ -301,7 +301,6 @@ var cornerToCoordinates = function(corner) {
 		case 1: return {x: 0, y: gridSize - 1};
 		case 2: return {x: gridSize - 1, y: gridSize - 1};
 		case 3: return {x: gridSize - 1, y: 0};
-		default: return {x: 0, y: 0};
 	}
 }
 
@@ -414,14 +413,6 @@ if (TEST) {
 	exports.convertToRobotInstructions = convertToRobotInstructions;
 	exports.radToDeg = radToDeg;
 
-
-	exports.setCoveredToTotalTiles = function() {
-		tilesCovered = totalTiles;
-	}
-
-	exports.getConnectedRobots = function() {
-		return connectedRobots;
-	}
 
 	exports.setConnectedRobots = function() {
 		connectedRobots = 0;
