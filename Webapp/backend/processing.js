@@ -147,6 +147,7 @@ var setTiles = function(robotID, intensities) {
 		var roundedY = Math.round(coordY);
 
 		console.log(coordX, coordY);
+		console.log(angle * 180 / Math.PI);
 
 		if (roundedX > processingTiles.length - 1 ||
 			roundedY > processingTiles[roundedX].length - 1) {
@@ -186,9 +187,9 @@ var getCorner = function(quadrantNo) {
 		case 0:
 			return {orientation: Math.PI/2, x: 0, y: 0};
 		case 1:
-			return {orientation: 0, x: 0, y: height - 1};
+			return {orientation: 2 * Math.PI, x: 0, y: height - 1};
 		case 2:
-			return {orientation: -Math.PI/2, x: height - 1, y: height - 1};
+			return {orientation: 3 * Math.PI/2, x: height - 1, y: height - 1};
 		case 3:
 			return {orientation: Math.PI, x: height - 1, y: 0};
 		default:
@@ -207,9 +208,11 @@ var getAngleWithOffset = function(robotID) {
 	// the robot is facing.
 	//
 	// Note that offset is along the yAxis.
-	var offset = getCorner(robot.quadrantNo).orientation;
+	var offset = getCorner(robot.quadrant).orientation;
 	var angleNoOffset = getAngleNoOffset(robotID);
-
+	
+	console.log('offset' + offset * 180 / Math.PI);
+	console.log('no offset' + angleNoOffset * 180 / Math.PI);
 	return offset - angleNoOffset;
 }
 
@@ -219,7 +222,7 @@ var getAngleWithOffset = function(robotID) {
  */
 var getAngleNoOffset = function(robotID) {
 	var robot = robots[robotID];
-	var quadrantNo = robot.quadrantNo;
+	var quadrant = robot.quadrant;
 
 	// Computes the differences:
 	var yDiff = Math.abs(robot.yAfter - robot.yCorner);
@@ -230,7 +233,7 @@ var getAngleNoOffset = function(robotID) {
 		// If there is no yDiff, then the robot
 		// is heading along the xAxis and so we
 		// return the angle along that
-		if (quadrantNo % 2 === 0) {
+		if (quadrant % 2 === 0) {
 			// How much the robot turns given
 			// it's position depends on where it is
 			// on the board
@@ -244,7 +247,7 @@ var getAngleNoOffset = function(robotID) {
 		// If there is no xDiff, then the robot
 		// is heading straight up the yAxis.
 		// Therefore, we just return orientation.
-		if (quadrantNo % 2 === 0) {
+		if (quadrant % 2 === 0) {
 			// How much the robot turns
 			// given it's position depends on
 			// where it is on the board
@@ -469,6 +472,8 @@ if (TEST) {
 	exports.getCorner = getCorner;
 	exports.connectedRobots = connectedRobots;
 	exports.waitingRobots = waitingRobots;
+	exports.getAngleNoOffset = getAngleNoOffset;
+	exports.getAngleWithOffset = getAngleWithOffset;
 
 	var setCoveredToTotalTiles = function() {
 		tilesCovered = totalTiles;
