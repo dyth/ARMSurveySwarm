@@ -48,7 +48,7 @@ which hosts the webapp. The webapp can be viewed on http://localhost:80
 * **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
 * **Kamile Matulenaite** - *Processing robot data, collision prevention, next movement calculation, communication with server and robots, unit testing* - [Kamile](https://github.com/Kamile)
-* **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing* - [j-c-w](https://github.com/j-c-w)
+* **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing, documentation, travis-ci setup* - [j-c-w](https://github.com/j-c-w)
 
 See also the list of [contributors](https://github.com/dyth/ARMSurveySwarm/contributors) who participated in this project.
 
