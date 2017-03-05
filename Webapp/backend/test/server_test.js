@@ -107,35 +107,35 @@ describe('Calling updateStatus', function() {
 	});
 });
 
-describe('Stop Function Test', function() {
-	it('should return an ack by emitting "stopCalled"', function(done) {
-		var client = io.connect(socketURL, options);
-		var connected = false;
-		var stop = false;
-		var resume = false;
-
-		processing.addRobotToList(1);
-
-		client.on('connect', function(data) {
-			client.emit('stop', {id: 1});
-			connected = true;
-		});
-
-		client.on('stopCalled', function(data) {
-			stop = true;
-			client.emit('resume', {id: 1});
-			done();
-		});
-
-		setTimeout(function() {
-			expect(connected,
-				'client did not connect').to.equal(true);
-			expect(stop,
-				'"stop" call did not return a callback').to.equal(true);
-			client.disconnect();
-		}, 1000);
-	});
-});
+// describe('Stop Function Test', function() {
+// 	it('should return an ack by emitting "stopCalled"', function(done) {
+// 		var client = io.connect(socketURL, options);
+// 		var connected = false;
+// 		var stop = false;
+// 		var resume = false;
+//
+// 		processing.addRobotToList(1);
+//
+// 		client.on('connect', function(data) {
+// 			client.emit('stop', {id: 1});
+// 			connected = true;
+// 		});
+//
+// 		client.on('stopCalled', function(data) {
+// 			stop = true;
+// 			client.emit('resume', {id: 1});
+// 			done();
+// 		});
+//
+// 		setTimeout(function() {
+// 			expect(connected,
+// 				'client did not connect').to.equal(true);
+// 			expect(stop,
+// 				'"stop" call did not return a callback').to.equal(true);
+// 			client.disconnect();
+// 		}, 1000);
+// 	});
+// });
 
 describe('start processing message', function(done) {
 	var client = io.connect(socketURL, options);

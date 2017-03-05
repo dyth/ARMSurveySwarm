@@ -76,7 +76,7 @@ describe('next move', function() {
 	' at', function() {
 		processor.setConnectedRobots();
 		processor.disconnectAllRobots();
-		processor.resetWaitingRobots();
+		processor.setWaitingRobots(0);
 
 		processor.setGridDimensions(10);
 		processor.setTileSize(10);
@@ -88,12 +88,11 @@ describe('next move', function() {
 
 		for (var i = 0; i < 8; i++) {
 			console.log('-----------');
+			processor.setWaitingRobots(1);
 
 			processor.nextMove();
 
 			// xDest and yDest should be updated and should be within quadrant i
-
-			console.log(i + " " + JSON.stringify(robot));
 
 			expect(route.getQuadrant(robot.xDest, robot.yDest)).
 				to.equal(i%4);

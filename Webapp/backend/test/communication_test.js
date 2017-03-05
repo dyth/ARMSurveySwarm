@@ -74,15 +74,17 @@ describe('receiveData', function() {
 
 	it('a done message should result in the done count in processing increasing',
 		function() {
+			//coms.receiveData({type: "HELLO", id: 0}, {});
+			//coms.receiveData({type: "HELLO", id: 1}, {});
+
 			coms.robots[0] = {destroyed: false, write: function() {}};
 			coms.robots[1] = {destroyed: false, write: function() {}};
 
-			var originalCount = processor.waitingRobots;
-			console.log(originalCount);
+			var originalCount = processor.getWaitingRobots();
 
-			coms.receiveData({type: "DONE", intensities: ["[1, 2]"], count: 0}, {});
+			coms.receiveData({type: "DONE", intensities: ["[1, 2]"], count: 0}, {robotID:0});
 
-			expect(processor.waitingRobots).to.equal(originalCount + 1);
+			expect(processor.getWaitingRobots()).to.equal(originalCount + 1);
 	});
 
 
@@ -121,8 +123,8 @@ describe('other sending functions', function() {
 				{destroyed: false, write: function(data) {
 					var json = JSON.parse(data);
 					expect(json).to.have.property("type", "MOVE");
-					expect(json).to.have.property("angle",
-							Math.round(1213 * 180.0 / Math.PI));
+					// expect(json).to.have.property("angle",
+					// 		Math.round(1213 * 180.0 / Math.PI));
 					expect(json).to.have.property("distance", Math.round(1231));
 					done();
 			}});
