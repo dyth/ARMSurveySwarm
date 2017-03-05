@@ -32,7 +32,9 @@ void cadence(int remainder, int samples, vector<int> &intensities) {
     // sample twice per tile size
     for (int i = 0; i < samples; i++) {
         wait(1.0f / (float) samples);
-        intensities.push_back(m3pi.middle_sensor());
+        int sensors[5];
+        m3pi.calibrated_sensor(sensors)
+        intensities.push_back(sensors[2]);
     }
 
     halt();
@@ -67,7 +69,9 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     m3pi.right_motor(robotMotorRight);
     for (int i = 0; i < remainderSamples; i++) {
         wait(1.0f / (float) samples);
-        intensities.push_back(m3pi.middle_sensor());
+        int sensors[5];
+        m3pi.calibrated_sensor(sensors)
+        intensities.push_back(sensors[2]);
     }
     
     // do the specified number of cadences
@@ -238,8 +242,17 @@ void findLine() {
     // go backwards until line detected
     
     m3pi.backward(0.15);
+    /*
     if (m3pi.middle_sensor() > 800) {
         halt();
+    }
+    */
+    while (1) {
+        int sensors[5];
+        m3pi.calibrated_sensor(sensors)
+        if (sensors[2] > 800) {
+            break;
+        }
     }
 }
 
