@@ -1,50 +1,79 @@
-/**
- * Backend to deal with messages from robots
- * deal with representation of floor pattern.
- *
- * light intensity: 0 = black, 1 = white.
- *
+/*
+ * Kamile Matulenaite, Jackson Woodruff, Jamie Davenport
+ * Backend of the system dealing with
+ * -  relaying messages between the robots and the webapp
+ * -  storing the state of each tile that makes up the floor pattern
+ * -  storing robot state
+ * - interpolation between start and destination positions to parse light
+ *	 intensity information
  */
 
-
-// Call server.updateStatus(robotID, xPosition, yPosition, status)
-// server.updateGrid(x, y), updates the size of the grid.
-// server.updateTile(x, y, value) updates a tile.
+// dependencies for this module
 var server = require('./server');
 var communication = require('./communication');
 var route = require('./route');
 
+
+// flag used for exports of functions used in test harnesses
 var TEST = true;
 
+
+/* State of floor tiles making up pattern.
+ *
+ * A 2D array indexed by Cartesian coordinates where each tile is defined
+ * using a dictionary storing the number of robots that have asserted that the
+ * tile colour is either black or white. The accepted attribute is set once
+ * more than two robots agree on the colour of a tile.
+ */
 var processingTiles = [];
 
-// Array order is by robot ID.
-// For the status, it is an index in the array  'states' in state.js
-// on the frontend:
 
-// Waiting: 0, Scanning:  1, Stopped: 2
+
+/* Array holding the current corner coordinates, destination tile coordinates,
+ * status and current quadrant number.
+ *
+ * Potential states of the robots -- Waiting: 0, Scanning:  1, Stopped: 2
+ * Array order is by robot ID.
+ * For the status, it is an index in the array 'states' in state.js
+ * on the frontend
+ */
 var robots = [];
 
-// height and width in the number of tiles, tileSize in mm
+
+
+/* Height and width of the board in the number of tiles.
+ * Tile size is in mm
+ */
 var width = 0;
 var height = 0;
 var tileSize = 0;
 
+
+/* Total tiles to be covered is width * height.
+ * Number of tiles covered initially is set to 0.
+ */
 var tilesCovered = 0;
 var totalTiles = 0;
 
+
+/* Sets up unchecked tiles list upon receipt of the grid dimensions from the user
+ * Once all robots are connected they can be sent START messages and be routed.
+ */
 var startedProcessing = false;
 
-// State to coordinate robots
-// A robot at the corner is a waiting robot
+
+/* State to coordinate robots.
+ * A robot at the corner is a waiting robot where all robots have to be at a
+ * corner before the next move is given.
+ */
 var connectedRobots = 0;
 var waitingRobots = 0;
 
+
 /*
- * Create new tilesList
- *
- * Does not delete any contents of the list
- * if they are already defined.
+ * Create new processingTiles list, called after the user has entered
+ * the grid dimensions.
+ * Does not delete any contents of the list if they are already defined.
  */
 var createTilesList = function() {
 	totalTiles = width * height;
@@ -75,39 +104,57 @@ var createTilesList = function() {
 	}
 }
 
+
 /*
-* Adds a robot to the list
-* Called in communication.js
+ * Adds a robot to the list when robot is connected.
+ * Robots start at corner 0 before moving to one of the four corners of the
+ * floor pattern.
+ * Quadrants are numbered 0 - 3 starting from the bottom left-hand corner.
  */
 var addRobotToList = function(robotID) {
-	// Quadrants are numbered 0 - 3 starting from the bottom left-hand corner
-	// xCorner/yCorner will be out of bounds of the tiles array since we will not
-	// always be in the bottom left hand corner now
 	robots[robotID] = {xCorner: 0, yCorner: 0,
 		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2};
 
 	connectedRobots++;
-
 }
 
+/*
+ * Send message to webapp to update status of robot to stopped.
+ * Robots can be stopped by user or are stopped by the server when all tiles
+ * have been covered.
+ */
 var setRobotStatusStopped = function(robotID) {
 	robots[robotID].robotStatus = 2;
 
 	sendStatusUpdate(robotID);
 }
 
+
+/*
+ * Send message to webapp to update status of robot to scanning.
+ * Status is set to scanning when robots are being routed to a tile
+ * on the floor pattern.
+ */
 var setRobotStatusScanning = function(robotID) {
 	robots[robotID].robotStatus = 1;
 
 	sendStatusUpdate(robotID);
 };
 
+
+/*
+ *
+ */
 var setRobotStatusWaiting = function(robotID) {
 	robots[robotID].robotStatus = 0;
 
 	sendStatusUpdate(robotID);
 }
 
+
+/*
+ * Set the robot status to waiting and decrease the number of connected robots.
+ */
 var robotConnectionLost = function(robotID) {
 	// Set the robot status to calibrating again.
 	console.log("CONNECTION LOST");
@@ -119,11 +166,13 @@ var robotConnectionLost = function(robotID) {
 	connectedRobots--;
 };
 
+
 /*
  * Register communication of tile colour received from robots.
  *
- * Tiles is just a list of intensities. We use the robot start
- * and ending positiong to interpolate the locations of the intensities.
+ * Input is robot ID and a list of light intensities. We use the robot start
+ * and ending positiong to interpolate the locations of the intensities to
+ * retrieve the colour of each tile passed.
  */
 var setTiles = function(robotID, intensities) {
 	var robot = robots[robotID];
@@ -188,6 +237,8 @@ var setTiles = function(robotID, intensities) {
 
 }
 
+
+/* Get next data for corner given the quadrant that the robot is in */
 var getCorner = function(quadrantNo) {
 	switch (quadrantNo) {
 		case 0:
@@ -204,9 +255,7 @@ var getCorner = function(quadrantNo) {
 }
 
 /*
- * Returns the robot's orietation wrt.
- * the xAxis
- *
+ * Returns the robot's orientation with respect to the x-axis
  */
 var getAngleWithOffset = function(robotID) {
 	var robot = robots[robotID];
@@ -221,6 +270,7 @@ var getAngleWithOffset = function(robotID) {
 	console.log('no offset' + angleNoOffset * 180 / Math.PI);
 	return offset - angleNoOffset;
 }
+
 
 /*
  * Returns the angle with respect to the
@@ -282,8 +332,9 @@ var getAngleNoOffset = function(robotID) {
 	return Math.atan(opp / adj);
 };
 
+
 /*
-* Called when a robot reaches the next corner and sends back a list of intensities
+ * Called when a robot reaches the next corner and sends back a list of intensities
  */
 var nextMove = function (robotID) {
 
@@ -292,7 +343,7 @@ var nextMove = function (robotID) {
 
 	if(waitingRobots === connectedRobots) {
 		// Give each robot a new instruction
-		for(var id = 0; id<robots.length; id++) {
+		for(var id = 0; id < robots.length; id++) {
 			if (robots[id] === undefined) {
 				// If ther robot is not defined, then there is a
 				// robot somewhere else that is defined.
@@ -336,6 +387,7 @@ var nextMove = function (robotID) {
 
 };
 
+
 /*
  * This updates the accepted tile value as appropriate
  */
@@ -360,10 +412,9 @@ var vectorLength = function(vector) {
 	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2)) * tileSize;
 };
 
+
 /*
- * This takes the next position of the robots.
- *
- * It returns a dictionary of the distance and the clockwise angle through
+ * Return a dictionary of the distance and the clockwise angle through
  * which the robot will rotate.
  */
 var convert = function(robotID){
@@ -383,10 +434,9 @@ var convert = function(robotID){
 		+ ' going to x=' + robot.xAfter +' y=' + robot.yAfter + ' with angle '
 		+ angle*180/Math.PI + ' and distance ' + distance);
 
-	//console.log(new Error().stack);
-
 	return {angle: angle, distance: distance}
 };
+
 
 /*
  * This unpacks the dictionary for the robot status and sends it on to the
@@ -397,6 +447,8 @@ var sendStatusUpdate = function(robotID) {
 	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
 };
 
+
+
 /*
  * Command from user to stop the traversal of one robot
  */
@@ -405,6 +457,8 @@ var stop = function(robotID) {
 	sendStatusUpdate(robotID);
 	communication.sendStop(robotID);
 };
+
+
 
 /*
  * Command from user to stop the traversal of all robots
@@ -417,6 +471,7 @@ var stopAll = function() {
 	};
 };
 
+
 /*
  * Set user input of tile size
  */
@@ -424,16 +479,28 @@ var setTileSize = function(size) {
 	tileSize = size;
 };
 
+
+/*
+ * Sets height and width of board in tile number given by user
+ */
 var setGridDimensions = function(sizes) {
 	width = sizes.x;
 	height = sizes.y;
 	createTilesList();
 };
 
+
+/*
+ * Gets height and width of board in tile number given by user
+ */
 var getGridDimensions = function() {
 	return {x: width, y: height};
 };
 
+
+/*
+ * Called when the robots are all connected to start routing
+ */
 var startProcessing = function() {
 	startedProcessing = true;
 	route.setUp(width); // set up uncheckedTiles lists
@@ -463,7 +530,6 @@ exports.robotConnectionLost = robotConnectionLost;
 
 
 /*
- * Unit testing
  * Module exports added for testing
  */
 if (TEST) {
@@ -483,23 +549,24 @@ if (TEST) {
 	exports.getAngleNoOffset = getAngleNoOffset;
 	exports.getAngleWithOffset = getAngleWithOffset;
 
-	var setCoveredToTotalTiles = function() {
+	exports.setCoveredToTotalTiles = function() {
 		tilesCovered = totalTiles;
 	}
 
 	exports.getConnectedRobots = function() {
 		return connectedRobots;
 	}
+
 	exports.setConnectedRobots = function() {
 		connectedRobots = 0;
 	}
+
 	exports.unconnectAllRobots = function() {
 		robots.length = 0;
 	}
 
-	exports.setCoveredToTotalTiles = setCoveredToTotalTiles;
-
 	exports.resetProcessingTiles = function() {
 		processingTiles.length = 0;
 	}
+
 }

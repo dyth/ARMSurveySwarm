@@ -1,10 +1,10 @@
 /*
  * 16/02/2017
- * Kamile
- * Routing algorithm to calculate next destination,
- * avoiding collisions
- * Rewritten 02/02/2017, now routing robots to one of four quadrants reachable
- * only from correct starting corner. This eliminates the need for collisions
+ * Kamile Matulenaite
+ * Routing algorithm to calculate next destination avoiding collisions
+ *
+ * Rewritten 02/03/2017, now routing robots to one of four quadrants reachable
+ * only from correct starting corner. This eliminates the need for collision
  * prevention algorithms and requires that an uncheckedTiles list be stored
  * for each quadrant.
  */
