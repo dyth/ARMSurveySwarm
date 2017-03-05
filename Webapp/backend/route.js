@@ -174,7 +174,6 @@ exports.move = move;
 exports.setUp = setUp;
 exports.removeTile = removeTile;
 
-
 if (TEST) {
 	exports.getRandomInt = getRandomInt;
 	exports.uncheckedTiles = uncheckedTiles;

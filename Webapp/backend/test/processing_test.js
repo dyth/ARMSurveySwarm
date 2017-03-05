@@ -33,7 +33,7 @@ describe('handleDone function', function() {
 
 		var values = [200, 750, 13, 1110, 173, 1000];
 		processor.handleDone(1, values);
-		console.log(processor.tiles);
+		
 		// NOTE handleDone no longer gets corner tile
 		for (var i = 1; i <= values.length; i ++) {
 			var tile = processor.tiles[i][i];
@@ -72,6 +72,7 @@ describe('next move', function() {
 		processor.setConnectedRobots();
 		processor.unconnectAllRobots();
 		processor.setGridDimensions(10);
+		processor.setTileSize(10);
 
 		processor.addRobotToList(0);
 		route.setUp(10);

@@ -48,13 +48,6 @@ var gridSize = 0;
 var tileSize = 0;
 
 
-/* Total tiles to be covered is width * height.
- * Number of tiles covered initially is set to 0.
- */
-var tilesCovered = 0;
-var totalTiles = 0;
-
-
 /* Sets up unchecked tiles list upon receipt of the grid dimensions from the user
  * Once all robots are connected they can be sent START messages and be routed.
  */
@@ -75,7 +68,6 @@ var waitingRobots = 0;
  * Does not delete any contents of the list if they are already defined.
  */
  var initTiles = function () {
-	 totalTiles = gridSize * gridSize;
 
      for(var i = 0; i < gridSize; i++){
          tiles[i] = [];
@@ -319,12 +311,12 @@ var convertToRobotInstructions = function(startX, startY, endX, endY, corner){
     var deltaY = Math.abs(endY - startY);
 
     var angle;
-    var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    var distance = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
 
     if(corner % 2 === 0) angle = Math.atan(deltaX / deltaY);
     else angle = Math.atan(deltaY / deltaX);
 
-    return {angle: angle, distance: distance * tileSize};
+    return {angle: angle, distance: (distance * tileSize)};
 
 };
 
@@ -413,8 +405,6 @@ if (TEST) {
 	exports.tiles = tiles;
 	exports.robots = robots;
 	exports.gridSize = gridSize;
-	exports.tilesCovered = tilesCovered;
-	exports.totalTiles = totalTiles;
 	exports.updateTile = updateTile;
 	exports.moveToNextCorner = moveToNextCorner;
 	exports.connectedRobots = connectedRobots;
