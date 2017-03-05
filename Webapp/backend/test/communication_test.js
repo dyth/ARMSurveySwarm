@@ -54,6 +54,7 @@ describe('receiveData', function() {
 		coms.receiveData({type: "DONE", intensities: [1, 2, 3], id: 0}, {});
 	});
 
+
 	it('should send a start message to the robot', function(done) {
 		coms.receiveData({type: "HELLO", id: 0},
 			{destroyed: false, write: function(data) {
@@ -87,7 +88,7 @@ describe('receiveData', function() {
 					expect(json).to.have.property("angle",
 							Math.round(1213 * 180.0 / Math.PI));
 					expect(json).to.have.property("distance", Math.round(1231));
-					done();// TODO -- fix this
+					done();
 			}});
 
 			coms.sendMove(0, 1213,  1231);

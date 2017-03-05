@@ -1,11 +1,21 @@
-#include "motion.h"
-
+#include "mbed.h"
+#include "m3pi.h"
+#include <algorithm>
+#include <sstream>
+#include "motion1.h"
+ 
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
 #define D_TERM 20
 
+int tileSize;
+
 m3pi m3pi;
+
+void setTileSize(int size) {
+    tileSize = size;
+}
 
 void halt() {
     // halt robot and allow motors to cool down
@@ -55,9 +65,10 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     int remainderSamples = distanceRemainder / (int) (tileSize / 2);
     
     // bleed
+    /*
     m3pi.forward(0.25);
     wait(0.25);
-    
+    */
     // start motors
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
@@ -92,8 +103,10 @@ void goForwards(int distance) {
     int distanceRemainder = distance % (int) robotDistancePerSecond;
 
     // bleed before starting motors
-    m3pi.forward(0.25);
-    wait(0.25);
+    /*
+    *m3pi.forward(0.25);
+    *wait(0.25);
+    */
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
 

@@ -5,8 +5,8 @@
 #include <vector>
 
 // robot terms
-#define robotID 0
-#define rotation 1.231f
+#define robotID 1
+#define rotation 1.313f
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
