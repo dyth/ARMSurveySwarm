@@ -65,26 +65,39 @@ __Example__
 Start Server
 
 Connect Robot 1
+
 Robot1 -> Server: { type: "HELLO", id: 1 }
 
 Connect Robot 2
+
 Robot2 -> Server: { type: "HELLO", id: 2 }
+
 Server -> Robot1: { type: "CORNER" }
 
 Connect Robot 3
+
 Robot3 -> Server: { type: "HELLO", id: 3 }
+
 Server -> Robot1: { type: "CORNER" }
+
 Server -> Robot2: { type: "CORNER" }
 
 Start scanning
+
 Server -> Robot1: { type: "START", tileSize: 100 }
+
 Server -> Robot1: { type : "MOVE", angle: 45, 600 }
+
 Server -> Robot2: { type: "START", tileSize: 100 }
+
 Server -> Robot2: { type : "MOVE", angle: 32, 700 }
+
 Server -> Robot3: { type: "START", tileSize: 100 }
+
 Server -> Robot3: { type : "MOVE", angle: 90, 500 }
 
 Robot1 reaches corner
+
 Robot1 -> Server: { type : "DONE", intensities: [ "[34, 56, 12, 896, 823, 912, 45, 23]" ], count: 8 }
 
 etc. 
