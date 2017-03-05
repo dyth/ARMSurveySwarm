@@ -49,13 +49,6 @@ io.sockets.on('connection', function(socket) {
 	var size = processor.getGridSize();
 	updateGrid(size, size);
 
-	// socket.on('stop', function(robot) {
-	// 	processor.stop(robot.id);
-	//
-	// 	// For testing purposes only.
-	// 	socket.emit('stopCalled');
-	// });
-
 	socket.on('startRobots', function(input) {
 
 		var numTiles = input.gridSize / input.tileSize;
