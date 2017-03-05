@@ -4,7 +4,7 @@ node_js:
     - 0.12
 
 install:
-    - npm install 
+    - npm install connect serve-static socket.io socket.io-client html express path mocha chai mathjs
     - sudo apt-get install nodejs
 
 env:
