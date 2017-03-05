@@ -14,6 +14,12 @@ var getColour = function(intensity) {
 	}
 }
 
+describe('processing', function() {
+	it('should be in test mode', function() {
+		expect(processor.TEST).to.be.true;
+	});
+});
+
 describe('Create tiles list', function() {
 	it('Should setup a new list of tiles of size 10, 10', function() {
 		processor.setGridDimensions(10);

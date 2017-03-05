@@ -8,7 +8,7 @@
  *	 intensity information
  */
 
-var TEST = false;
+var TEST = true;
 
 // dependencies for this module
 var server = require('./server');
