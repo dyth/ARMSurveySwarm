@@ -25,7 +25,7 @@ var TEST = true;
  * tile colour is either black or white. The accepted attribute is set once
  * more than two robots agree on the colour of a tile.
  */
-var processingTiles = [];
+var tiles = [];
 
 
 
@@ -41,11 +41,10 @@ var robots = [];
 
 
 
-/* Height and width of the board in the number of tiles.
+/* Grid size is width of the board in the number of tiles.
  * Tile size is in mm
  */
-var width = 0;
-var height = 0;
+var gridSize = 0;
 var tileSize = 0;
 
 
@@ -71,38 +70,21 @@ var waitingRobots = 0;
 
 
 /*
- * Create new processingTiles list, called after the user has entered
+ * Create new tiles list, called after the user has entered
  * the grid dimensions.
  * Does not delete any contents of the list if they are already defined.
  */
-var createTilesList = function() {
-	totalTiles = width * height;
+ var initTiles = function () {
+	 totalTiles = gridSize * gridSize;
 
-	// Increases the number of tiles up to the width and height.
-	for(var i = processingTiles.length; i < width; i++){
-		var columns = [];
+     for(var i = 0; i < gridSize; i++){
+         tiles[i] = [];
+         for(var j = 0; j < gridSize; j++){
+             tiles[i][j] = {accepted: 2, black: 0, white: 0};
+         }
+     }
 
-		if (i < processingTiles.length) {
-			// There are already tiles here.
-			// We don't want to lose information on them.
-			columns = processingTiles[i];
-		}
-
-		for(var j = columns.length; j < height; j++) {
-			// This pushes the initial tile state. Accepted
-			// is the color that we currently take to be the value
-			// and black and white are counts of the measurements
-			// for each one. Accepted is 2 by default as an unchecked tile.
-			columns.push({accepted: 2, black: 0, white: 0});
-		}
-
-		if (i < processingTiles.length) {
-			processingTiles[i] = columns;
-		} else {
-			processingTiles.push(columns);
-		}
-	}
-}
+ };
 
 
 /*
@@ -112,11 +94,261 @@ var createTilesList = function() {
  * Quadrants are numbered 0 - 3 starting from the bottom left-hand corner.
  */
 var addRobotToList = function(robotID) {
-	robots[robotID] = {xCorner: 0, yCorner: 0,
-		xAfter: 0, yAfter: 0, quadrant: 0, robotStatus: 2};
+	// TODO: Don't ignore reconnecting robots
+	// Move all other robots to next corner
+	for(var i = 0; i < robots.length; i++){
+			if(robots[i] !== undefined)
+					moveToNextCorner(i);
+	}
+
+	robots[robotID] = {xDest: 0, yDest: 0, corner: 0, robotStatus: 0};
 
 	connectedRobots++;
 }
+
+
+/*
+ * Set the robot status to waiting and decrease the number of connected robots.
+ */
+var robotConnectionLost = function(robotID) {
+	// Set the robot status to calibrating again.
+	console.log("CONNECTION LOST");
+	robots[robotID].robotStatus = 2;
+
+	sendStatusUpdate(robotID);
+
+	// Decrease the connected robots
+	connectedRobots--;
+};
+
+
+/*
+ * Set user input of tile size
+ */
+var setTileSize = function(size) {
+	tileSize = size;
+};
+
+
+/*
+ * Sets height and width of board in tile number given by user
+ */
+var setGridDimensions = function(size) {
+	gridSize = size;
+	initTiles();
+};
+
+
+/*
+ * Gets height and width of board in tile number given by user
+ */
+var getGridSize = function() {
+	return gridSize;
+};
+
+
+/*
+ * Called when the robots are all connected to start routing
+ */
+var startProcessing = function() {
+	startedProcessing = true;
+	route.setUp(width); // set up uncheckedTiles lists
+
+	for (var i = 0; i < robots.length; i ++) {
+		// This sends the start message to the robots.
+		if (robots[i] != undefined) {
+
+			communication.sendStart(i, tileSize);
+			nextMove(i);
+		}
+	}
+};
+
+
+var moveToNextCorner = function (robotId) {
+
+    //communication.sendNextCorner(robotId);
+    robots[robotId].corner = (robots[robotId].corner + 1) % 4;
+
+};
+
+
+
+/*
+ * Called when a robot reaches the next corner and sends back a list of intensities
+ */
+ var nextMove = function (robotId) {
+
+     waitingRobots++;
+
+     if(waitingRobots === connectedRobots){
+
+         // Give each robot a new instruction
+         for(var id = 0; id < robots.length; id++){
+
+             var robot = robots[id];
+
+             if(robot === undefined) continue;
+
+             // Calculate the next move
+             var startCorner = cornerToCoordinates(robot.corner);
+             var next = route.move(startCorner.x, startCorner.y);
+
+             if(next.stopAll){
+
+                 communication.sendStop(id);
+                 setRobotStatusStopped(id);
+
+             }
+             else{
+
+                 robot.xDest = next.xAfter;
+                 robot.yDest = next.yAfter;
+
+                 var instructions = convertToRobotInstructions(startCorner.x, startCorner.y, robot.xDest, robot.yDest, robot.corner);
+
+                 communication.sendMove(id, radToDeg(instructions.angle), instructions.distance);
+                 setRobotStatusScanning(id);
+
+                 console.log('('+startCorner.x+','+startCorner.y+') -> ('+robot.xDest+','+robot.yDest+') with angle '+radToDeg(instructions.angle)+' and distance '+instructions.distance)
+
+             }
+
+         }
+
+         waitingRobots = 0;
+
+     }
+     else {
+         setRobotStatusWaiting(robotId);
+     }
+
+ };
+
+
+ /*
+  * Register communication of tile colour received from robots.
+  *
+  * Input is robot ID and a list of light intensities. We use the robot start
+  * and ending positiong to interpolate the locations of the intensities to
+  * retrieve the colour of each tile passed.
+  */
+ var handleDone = function(robotId, intensities){
+
+     var robot = robots[robotId];
+
+     // Calculate the start position
+     var startCorner = cornerToCoordinates(robot.corner);
+
+     // Working variables
+     var x = startCorner.x;
+     var y = startCorner.y;
+
+
+     var deltaX = (robot.xDest - startCorner.x) / intensities.length;
+     var deltaY = (robot.yDest - startCorner.y) / intensities.length;
+
+     for(var i = 0; i < intensities.length; i++){
+
+         x += deltaX;
+         y += deltaY;
+
+         var intensity = intensities[i];
+
+         var xCoord = Math.floor(x);
+         var yCoord = Math.floor(y);
+
+         if(intensity < 400){
+             tiles[xCoord][yCoord].white++;
+         }
+         else if(intensity > 600) {
+             tiles[xCoord][yCoord].black++;
+         }
+
+         updateTile(xCoord, yCoord);
+
+     }
+
+     // Update the robot state
+     robot.corner = (robot.corner + 1) % 4;
+
+ };
+
+
+/*
+ * This updates the accepted tile value as appropriate
+ */
+var updateTile = function(x, y){
+	var tile = tiles[x][y];
+
+	// Recalculate the processing accepted value.
+	// This sets the default value
+	if (tile.white > tile.black) {
+		tile.accepted = 1;
+	} else if (tile.black > tile.white) {
+		tile.accepted = 0;
+	} else {
+		tile.accepted = 2; // grey
+	}
+
+	server.updateTile(x, y, tile.accepted);
+};
+
+/* Get next data for corner given the quadrant that the robot is in */
+var cornerToCoordinates = function(corner) {
+	switch (corner) {
+		case 0: return {x: 0, y: 0};
+		case 1: return {x: 0, y: gridSize - 1};
+		case 2: return {x: gridSize - 1, y: gridSize - 1};
+		case 3: return {x: gridSize - 1, y: 0};
+		default: return {x: 0, y: 0};
+	}
+}
+
+/*
+ * Return a dictionary of the distance and the clockwise angle through
+ * which the robot will rotate.
+ */
+var convertToRobotInstructions = function(startX, startY, endX, endY, corner){
+
+    var deltaX = Math.abs(endX - startX);
+    var deltaY = Math.abs(endY - startY);
+
+    var angle;
+    var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    if(corner % 2 === 0) angle = Math.atan(deltaX / deltaY);
+    else angle = Math.atan(deltaY / deltaX);
+
+    return {angle: angle, distance: distance * tileSize};
+
+};
+
+
+var radToDeg = function (rad) {
+    return rad * 180 / Math.PI;
+};
+
+
+
+/*
+ * Command from user to stop the traversal of one robot
+ */
+var stop = function(robotID) {
+	robots[robotID].robotStatus = 2;
+	sendStatusUpdate(robotID);
+	communication.sendStop(robotID);
+};
+
+/*
+ * This unpacks the dictionary for the robot status and sends it on to the
+ * server
+ */
+var sendStatusUpdate = function(robotID) {
+	var robot = robots[robotID];
+	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
+};
+
 
 /*
  * Send message to webapp to update status of robot to stopped.
@@ -127,7 +359,7 @@ var setRobotStatusStopped = function(robotID) {
 	robots[robotID].robotStatus = 2;
 
 	sendStatusUpdate(robotID);
-}
+};
 
 
 /*
@@ -149,405 +381,39 @@ var setRobotStatusWaiting = function(robotID) {
 	robots[robotID].robotStatus = 0;
 
 	sendStatusUpdate(robotID);
-}
-
-
-/*
- * Set the robot status to waiting and decrease the number of connected robots.
- */
-var robotConnectionLost = function(robotID) {
-	// Set the robot status to calibrating again.
-	console.log("CONNECTION LOST");
-	robots[robotID].robotStatus = 2;
-
-	sendStatusUpdate(robotID);
-
-	// Decrease the connected robots
-	connectedRobots--;
 };
 
-
-/*
- * Register communication of tile colour received from robots.
- *
- * Input is robot ID and a list of light intensities. We use the robot start
- * and ending positiong to interpolate the locations of the intensities to
- * retrieve the colour of each tile passed.
- */
-var setTiles = function(robotID, intensities) {
-	var robot = robots[robotID];
-
-	console.log("DATA: " + intensities);
-
-	if (intensities.length === 0) {
-		console.log("No intensities provided");
-
-		return;
-	}
-
-	// Update tile table for current position
-	// Get x, y, light intensity, add to processing tiles
-	var coordX = robot.xCorner;
-	var coordY = robot.yCorner;
-	var delta = Math.pow(Math.pow(robot.xCorner - robot.xAfter, 2) +
-		Math.pow(robot.yCorner - robot.yAfter, 2), 0.5) / intensities.length;
-
-	// Need the angle with the offset.
-	var angle =  getAngleWithOffset(robotID);
-
-	for (var i = 0; i < intensities.length; i++) {
-		var thisIntensity = intensities[i];
-
-		var roundedX = Math.round(coordX);
-		var roundedY = Math.round(coordY);
-
-		console.log(coordX, coordY);
-		console.log(angle * 180 / Math.PI);
-
-		if (roundedX > processingTiles.length - 1 ||
-			roundedY > processingTiles[roundedX].length - 1) {
-			console.log("NON FATAL ERROR -------------------------------");
-			console.log("robot off grid");
-			return;
-		}
-
-		if (thisIntensity === 0) {
-			// Intensity is black
-			processingTiles[roundedX][roundedY].black ++;
-		} else {
-			// Intensity is white
-			processingTiles[roundedX][roundedY].white ++;
-		}
-
-		// This updates the accepted value for the tile and sends
-		// it on to the server.
-		tileUpdate(roundedX, roundedY);
-
-		//  Now, update the coordinates
-		coordX += delta * Math.cos(angle);
-		coordY += delta * Math.sin(angle);
-	}
-
-	// Update the robot start position
-	robot.quadrant = (robot.quadrant + 1) % 4
-	var nextCorner = getCorner(robot.quadrant);
-
-	robot.xCorner = nextCorner.x;
-	robot.yCorner = nextCorner.y;
-
-}
-
-
-/* Get next data for corner given the quadrant that the robot is in */
-var getCorner = function(quadrantNo) {
-	switch (quadrantNo) {
-		case 0:
-			return {orientation: Math.PI/2, x: 0, y: 0};
-		case 1:
-			return {orientation: 2 * Math.PI, x: 0, y: height - 1};
-		case 2:
-			return {orientation: 3 * Math.PI/2, x: height - 1, y: height - 1};
-		case 3:
-			return {orientation: Math.PI, x: height - 1, y: 0};
-		default:
-			return {orientation: Math.PI/2, x: 0, y: 0};
-	}
-}
-
-/*
- * Returns the robot's orientation with respect to the x-axis
- */
-var getAngleWithOffset = function(robotID) {
-	var robot = robots[robotID];
-	// This keeps the orientation offset from the way that
-	// the robot is facing.
-	//
-	// Note that offset is along the yAxis.
-	var offset = getCorner(robot.quadrant).orientation;
-	var angleNoOffset = getAngleNoOffset(robotID);
-
-	console.log('offset' + offset * 180 / Math.PI);
-	console.log('no offset' + angleNoOffset * 180 / Math.PI);
-	return offset - angleNoOffset;
-}
-
-
-/*
- * Returns the angle with respect to the
- * robot's current orientation.
- */
-var getAngleNoOffset = function(robotID) {
-	var robot = robots[robotID];
-	var quadrant = robot.quadrant;
-
-	// Computes the differences:
-	var yDiff = Math.abs(robot.yAfter - robot.yCorner);
-	var xDiff = Math.abs(robot.xAfter - robot.xCorner);
-
-
-	if (yDiff === 0) {
-		// If there is no yDiff, then the robot
-		// is heading along the xAxis and so we
-		// return the angle along that
-		if (quadrant % 2 === 0) {
-			// How much the robot turns given
-			// it's position depends on where it is
-			// on the board
-			return Math.PI / 2;
-		} else {
-			return 0;
-		}
-	}
-
-	if (xDiff === 0) {
-		// If there is no xDiff, then the robot
-		// is heading straight up the yAxis.
-		// Therefore, we just return orientation.
-		if (quadrant % 2 === 0) {
-			// How much the robot turns
-			// given it's position depends on
-			// where it is on the board
-			//
-			// Remember that the orientation of the robot
-			// is always towards the y-axis
-			return 0;
-		} else {
-			return Math.PI / 2;
-		}
-	}
-
-	var opp;
-	var adj;
-
-	// Which one is opposite and adjacent depends
-	// on which way the robot is facing.
-	if (robot.quadrant % 2 === 0) {
-		opp = xDiff;
-		adj = yDiff;
-	} else {
-		opp = yDiff;
-		adj = xDiff;
-	}
-
-	return Math.atan(opp / adj);
-};
-
-
-/*
- * Called when a robot reaches the next corner and sends back a list of intensities
- */
-var nextMove = function (robotID) {
-
-	// The robot is now waiting
-	waitingRobots++;
-
-	if(waitingRobots === connectedRobots) {
-		// Give each robot a new instruction
-		for(var id = 0; id < robots.length; id++) {
-			if (robots[id] === undefined) {
-				// If ther robot is not defined, then there is a
-				// robot somewhere else that is defined.
-				continue;
-			}
-			// Get the robot
-			var robot = robots[id];
-			// Calculate the next move
-			var next = route.move(robot.xCorner, robot.yCorner);
-
-			if(next.stopAll){
-				// Stop the robot
-				communication.sendStop(id);
-
-				// Set the robot status to stopped
-				setRobotStatusStopped(id);
-
-			} else {
-				// Update the robot destination
-				robot.xAfter = next.xAfter;
-				robot.yAfter = next.yAfter;
-
-				// Convert coordinates into angles and distances
-				var robotInstructions = convert(id);
-
-				// Send the instruction
-				communication.sendMove(id, robotInstructions.angle, robotInstructions.distance);
-
-				//And set the robot status to moving
-				setRobotStatusScanning(robotID);
-
-			}
-
-		}
-
-		waitingRobots = 0;
-
-	} else {
-		setRobotStatusWaiting(robotID);
-	}
-
-};
-
-
-/*
- * This updates the accepted tile value as appropriate
- */
-var tileUpdate = function(coordX, coordY){
-	var tiles = processingTiles[coordX][coordY];
-
-	// Recalculate the processing accepted value.
-	// This sets the default value
-	// The >= value means that white is the default
-	if (tiles.white > tiles.black) {
-		tiles.accepted = 1;
-	} else if (tiles.white === tiles.black) {
-		tiles.accepted = 2; //grey
-	} else {
-		tiles.accepted = 0;
-	}
-
-	server.updateTile(coordX, coordY, tiles.accepted);
-};
-
-var vectorLength = function(vector) {
-	return Math.sqrt(Math.pow(vector[0],2) + Math.pow(vector[1],2)) * tileSize;
-};
-
-
-/*
- * Return a dictionary of the distance and the clockwise angle through
- * which the robot will rotate.
- */
-var convert = function(robotID){
-
-	var robot = robots[robotID];
-
-	// The robot always stores starting corner, we interpolate between this and
-	// tileX, tile Y. After checkTile returns, robots will store the new corner
-	// as prev but the tile just travelled to in after.
-	var changeInX = Math.abs(robot.xCorner - robot.xAfter);
-	var changeInY = Math.abs(robot.yCorner - robot.yAfter);
-
-	var angle = getAngleNoOffset(robotID);
-	var distance = vectorLength([changeInX, changeInY]);
-
-	console.log('From x=' + robot.xCorner + ' y='+ robot.yCorner
-		+ ' going to x=' + robot.xAfter +' y=' + robot.yAfter + ' with angle '
-		+ angle*180/Math.PI + ' and distance ' + distance);
-
-	return {angle: angle, distance: distance}
-};
-
-
-/*
- * This unpacks the dictionary for the robot status and sends it on to the
- * server
- */
-var sendStatusUpdate = function(robotID) {
-	var robot = robots[robotID];
-	server.updateStatus(robotID, robot.xAfter, robot.yAfter, robot.robotStatus);
-};
-
-
-
-/*
- * Command from user to stop the traversal of one robot
- */
-var stop = function(robotID) {
-	robots[robotID].robotStatus = 2;
-	sendStatusUpdate(robotID);
-	communication.sendStop(robotID);
-};
-
-
-
-/*
- * Command from user to stop the traversal of all robots
- */
-var stopAll = function() {
-	for (var i = 0; i < robots.length; i ++) {
-		robots[i].robotStatus = 2;
-		sendStatusUpdate(i);
-		communication.sendStop(i);
-	};
-};
-
-
-/*
- * Set user input of tile size
- */
-var setTileSize = function(size) {
-	tileSize = size;
-};
-
-
-/*
- * Sets height and width of board in tile number given by user
- */
-var setGridDimensions = function(sizes) {
-	width = sizes.x;
-	height = sizes.y;
-	createTilesList();
-};
-
-
-/*
- * Gets height and width of board in tile number given by user
- */
-var getGridDimensions = function() {
-	return {x: width, y: height};
-};
-
-
-/*
- * Called when the robots are all connected to start routing
- */
-var startProcessing = function() {
-	startedProcessing = true;
-	route.setUp(width); // set up uncheckedTiles lists
-	console.log('robots length ' + robots.length);
-
-	for (var i = 0; i < robots.length; i ++) {
-		// This sends the start message to the robots.
-		if (robots[i] != undefined) {
-
-			communication.sendStart(i, tileSize);
-
-			nextMove(i);
-		}
-	}
-};
 
 exports.setTileSize = setTileSize;
 exports.setGridDimensions = setGridDimensions;
-exports.getGridDimensions = getGridDimensions;
+exports.getGridSize = getGridSize;
 exports.addRobotToList = addRobotToList;
-exports.stop = stop;
-exports.stopAll = stopAll;
-exports.setTiles = setTiles;
+exports.handleDone = handleDone;
 exports.startProcessing = startProcessing;
 exports.nextMove = nextMove;
 exports.robotConnectionLost = robotConnectionLost;
+exports.setRobotStatusStopped = setRobotStatusStopped;
+exports.stop = stop;
 
 
 /*
  * Module exports added for testing
  */
 if (TEST) {
-	exports.createTilesList = createTilesList;
-	exports.processingTiles = processingTiles;
+	exports.initTiles = initTiles;
+	exports.tiles = tiles;
 	exports.robots = robots;
-	exports.width = width;
-	exports.height = height;
+	exports.gridSize = gridSize;
 	exports.tilesCovered = tilesCovered;
 	exports.totalTiles = totalTiles;
-	exports.vectorLength = vectorLength;
-	exports.tileUpdate = tileUpdate;
-	exports.convert = convert;
-	exports.getCorner = getCorner;
+	exports.updateTile = updateTile;
+	exports.moveToNextCorner = moveToNextCorner;
 	exports.connectedRobots = connectedRobots;
 	exports.waitingRobots = waitingRobots;
-	exports.getAngleNoOffset = getAngleNoOffset;
-	exports.getAngleWithOffset = getAngleWithOffset;
+	exports.cornerToCoordinates = cornerToCoordinates;
+	exports.convertToRobotInstructions = convertToRobotInstructions;
+	exports.radToDeg = radToDeg;
+
 
 	exports.setCoveredToTotalTiles = function() {
 		tilesCovered = totalTiles;
@@ -565,8 +431,8 @@ if (TEST) {
 		robots.length = 0;
 	}
 
-	exports.resetProcessingTiles = function() {
-		processingTiles.length = 0;
+	exports.resetTiles = function() {
+		tiles.length = 0;
 	}
 
 }

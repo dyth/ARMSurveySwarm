@@ -114,6 +114,8 @@ describe('Stop Function Test', function() {
 		var stop = false;
 		var resume = false;
 
+		processing.addRobotToList(1);
+
 		client.on('connect', function(data) {
 			client.emit('stop', {id: 1});
 			connected = true;
