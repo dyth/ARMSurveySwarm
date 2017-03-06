@@ -90,6 +90,7 @@ describe('next move', function() {
 			console.log('-----------');
 			processor.setWaitingRobots(1);
 
+			processor.handleDone(0, [0]);
 			processor.nextMove();
 
 			// xDest and yDest should be updated and should be within quadrant i
@@ -97,8 +98,6 @@ describe('next move', function() {
 			expect(route.getQuadrant(robot.xDest, robot.yDest)).
 				to.equal(i%4);
 
-			// Update the robot start position
-			robot.corner = (robot.corner + 1) % 4
 		}
 
 	});
