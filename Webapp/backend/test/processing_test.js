@@ -87,16 +87,15 @@ describe('next move', function() {
 		var robot = processor.robots[0];
 
 		for (var i = 0; i < 8; i++) {
-			console.log('-----------');
-			processor.setWaitingRobots(1);
 
-			processor.handleDone(0, [0]);
+			processor.setWaitingRobots(1);
 			processor.nextMove();
 
 			// xDest and yDest should be updated and should be within quadrant i
 
-			expect(route.getQuadrant(robot.xDest, robot.yDest)).
-				to.equal(i%4);
+			expect(route.getQuadrant(robot.xDest, robot.yDest)).to.equal(i%4);
+
+			robot.corner = (robot.corner + 1) % 4;
 
 		}
 
