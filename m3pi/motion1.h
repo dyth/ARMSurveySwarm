@@ -6,11 +6,13 @@
 
 // robot terms
 #define robotID 1
-#define rotation 1.313f
+#define rotation 0.502f
+#define rotationSpeed 0.5f
 #define robotMotorLeft 0.5f
 #define robotMotorRight 0.5f
 #define robotDistancePerSecond 470.0f
 #define robotTurningCorrection 75
+#define BLEED true
 
 void start();
 void alignCorner(int distance);
