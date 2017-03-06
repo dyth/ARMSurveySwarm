@@ -13,11 +13,15 @@ var getColour = function(intensity) {
 		return 2;
 	}
 }
+describe('processing', function() {
+	it('should be in test mode', function() {
+		expect(processor.TEST).to.be.true;
+	});
+});
 
-describe('Create tiles list', function() {
+describe('initTiles list', function() {
 	it('Should setup a new list of tiles of size 10, 10', function() {
 		processor.setGridDimensions(10);
-		console.log(processor.tiles);
 		expect(10).to.equal(processor.tiles[0].length);
 		expect(10).to.equal(processor.tiles.length);
 	});
@@ -27,7 +31,7 @@ describe('handleDone function', function() {
 	it('should interpolate the points given', function() {
 		processor.resetTiles();
 		processor.setGridDimensions(10);
-		processor.unconnectAllRobots();
+		processor.disconnectAllRobots();
 		processor.addRobotToList(1);
 		processor.robots[1] = {robotStatus: 1, corner: 0,
 			 xDest: 6, yDest: 6};
@@ -71,7 +75,9 @@ describe('next move', function() {
 	it('should route robot to tile within quadrant for the corner the robot is ' +
 	' at', function() {
 		processor.setConnectedRobots();
-		processor.unconnectAllRobots();
+		processor.disconnectAllRobots();
+		processor.setWaitingRobots(0);
+
 		processor.setGridDimensions(10);
 		processor.setTileSize(10);
 
@@ -81,17 +87,16 @@ describe('next move', function() {
 		var robot = processor.robots[0];
 
 		for (var i = 0; i < 8; i++) {
-			console.log('-----------');
 
-			processor.nextMove(0);
+			processor.setWaitingRobots(1);
+			processor.nextMove();
 
 			// xDest and yDest should be updated and should be within quadrant i
 
-			expect(route.getQuadrant(robot.xDest, robot.yDest)).
-				to.equal(i%4);
+			expect(route.getQuadrant(robot.xDest, robot.yDest)).to.equal(i%4);
 
-			// Update the robot start position
-			robot.corner = (robot.corner + 1) % 4
+			robot.corner = (robot.corner + 1) % 4;
+
 		}
 
 	});

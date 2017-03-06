@@ -58,6 +58,8 @@ var socketUpdateArea = function(data) {
 var socketReceiveStatus = function(data) {
 	// Get the robot that this is talking about.
 	// Then, update the status of that robot.
+
+	console.log(JSON.stringify(data));
 	robots[data.id].status = data.status;
 	robots[data.id].x = data.x;
 	robots[data.id].y = data.y;
@@ -86,25 +88,6 @@ var socket = io('localhost');
 socket.on('sendRobotStatus', socketReceiveStatus);
 socket.on('sendAreaDimensions', socketUpdateArea);
 socket.on('sendTileData', socketTileUpdate);
-
-// This should be called to stop a robot
-// with ID 'robotID'
-var stop = function(robotID) {
-	socket.emit('stop', {id: robotID});
-	console.log("Stopping " + robotID);
-}
-
-var stopAll = function () {
-	console.log("Stopping Robots");
-	socket.emit('stopAll');
-}
-
-// This should be called to resume a robot
-// with ID 'robotID'
-var resume = function(robotID) {
-	socket.emit('resume', {id: robotID});
-	console.log("Resuming " + robotID);
-}
 
 // This should be called to send the tile size to the server.
 var sendTileSize = function(size) {

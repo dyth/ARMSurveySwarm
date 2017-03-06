@@ -1,4 +1,4 @@
-#include "motion1.h"
+#include "motion.h"
 
 // PID terms
 #define P_TERM 1
@@ -16,13 +16,13 @@ void setTileSize(int size) {
 void halt() {
     // halt robot and allow motors to cool down
     m3pi.stop();
-    wait(1.0f);
+    wait(2.0f);
 }
 
 void turnClockwise(int degree) {
     // Turn right at the slowset speed possible for accuracy
     m3pi.stop();
-    m3pi.right(0.25f);
+    m3pi.right(rotationSpeed);
     wait(((float) degree) * rotation / 360.0f);
     halt();
 }
@@ -61,10 +61,12 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     int remainderSamples = distanceRemainder / (int) (tileSize / 2);
 
     // bleed
-    /*
-    m3pi.forward(0.25);
-    wait(0.25);
-    */
+    
+    if (BLEED) {
+        m3pi.forward(0.25);
+        wait(0.25);
+    }
+    
     // start motors
     m3pi.left_motor(robotMotorLeft);
     m3pi.right_motor(robotMotorRight);
@@ -273,13 +275,13 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (x, y), then find the edge, then find the next corner
 
     // number of samples within a cadence
-    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f));
+    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f)));
     // number of cadences
     int cadenceNumber = distance / robotDistancePerSecond;
     // go to point (degree, distance) then face the edge
 
     // turn the degree, then go forwards and sample the forward
-    turnClockwise(degree + robotTurningCorrection);
+    turnClockwise(360 + degree + robotTurningCorrection);
     goForwards(distance, samples, cadenceNumber, vectorIntensities);
     turnClockwise(270 - degree);
 
@@ -304,4 +306,11 @@ void start() {
     alignCorner(200);
 
     //turnClockwise(360 + 45 + robotTurningCorrection);
+}
+
+int main() {
+    turnClockwise(720);
+    wait(5);
+    
+    goForwards(2000);
 }

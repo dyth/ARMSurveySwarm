@@ -31,7 +31,6 @@ server.listen(80);
 // These are broadcast functions. When called
 // they will send updates to all clients connected.
 var updateStatus = function(robotID, x, y, status) {
-	// todo fix this up
 	io.emit('sendRobotStatus', {id: robotID, x: x, y: y, status: status});
 };
 
@@ -48,13 +47,6 @@ io.sockets.on('connection', function(socket) {
 	// instance.
 	var size = processor.getGridSize();
 	updateGrid(size, size);
-
-	socket.on('stop', function(robot) {
-		processor.stop(robot.id);
-
-		// For testing purposes only.
-		socket.emit('stopCalled');
-	});
 
 	socket.on('startRobots', function(input) {
 
