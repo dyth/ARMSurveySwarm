@@ -5,14 +5,14 @@
 #include <vector>
 
 // robot terms
-#define robotID 1
-#define rotation 0.502f
 #define rotationSpeed 0.5f
+#define robotID 4
+#define rotation 0.674f
 #define robotMotorLeft 0.5f
-#define robotMotorRight 0.5f
-#define robotDistancePerSecond 470.0f
-#define robotTurningCorrection 75
-#define BLEED true
+#define robotMotorRight 0.5734f
+#define robotDistancePerSecond 440.0f
+#define robotTurningCorrection 85
+#define BLEED false
 
 void start();
 void alignCorner(int distance);

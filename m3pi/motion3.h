@@ -5,13 +5,13 @@
 #include <vector>
 
 // robot terms
-#define robotID 1
-#define rotation 0.502f
 #define rotationSpeed 0.5f
-#define robotMotorLeft 0.5f
-#define robotMotorRight 0.5f
-#define robotDistancePerSecond 470.0f
-#define robotTurningCorrection 75
+#define robotID 0
+#define rotation 0.6805f
+#define robotMotorLeft 0.6580f
+#define robotMotorRight 0.6f
+#define robotDistancePerSecond 10.20f
+#define robotTurningCorrection 82
 #define BLEED true
 
 void start();
