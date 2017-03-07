@@ -6,7 +6,7 @@
 
 // robot terms
 #define rotationSpeed 0.5f
-#define robotID 0
+#define robotID 5
 #define rotation 0.56f
 #define robotMotorLeft 0.502f
 #define robotMotorRight 0.5f
