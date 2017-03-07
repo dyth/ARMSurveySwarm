@@ -42,7 +42,7 @@ describe('setUp ', function() {
 		expect(routing.uncheckedTiles[0].length
 			+ routing.uncheckedTiles[1].length
 			+ routing.uncheckedTiles[2].length
-			+ routing.uncheckedTiles[3].length).to.equal(10*2 + 8*2);
+			+ routing.uncheckedTiles[3].length).to.equal(10*2 + 8*2 - 8);
 	});
 
 
@@ -54,7 +54,7 @@ describe('setUp ', function() {
 		expect(routing.uncheckedTiles[0].length
 			+ routing.uncheckedTiles[1].length
 			+ routing.uncheckedTiles[2].length
-			+ routing.uncheckedTiles[3].length).to.equal(9*2 + 7*2);
+			+ routing.uncheckedTiles[3].length).to.equal(9*2 + 7*2 - 8);
 	});
 });
 
@@ -72,6 +72,6 @@ describe('removeTile ', function() {
 		var tileHead = routing.uncheckedTiles[0][2];
 		routing.removeTile(tileHead.xPos, tileHead.yPos);
 		expect(routing.uncheckedTiles[0][2]).to.not.equal(tileHead);
-		expect(routing.uncheckedTiles[0].length).to.equal(8);
+		expect(routing.uncheckedTiles[0].length).to.equal(6);
 	});
 });
