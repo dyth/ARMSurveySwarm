@@ -65,7 +65,8 @@ var setUp = function(length) {
   }
 
   // set uncheckedTiles for the horizontal line along the board
-  for (var i = 0; i < tilesAcross; i++) {
+	// do not route to edge tiles near border (start from 1 and tilesAcross-1)
+  for (var i = 1; i < tilesAcross-1; i++) {
     for(var j = beforeHalf; j < afterHalf; j++) {
 			uncheckedTiles[getQuadrant(i, j)].push({xPos: i, yPos: j});
 		}
@@ -74,10 +75,10 @@ var setUp = function(length) {
   // set uncheckedTiles for the vertical line along the board,
   // not repeating the middle four tiles where they intersect.
 	for(var i = beforeHalf; i < afterHalf; i++) {
-		for(var j = 0; j < beforeHalf; j++) {
+		for(var j = 1; j < beforeHalf; j++) {
 			uncheckedTiles[getQuadrant(i, j)].push({xPos: i, yPos: j});
 		}
-    for (var j = afterHalf; j < tilesAcross; j++) {
+    for (var j = afterHalf; j < tilesAcross-1; j++) {
       uncheckedTiles[getQuadrant(i,j)].push({xPos: i, yPos: j});
     }
 	}
