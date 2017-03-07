@@ -91,7 +91,7 @@ void sendHello(){
     // Create the HELLO message
     MbedJSONValue message;
     message["type"] = "HELLO";
-    message["id"] = 0; // TODO -- update this for each robot
+    message["id"] = robotID;
 
     // Serialize the message
     string toSend = message.serialize();
