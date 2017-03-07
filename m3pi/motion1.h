@@ -6,11 +6,11 @@
 
 // robot terms
 #define robotID 1
-#define rotation 0.600f
+#define rotation 0.5877f
 #define rotationSpeed 0.5f
-#define robotMotorLeft 0.54f
-#define robotMotorRight 0.55f
-#define robotDistancePerSecond 500.0f
+#define robotMotorLeft 0.500f
+#define robotMotorRight 0.5032f
+#define robotDistancePerSecond 470.0f
 #define robotTurningCorrection 75
 #define BLEED true
 
