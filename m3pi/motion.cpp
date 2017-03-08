@@ -1,5 +1,7 @@
 #include "motion.h"
 
+#define samplesPerTile 4
+
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
@@ -51,14 +53,14 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     m3pi.stop();
 
     // leftover distance in cadence that is not sampled
-    int cadenceRemainder = (int) robotDistancePerSecond % (tileSize / 2) / robotDistancePerSecond;
+    int cadenceRemainder = (int) robotDistancePerSecond % (tileSize / samplesPerTile) / robotDistancePerSecond;
     // distance travelled without a cadence
     int distanceRemainder = distance % (int) robotDistancePerSecond;
 
     // leftover distance in sampling remainder
-    int sampleRemainder = distanceRemainder % (int) (tileSize / 2);
+    int sampleRemainder = distanceRemainder % (int) (tileSize / samplesPerTile);
     // number of remainder samples
-    int remainderSamples = distanceRemainder / (int) (tileSize / 2);
+    int remainderSamples = distanceRemainder / (int) (tileSize / samplesPerTile);
 
     // bleed
     
