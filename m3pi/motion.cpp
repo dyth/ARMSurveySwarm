@@ -86,7 +86,7 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     }
 
     // do the specified number of cadences
-    for (int i = 0; i < cadenceNumber; i++) {
+    for (int i = 1; i < cadenceNumber; i++) {
         cadence(cadenceRemainder, samples, intensities);
     }
 
@@ -267,7 +267,7 @@ void findLine() {
     while (1) {
         int sensors[5];
         m3pi.calibrated_sensor(sensors);
-        if (sensors[2] > 800) {
+        if (sensors[2] > 600) {
             break;
         }
     }
