@@ -45,7 +45,7 @@ which hosts the webapp. The webapp can be viewed on http://localhost:80
 
 * **Lucia Bura** - *documentation, debugging* - [luciabura](https://github.com/luciabura)
 * **Jamie Davenport** - *Frontend, communication between robots and server and processing robot data* - [jamienet](https://github.com/jamienet)
-* **David Hui** - *robot movement and sensing, integration with communication, board layout and design* - [dyth](https://github.com/dyth)
+* **David Hui** - *robot movement, sensing and calibration, routing algorithm design, integration with communication, board layout and design, reference point experimentation, presentation design and delivery* - [dyth](https://github.com/dyth)
 * **Hrutvik Kanabar** - *Initial work* - [hrutvik](https://github.com/hrutvik)
 * **Kamile Matulenaite** - *Processing robot data, collision prevention, next movement calculation, communication with server and robots, unit testing* - [Kamile](https://github.com/Kamile)
 * **Jackson Woodruff** - *Server code, communication with robots, communication with frontend, development of communication protocol, integration testing, server unit testing, server integration testing, documentation, travis-ci setup* - [j-c-w](https://github.com/j-c-w)
@@ -61,3 +61,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 * **ARM** for providing the project idea, and for providing the 3pi robots, especially **Ashkan Tousimojarad**, our client and contact.
 * **Nikolas Goldin** and **Chris Styles** for laying a wonderful framework for creating our own library for the mbed + Pololu 3pi robots.
 *  **Chris Hadley** for providing assistance in the creation of the board.
+* **Brian Jones** for printing screws and helping us set up all the equipment.
+* **Louis Massuard** for lending us equipment to augment the robot.
