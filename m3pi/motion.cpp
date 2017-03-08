@@ -1,5 +1,7 @@
 #include "motion.h"
 
+#define samplesPerTile 4
+
 // PID terms
 #define P_TERM 1
 #define I_TERM 0
@@ -51,14 +53,14 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     m3pi.stop();
 
     // leftover distance in cadence that is not sampled
-    int cadenceRemainder = (int) robotDistancePerSecond % (tileSize / 2) / robotDistancePerSecond;
+    int cadenceRemainder = (int) robotDistancePerSecond % (tileSize / samplesPerTile) / robotDistancePerSecond;
     // distance travelled without a cadence
     int distanceRemainder = distance % (int) robotDistancePerSecond;
 
     // leftover distance in sampling remainder
-    int sampleRemainder = distanceRemainder % (int) (tileSize / 2);
+    int sampleRemainder = distanceRemainder % (int) (tileSize / samplesPerTile);
     // number of remainder samples
-    int remainderSamples = distanceRemainder / (int) (tileSize / 2);
+    int remainderSamples = distanceRemainder / (int) (tileSize / samplesPerTile);
 
     // bleed
     
@@ -84,7 +86,7 @@ void goForwards(int distance, int samples, int cadenceNumber, vector<int> &inten
     }
 
     // do the specified number of cadences
-    for (int i = 0; i < cadenceNumber; i++) {
+    for (int i = 1; i < cadenceNumber; i++) {
         cadence(cadenceRemainder, samples, intensities);
     }
 
@@ -265,7 +267,7 @@ void findLine() {
     while (1) {
         int sensors[5];
         m3pi.calibrated_sensor(sensors);
-        if (sensors[2] > 800) {
+        if (sensors[2] > 600) {
             break;
         }
     }
@@ -275,7 +277,7 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (x, y), then find the edge, then find the next corner
 
     // number of samples within a cadence
-    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f)));
+    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f));
     // number of cadences
     int cadenceNumber = distance / robotDistancePerSecond;
     // go to point (degree, distance) then face the edge
