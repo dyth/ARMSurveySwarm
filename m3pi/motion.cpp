@@ -277,7 +277,7 @@ void cycleClockwise(int degree, int distance, vector<int> &vectorIntensities) {
     // go to point (x, y), then find the edge, then find the next corner
 
     // number of samples within a cadence
-    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f)));
+    int samples = (int) (robotDistancePerSecond / ((float) tileSize / 2.0f));
     // number of cadences
     int cadenceNumber = distance / robotDistancePerSecond;
     // go to point (degree, distance) then face the edge
