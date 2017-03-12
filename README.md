@@ -4,6 +4,7 @@
 
 A Part IB (second year) Group Project, created for ARM for the Computer Science Tripos of the University of Cambridge. The *swarm* is a number (> 1) of Pololu 3pi robots which have been augumented using mbed microcontrollers. They *survey* a rectangular board filled with regular black and white squares. Using their reflectance sensors, they map out the board, sending the data back to the server, where it is processed to build up a visualization of the board on a web application.
 
+A video of the robots in operation can be found [here](https://photos.google.com/share/AF1QipMtWSX0-c5hlVmGnOXGgL8poutp8yxlXXZpXl3x-gFOffQQ08Tkj0eW2YkjraZmkw?key=OGVuODVNNnZYNmZGLTNXbTVBSFo3V2MtZnVNaVZ3).
 
 ## Getting Started
 
